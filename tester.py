@@ -49,7 +49,7 @@ class ComparisonTableClass:
 
         self.selected_dependent_variable = ""
         self.selected_independent_variables = []
-        self.selected_analysis = ""
+        self.selected_percent_type = ""
         self.selected_data = ""
 
 
@@ -260,7 +260,7 @@ class ComparisonTableClass:
         self.percentage_type_selection_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def on_percentage_radio_button_selected():
-            self.selected_analysis = self.percentage_type_radio_var.get()
+            self.selected_percent_type = self.percentage_type_radio_var.get()
 
         self.percentage_type_radio_var = tk.IntVar()
 
@@ -413,7 +413,7 @@ class ComparisonTableClass:
 
     def switch_to_variable_handling_frame(self):
 
-        if (self.selected_analysis not in [1,2]) | (self.selected_data not in [1,2]) | (len(self.selected_independent_variables) < 1):
+        if (self.selected_percent_type not in [1,2]) | (self.selected_data not in [1,2]) | (len(self.selected_independent_variables) < 1):
             return
 
         else:
@@ -497,12 +497,11 @@ class ComparisonTableClass:
         self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
         self.table_df = self.table_df.dropna(subset=self.selected_dependent_variable)
 
-        unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
-        
+        self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
         self.summary_table = []
         for independent_variable, option in self.selected_options.items():
             if option == 'Continuous':
-                self.clean_df = self.table_df[independent_variable + self.selected_dependent_variable].dropna(inplace=True)
+                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
 
                 try:
                     self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
@@ -512,12 +511,14 @@ class ComparisonTableClass:
                     row3 = []
 
                     row1.append(f"{independent_variable}")
-                    row1.extend([np.nan] * (len(unique_dependent_variable_values) + 1))
+                    row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
 
+
+                    # Run Stats for Continuous Variable
                     f_values = []
-                    if len(unique_dependent_variable_values) > 2:
+                    if len(self.unique_dependent_variable_values) > 2:
                         # More than two unique values, perform ANOVA
-                        for value in unique_dependent_variable_values:
+                        for value in self.unique_dependent_variable_values:
                             group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
                             f_values.append(group)
                         _, p_value = stats.f_oneway(*f_values)
@@ -527,114 +528,280 @@ class ComparisonTableClass:
                         else:
                             row1.append(f"{p_value:.4f}")
                     else:
-                        # Two unique values, perform t-test
-                        _, p_value = stats.ttest_ind(*[self.clean_df[independent_variable][self.clean_df[self.selected_dependent_variable] == value] for value in unique_dependent_variable_values])
+                        for value in self.unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.ttest_ind(*f_values)
+
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                            row1.append(np.nan)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+                            row1.append(np.nan)
+
+                    row2.append("  Mean (SD)")
+                    for value in self.unique_dependent_variable_values:
+                        row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
+                    row2.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row2.append(np.nan)
+
+                    row3.append("  Range")
+                    for value in self.unique_dependent_variable_values:
+                        row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
+
+                    row3.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row3.append(np.nan)
+
+                    self.summary_table.append(row1)
+                    self.summary_table.append(row2)
+                    self.summary_table.append(row3)
+                    self.summary_table.append([np.nan] * len(row1))
+                except:
+                    pass
+
+            elif option == 'Categorical':
+                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
+                # Independent variable is categorical
+                observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+                # Calculate the odds ratio
+                odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
+
+                a = observed.iloc[0, 0]
+                b = observed.iloc[0, 1]
+                c = observed.iloc[1, 0]
+                d = observed.iloc[1, 1]
+
+                # Calculate odds ratio
+                odds_ratio = (a * d) / (b * c)
+
+                # Calculate standard error of log odds ratio
+                se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+
+                # Calculate 95% confidence interval for log odds ratio
+                ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+                ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+
+                # Convert confidence interval back to odds ratio scale
+                ci_lower = np.exp(ci_lower_ln)
+                ci_upper = np.exp(ci_upper_ln)
+
+                _, p_value, _, _ = stats.chi2_contingency(observed)
+
+                row1 = []
+                row1.append(f"{independent_variable}")
+                row1.extend([np.nan] * len(self.unique_dependent_variable_values))
+    
+                if p_value < 0.0001:
+                    p_value = '< 0.0001'
+                    row1.append(p_value)
+                else:
+                    row1.append(f"{p_value:.4f}")
+
+                if (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) == 2):
+                    row1.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
+
+                elif (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) != 2):
+                    row1.append(np.nan)
+
+                self.summary_table.append(row1)
+    
+                for index, row in observed.iterrows():
+                    new_row = [index]
+                    row_sum = row.sum()
+                    column_sums = observed.sum(axis=0)
+
+                    if self.selected_percent_type == 1:
+
+                        for value in row:
+                            new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
+
+                    if self.selected_percent_type == 2:
+
+                        for value, column_sum in zip(row, column_sums):
+                            new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
+
+                    new_row.append(np.nan)
+
+                    if len(self.unique_dependent_variable_values) == 2:
+                        new_row.append(np.nan)
+
+
+                    self.summary_table.append(new_row)
+                self.summary_table.append([np.nan] * len(row1))
+
+
+
+        columns = ['Characteristic']
+        for value in self.unique_dependent_variable_values:
+            count_of_value = len(self.table_df.loc[self.table_df[self.selected_dependent_variable] == value])
+            columns.append(f"{value} (N = {count_of_value})")
+            
+        columns.append('p-value')
+        if len(self.unique_dependent_variable_values) == 2:
+            columns.append("Odds ratio")
+        
+        self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
+        print(self.summary_df)
+
+
+
+
+    def create_dependent_table(self):
+        self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+        self.clean_df = self.table_df.dropna()
+
+        self.unique_dependent_variable_values = sorted(self.clean_df[self.selected_dependent_variable].unique())
+        self.summary_table = []
+        for independent_variable, option in self.selected_options.items():
+            if option == 'Continuous':
+
+                try:
+                    self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+
+                    row1 = []
+                    row2 = []
+                    row3 = []
+
+                    row1.append(f"{independent_variable}")
+                    row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
+
+
+                    # Run Stats for Continuous Variable
+                    f_values = []
+                    if len(self.unique_dependent_variable_values) > 2:
+                        # More than two unique values, perform ANOVA
+                        for value in self.unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.f_oneway(*f_values)
                         if p_value < 0.0001:
                             p_value = '< 0.0001'
                             row1.append(p_value)
                         else:
                             row1.append(f"{p_value:.4f}")
+                    else:
+                        for value in self.unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.ttest_ind(*f_values)
 
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                            row1.append(np.nan)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+                            row1.append(np.nan)
+
+                    row2.append("  Mean (SD)")
+                    for value in self.unique_dependent_variable_values:
+                        row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
+                    row2.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row2.append(np.nan)
+
+                    row3.append("  Range")
+                    for value in self.unique_dependent_variable_values:
+                        row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
+
+                    row3.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row3.append(np.nan)
+
+                    self.summary_table.append(row1)
+                    self.summary_table.append(row2)
+                    self.summary_table.append(row3)
+                    self.summary_table.append([np.nan] * len(row1))
                 except:
                     pass
 
+            elif option == 'Categorical':
+
+                # Independent variable is categorical
+                observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+
+                odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
+
+                a = observed.iloc[0, 0]
+                b = observed.iloc[0, 1]
+                c = observed.iloc[1, 0]
+                d = observed.iloc[1, 1]
+
+                # Calculate odds ratio
+                odds_ratio = (a * d) / (b * c)
+
+                # Calculate standard error of log odds ratio
+                se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+
+                # Calculate 95% confidence interval for log odds ratio
+                ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+                ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+
+                # Convert confidence interval back to odds ratio scale
+                ci_lower = np.exp(ci_lower_ln)
+                ci_upper = np.exp(ci_upper_ln)
+
+                _, p_value, _, _ = stats.chi2_contingency(observed)
+
+                row1 = []
+                row1.append(f"{independent_variable}")
+                row1.extend([np.nan] * len(self.unique_dependent_variable_values))
+    
+                if p_value < 0.0001:
+                    p_value = '< 0.0001'
+                    row1.append(p_value)
+                else:
+                    row1.append(f"{p_value:.4f}")
+
+                if (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) == 2):
+                    row1.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
+
+                elif (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) != 2):
+                    row1.append(np.nan)
+
+                self.summary_table.append(row1)
+    
+                for index, row in observed.iterrows():
+                    new_row = [index]
+                    row_sum = row.sum()
+                    column_sums = observed.sum(axis=0)
+
+                    if self.selected_percent_type == 1:
+
+                        for value in row:
+                            new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
+
+                    if self.selected_percent_type == 2:
+
+                        for value, column_sum in zip(row, column_sums):
+                            new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
+
+                    new_row.append(np.nan)
+
+                    if len(self.unique_dependent_variable_values) == 2:
+                        new_row.append(np.nan)
 
 
-    def create_dependent_table(self):
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.clean_df.dropna(inplace=True)
-
-        self.summary_table = []
-
-        for independent_variable, option in self.selected_options.items():
-            print(independent_variable, option)
-
-            # if option == 'Continuous':
-            #     try:
-            #         self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
-            #         # Independent variable is continuous
-    
-            #         row1 = []
-            #         row2 = []
-            #         row3 = []
-            #         unique_dependent_values = sorted(self.clean_df[self.selected_dependent_variable].unique())
-            #         row1.append(f"{independent_variable}")
-            #         row1.extend([np.nan] * len(unique_dependent_values))
-    
-            #         f_values = []
-            #         if len(unique_dependent_values) > 2:
-            #             # More than two unique values, perform ANOVA
-            #             for value in unique_dependent_values:
-            #                 group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-            #                 f_values.append(group)
-            #             _, p_value = stats.f_oneway(*f_values)
-            #             if p_value < 0.0001:
-            #                 p_value = '< 0.0001'
-            #                 row1.append(p_value)
-            #             else:
-            #                 row1.append(f"{p_value:.4f}")
-            #         else:
-            #             # Two unique values, perform t-test
-            #             _, p_value = stats.ttest_ind(*[self.clean_df[independent_variable][self.clean_df[self.selected_dependent_variable] == value] for value in unique_dependent_values])
-            #             if p_value < 0.0001:
-            #                 p_value = '< 0.0001'
-            #                 row1.append(p_value)
-            #             else:
-            #                 row1.append(f"{p_value:.4f}")
-            #         row2.append("  Mean (SD)")
-            #         for value in unique_dependent_values:
-            #             row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
-            #         row2.append(np.nan)
-    
-            #         row3.append("  Range")
-            #         for value in unique_dependent_values:
-            #             row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
-    
-            #         row3.append(np.nan)
-    
-            #         self.summary_table = [].append(row1)
-            #         self.summary_table = [].append(row2)
-            #         self.summary_table = [].append(row3)
-            #         self.summary_table = [].append([np.nan] * len(row1))
-            #     except:
-            #         data_error = True
-            #         pass
-    
-            # elif option == 'Categorical':
-            #     # Independent variable is categorical
-            #     row1 =[]
-            #     observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-            #     _, p_value, _, _ = stats.chi2_contingency(observed)
-    
-            #     row1.append(f"{independent_variable}")
-            #     unique_dependent_values = sorted(self.clean_df[self.selected_dependent_variable].unique())
-            #     row1.extend([np.nan] * len(unique_dependent_values))
-    
-            #     if p_value < 0.0001:
-            #         p_value = '< 0.0001'
-            #         row1.append(p_value,)
-            #     else:
-            #         row1.append(f"{p_value:.4f}")
-            #     self.summary_table = [].append(row1)
-    
-            #     for index, row in observed.iterrows():
-            #         new_row = [index]
-    
-            #         row_sum = row.sum()
-            #         percent_selection = "column"
-            #         if percent_selection == 'row':
-            #             for value in row:
-            #                 new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
-            #         if percent_selection == 'column':
-            #             column_sums = observed.sum(axis=0)
-            #             for value, column_sum in zip(row, column_sums):
-            #                 new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
-            #         new_row.append(np.nan)
-            #         self.summary_table = [].append(new_row)
-            #     self.summary_table = [].append([np.nan] * len(row1))
+                    self.summary_table.append(new_row)
+                self.summary_table.append([np.nan] * len(row1))
 
 
 
+        columns = ['Characteristic']
+        for value in self.unique_dependent_variable_values:
+            count_of_value = len(self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value])
+            columns.append(f"{value} (N = {count_of_value})")
+            
+        columns.append('p-value')
+        if len(self.unique_dependent_variable_values) == 2:
+            columns.append("Odds ratio")
+
+        self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
+        print(self.summary_df)
 
 
 
@@ -643,7 +810,3 @@ class ComparisonTableClass:
 
 # Start the GUI event loop
 main_window.mainloop()
-
-
-
-
