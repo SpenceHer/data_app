@@ -18,7 +18,7 @@ import statsmodels.api as sm
 
 
 # df = pd.read_excel(r"E:\new\master_8.1.23.xlsx")
-df = pd.read_excel(r"/Users/spencersmith/Desktop/coding/OHSU_data.xlsx")
+df = pd.read_excel(r"C:\Users\smithsp\OneDrive - Oregon Health & Science University\Desktop\application\master_8.8.23.xlsx")
 # Create the main window
 main_window = tk.Tk()
 main_window.title("DataFrame Editor")
@@ -35,13 +35,13 @@ visualize_content_frame = tk.Frame(main_window, bg="green")
 visualize_content_frame.pack(side="top", fill=tk.BOTH, expand=True)
 
 
-regression_button = tk.Button(visualize_content_frame, text="Regression", font=("Arial", 36), command=lambda: RegressionAnalysisClass(visualize_content_frame, df))
+regression_button = tk.Button(visualize_content_frame, text="Comparison Table", font=("Arial", 36), command=lambda: ComparisonTableClass(visualize_content_frame, df))
 regression_button.pack(fill=tk.BOTH, expand=True, padx=50, pady=50)
 
 
 
 
-class RegressionAnalysisClass:
+class ComparisonTableClass:
     def __init__(self, visualize_content_frame, df):
         self.df = df
         self.visualize_content_frame = visualize_content_frame
@@ -50,6 +50,7 @@ class RegressionAnalysisClass:
         self.selected_dependent_variable = ""
         self.selected_independent_variables = []
         self.selected_analysis = ""
+        self.selected_data = ""
 
 
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -73,8 +74,9 @@ class RegressionAnalysisClass:
 
 
 
-
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
     def create_dependent_variable_frame(self):
 
@@ -86,10 +88,8 @@ class RegressionAnalysisClass:
         self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='lightgray')
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-
         self.advance_to_independent_variables_button = tk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, font=("Arial", 36))
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
-
 
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
@@ -193,26 +193,12 @@ class RegressionAnalysisClass:
 
 
 
-
-
-
-
-
-
-
         self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
 
         self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='orange')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
-
-
-
-
-
 
 
 
@@ -236,12 +222,6 @@ class RegressionAnalysisClass:
             self.available_independent_variable_listbox.insert(tk.END, column)
 
 
-        
-
-
-
-
-
 
         self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='purple')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -253,11 +233,6 @@ class RegressionAnalysisClass:
 
         self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<", command=self.transfer_left, font=("Arial", 30))
         self.transfer_left_button.pack(pady=5)
-
-
-
-
-
 
 
 
@@ -275,47 +250,47 @@ class RegressionAnalysisClass:
         self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10)
 
 
-        self.available_independent_variable_listbox.update_idletasks()
+
+
+
+        self.table_options_frame = tk.Frame(self.independent_variable_options_frame, bg='green')
+        self.table_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.percentage_type_selection_frame = tk.Frame(self.table_options_frame, bg='blue')
+        self.percentage_type_selection_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        def on_percentage_radio_button_selected():
+            self.selected_analysis = self.percentage_type_radio_var.get()
+
+        self.percentage_type_radio_var = tk.IntVar()
+
+        self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value=1, command=on_percentage_radio_button_selected, font=("Arial", 24))
+        self.row_percentage_radiobutton.pack(side=tk.TOP)
+
+        self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value=2, command=on_percentage_radio_button_selected, font=("Arial", 24))
+        self.column_percentage_radiobutton.pack(side=tk.TOP)
 
 
 
 
+        self.data_choice_frame = tk.Frame(self.table_options_frame, bg='purple')
+        self.data_choice_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        def on_data_choice_radio_button_selected():
+            self.selected_data = self.data_choice_radio_var.get()
+
+        self.data_choice_radio_var = tk.IntVar()
+
+        self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value=1, command=on_data_choice_radio_button_selected, font=("Arial", 24))
+        self.independent_data_radiobutton.pack(side=tk.TOP)
+
+        self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value=2, command=on_data_choice_radio_button_selected, font=("Arial", 24))
+        self.dependent_data_radiobutton.pack(side=tk.TOP)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-        self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='green')
-        self.regression_type_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
-
-
-        def on_radio_button_selected():
-            self.selected_analysis = self.regression_type_radio_var.get()
-
-
-        self.regression_type_radio_var = tk.IntVar()
-
-
-        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, font=("Arial", 24))
-        self.logistic_regression_radiobutton.pack(side=tk.TOP)
-
-
-        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value=2, command=on_radio_button_selected, font=("Arial", 24))
-        self.linear_regression_radiobutton.pack(side=tk.TOP)
-
+        self.indedependent_variables_frame.update_idletasks()
 
 
 
@@ -356,42 +331,6 @@ class RegressionAnalysisClass:
             self.selected_independent_variable_listbox.delete(index)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def create_variable_handling_frame(self):
 
 
@@ -424,69 +363,6 @@ class RegressionAnalysisClass:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def create_results_frame(self):
 
 
@@ -506,27 +382,9 @@ class RegressionAnalysisClass:
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
     def switch_to_dependent_variable_frame(self):
 
@@ -540,12 +398,6 @@ class RegressionAnalysisClass:
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
-
-
-
-
-
-
     def switch_to_independent_variables_frame(self):
         if self.selected_dependent_variable == "":
             return
@@ -555,231 +407,22 @@ class RegressionAnalysisClass:
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
 
-
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.available_independent_variable_listbox.update_idletasks()
 
 
-
-
-
-
     def switch_to_variable_handling_frame(self):
 
-        if self.selected_analysis not in [1,2]:
+        if (self.selected_analysis not in [1,2]) | (self.selected_data not in [1,2]) | (len(self.selected_independent_variables) < 1):
             return
-       
-        if self.selected_analysis == 1:
-            self.handle_variables_logistic_regression()
 
-
-        if self.selected_analysis == 2:
-            self.handle_variables_linear_regression()
-
-
-    def handle_variables_linear_regression(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
-
-
-        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
-
-        utils.forget_frame_widgets(self.variable_handling_options_frame)
-
-
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.clean_df.dropna(inplace=True)
-
-        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
-        self.non_numeric_columns = []
-
-        self.input_var = {}
-        self.selected_options = {}
-        self.selected_column_map = {}
-
-        for column in self.unique_values:
-            try:
-                self.clean_df[column] = self.clean_df[column].astype(float)
-            except:
-                self.non_numeric_columns.append(column)
-
-        for variable in self.non_numeric_columns:
-            options_frame = tk.Frame(self.variable_handling_options_frame)
-            options_frame.pack(side=tk.TOP)
-
-            variable_label = tk.Label(options_frame, text=variable)
-            variable_label.pack(side=tk.TOP)
-
-            for value in self.clean_df[variable].unique():
-                self.selected_column_map[value] = variable
-                value_frame = tk.Frame(options_frame)
-                value_frame.pack(side=tk.TOP)
-
-                value_label = tk.Label(value_frame, text=value)
-                value_label.pack(side=tk.LEFT)
-
-                input_var = tk.StringVar()
-                self.input_var[value] = input_var
-
-                input_combobox = ttk.Combobox(value_frame, textvariable=input_var, state="readonly")
-                values = list(range(len(self.clean_df[variable].unique())))
-
-                input_combobox['values'] = values
-                input_combobox.current(0)  # Set default selection to the first item
-                # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
-                input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-                input_combobox.pack(side=tk.LEFT)
-
-
-    def apply_linear_regression_selection(self):
-        for value, input_var in self.input_var.items():
-            selected_value = (input_var.get())
-            column_to_update = self.selected_column_map[value]
-            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
-        for column in self.non_numeric_columns:
-            self.clean_df[column] = self.clean_df[column].astype(float)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def handle_variables_logistic_regression(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
-
-
-        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
-
-        utils.forget_frame_widgets(self.variable_handling_options_frame)
-
-
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.clean_df.dropna(inplace=True)
-
-
-
-
-        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
-        self.selected_options = {}
-        self.reference_value_dict = {}
-
-
-        self.variable_type_radio_var = {}
-        self.input_var = {}
-
-
-        for value in self.unique_values:
-
-
-            options_frame = tk.Frame(self.variable_handling_options_frame)
-            options_frame.pack(side=tk.TOP)
-
-
-            value_label = tk.Label(options_frame, text=value)
-            value_label.pack(side=tk.LEFT)
-
-
-            var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-            self.variable_type_radio_var[value] = var
-
-
-            input_var = tk.StringVar()
-            self.input_var[value] = input_var
-
-
-            radio1 = ttk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous")
-            radio1.pack(side=tk.LEFT)
-
-
-            radio3 = ttk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical")
-            radio3.pack(side=tk.LEFT)
-
-
-            input_combobox = ttk.Combobox(options_frame, textvariable=input_var, state="readonly")
-            values = [str(val) for val in self.clean_df[value].unique()]
-            input_combobox['values'] = values
-            input_combobox.current(0)  # Set default selection to the first item
-            # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
-            input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-
-
-            input_combobox.pack(side=tk.LEFT)
-
-
-            # Bind the state of the input_combobox to the selection of 'Categorical' radio button
-            radio3.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state="readonly"))
-            radio1.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state=tk.DISABLED))
-
-
-    def on_combobox_select(self, combobox, value):
-        selected_value = combobox.get()
-        self.input_var[value].set(selected_value)
-
-
-    def apply_logistic_regression_selection(self):
-        self.selected_options.clear()
-        for value, var in self.variable_type_radio_var.items():
-            option = var.get()
-            self.selected_options[value] = option
-
-
-            if option == 'Categorical':
-                input_value = self.input_var[value].get()
-                column_data_type = self.df[value].dtype
-                if column_data_type == 'object':
-                    self.reference_value_dict[value] = input_value  # Treat as string
-                elif column_data_type == 'int64':
-                    input_value = int(input_value)  # Convert to int
-                    self.reference_value_dict[value] = input_value
-                elif column_data_type == 'float64':
-                    input_value = float(input_value)  # Convert to float
-                    self.reference_value_dict[value] = input_value
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        else:
+            self.handle_variables()
 
 
     def switch_to_results_frame(self):
-        self.run_analysis()
-
+        self.create_comparison_table()
+        # self.display_comparison_table()
 
         self.indedependent_variables_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -790,183 +433,209 @@ class RegressionAnalysisClass:
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+
+    def handle_variables(self):
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
+        utils.forget_frame_widgets(self.variable_handling_options_frame)
+
+
+
+        self.unique_values = list(self.df[self.selected_independent_variables].columns)
+        self.selected_options = {}
+        self.variable_type_radio_var = {}
+
+        for value in self.unique_values:
+
+            options_frame = tk.Frame(self.variable_handling_options_frame)
+            options_frame.pack(side=tk.TOP)
+
+            value_label = tk.Label(options_frame, text=value)
+            value_label.pack(side=tk.LEFT)
+
+            var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
+            self.variable_type_radio_var[value] = var
+
+            radio1 = ttk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous")
+            radio1.pack(side=tk.LEFT)
+
+            radio2 = ttk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical")
+            radio2.pack(side=tk.LEFT)
+
+
+    def apply_comparison_table_variable_selection(self):
+        self.selected_options.clear()
+        for value, var in self.variable_type_radio_var.items():
+            option = var.get()
+            self.selected_options[value] = option
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def run_analysis(self):
+    def create_comparison_table(self):
+        self.apply_comparison_table_variable_selection()
         utils.remove_frame_widgets(self.results_display_frame)
 
-
-        if self.selected_analysis == 1:
-            self.logistic_regression()
-        elif self.selected_analysis == 2:
-            self.linear_regression()
-
-
-
-
-    def logistic_regression(self):
-        self.apply_logistic_regression_selection()
-        model_string = f"{self.selected_dependent_variable} ~ "
-
-
-        for value, option in self.selected_options.items():
-            if option == 'Continuous':
-                model_string = model_string + f"{value} + "
-            elif option == 'Categorical':
-                if self.clean_df[value].dtype == 'object':
-                    model_string = model_string + f"C({value}, Treatment('{self.reference_value_dict[value]}')) + "
-                else:
-                    model_string = model_string + f"C({value}, Treatment({self.reference_value_dict[value]})) + "
-        model_string = model_string.rstrip(" +")
-        model = smf.logit(model_string, data=self.clean_df)
-        results = model.fit(method='bfgs', maxiter=1000)
-   
-        p_values = results.pvalues[1:]
-        for i in range(len(p_values)):
-            if p_values[i] < 0.0001:
-                p_values[i] = "< 0.0001"
-            else:
-                p_values[i] = round(p_values[i], 4)
-   
-
-
-        # Print out the results
-        coefs = pd.DataFrame({
-            'coef': np.round(results.params.values[1:],3),
-            'p_value': p_values,
-            'odds ratio': np.round(np.exp(results.params.values[1:]),2),
-            'CI_low': round(np.exp(results.conf_int()[0])[1:],2),
-            'CI_high': round(np.exp(results.conf_int()[1])[1:],2)
-        })
-   
-        coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
-        for i in range(len(coefs['Characteristic'])):
-            variable_string = coefs['Characteristic'].iloc[i]
-            if variable_string[0] == "C":
-                column_string = re.search(r'C\((.*?),', variable_string).group(1)
-                reference_value = re.search(r"\[T\.(.*?)\]", variable_string).group(1)
-                new_value = column_string + f" ({reference_value})"
-                coefs.loc[i, 'Characteristic'] = new_value
-            if coefs.loc[i, 'CI_high'] > 50000:
-                coefs.loc[i, 'CI_high'] = 'inf'
-            if coefs.loc[i, 'CI_low'] < -50000:
-                coefs.loc[i, 'CI_low'] = '-inf'
-
-
-        utils.create_table(self.results_display_frame, coefs)
-
-
-        summary_text = tk.Text(self.results_display_frame, height=20, width=120)
-        summary_text.pack(side=tk.TOP)
-        summary_text.insert(tk.END, str(results.summary()))
-
-
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs))
-        save_summary_button.pack()
-
-
-    def linear_regression(self):
-        self.apply_linear_regression_selection()
-
-        x = self.clean_df[self.selected_independent_variables]
-        y = self.clean_df[self.selected_dependent_variable]
-
-
-        x = sm.add_constant(x)
-        model = sm.OLS(y, x).fit()
-
-        results = {
-            'Variable': model.params.index,
-            'Coefficient': model.params.values,
-            'p_value': model.pvalues.values,
-            'CI_low': model.conf_int()[0],
-            'CI_high': model.conf_int()[1]
-        }
-        coefs = pd.DataFrame(results)
-        coefs = coefs.reset_index(drop=True)
-
+    
+        if self.selected_data == 1:
+            self.create_independent_table()
         
-
-        for i in range(len(coefs)):
-
-            if coefs.loc[i, 'CI_high'] > 50000:
-                coefs.loc[i, 'CI_high'] = 'inf'
-            else:
-                coefs.loc[i, 'CI_high'] = round(coefs.loc[i, 'CI_high'], 2)
-
-            if coefs.loc[i, 'CI_low'] < -50000:
-                coefs.loc[i, 'CI_low'] = '-inf'
-            else:
-                coefs.loc[i, 'CI_low'] = round(coefs.loc[i, 'CI_low'], 2)
-
-            if coefs.loc[i, 'p_value'] < 0.0001:
-                coefs.loc[i, 'p_value'] = "< 0.0001"
-            else:
-                coefs.loc[i, 'p_value'] = round(coefs.loc[i, 'p_value'], 4)
-
-            coefs.loc[i, 'Coefficient'] = round(coefs.loc[i, 'Coefficient'], 2)
+        if self.selected_data == 2:
+            self.create_dependent_table()
 
 
-        utils.create_table(self.results_display_frame, coefs)
+    def create_independent_table(self):
+
+        self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+        self.table_df = self.table_df.dropna(subset=self.selected_dependent_variable)
+
+        unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
+        
+        self.summary_table = []
+        for independent_variable, option in self.selected_options.items():
+            if option == 'Continuous':
+                self.clean_df = self.table_df[independent_variable + self.selected_dependent_variable].dropna(inplace=True)
+
+                try:
+                    self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+
+                    row1 = []
+                    row2 = []
+                    row3 = []
+
+                    row1.append(f"{independent_variable}")
+                    row1.extend([np.nan] * (len(unique_dependent_variable_values) + 1))
+
+                    f_values = []
+                    if len(unique_dependent_variable_values) > 2:
+                        # More than two unique values, perform ANOVA
+                        for value in unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.f_oneway(*f_values)
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+                    else:
+                        # Two unique values, perform t-test
+                        _, p_value = stats.ttest_ind(*[self.clean_df[independent_variable][self.clean_df[self.selected_dependent_variable] == value] for value in unique_dependent_variable_values])
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+
+                except:
+                    pass
 
 
-        summary_text = tk.Text(self.results_display_frame, height=20, width=120)
-        summary_text.pack(side=tk.TOP)
-        summary_text.insert(tk.END, str(model.summary()))
+
+    def create_dependent_table(self):
+        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+        self.clean_df.dropna(inplace=True)
+
+        self.summary_table = []
+
+        for independent_variable, option in self.selected_options.items():
+            print(independent_variable, option)
+
+            # if option == 'Continuous':
+            #     try:
+            #         self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+            #         # Independent variable is continuous
+    
+            #         row1 = []
+            #         row2 = []
+            #         row3 = []
+            #         unique_dependent_values = sorted(self.clean_df[self.selected_dependent_variable].unique())
+            #         row1.append(f"{independent_variable}")
+            #         row1.extend([np.nan] * len(unique_dependent_values))
+    
+            #         f_values = []
+            #         if len(unique_dependent_values) > 2:
+            #             # More than two unique values, perform ANOVA
+            #             for value in unique_dependent_values:
+            #                 group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+            #                 f_values.append(group)
+            #             _, p_value = stats.f_oneway(*f_values)
+            #             if p_value < 0.0001:
+            #                 p_value = '< 0.0001'
+            #                 row1.append(p_value)
+            #             else:
+            #                 row1.append(f"{p_value:.4f}")
+            #         else:
+            #             # Two unique values, perform t-test
+            #             _, p_value = stats.ttest_ind(*[self.clean_df[independent_variable][self.clean_df[self.selected_dependent_variable] == value] for value in unique_dependent_values])
+            #             if p_value < 0.0001:
+            #                 p_value = '< 0.0001'
+            #                 row1.append(p_value)
+            #             else:
+            #                 row1.append(f"{p_value:.4f}")
+            #         row2.append("  Mean (SD)")
+            #         for value in unique_dependent_values:
+            #             row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
+            #         row2.append(np.nan)
+    
+            #         row3.append("  Range")
+            #         for value in unique_dependent_values:
+            #             row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
+    
+            #         row3.append(np.nan)
+    
+            #         self.summary_table = [].append(row1)
+            #         self.summary_table = [].append(row2)
+            #         self.summary_table = [].append(row3)
+            #         self.summary_table = [].append([np.nan] * len(row1))
+            #     except:
+            #         data_error = True
+            #         pass
+    
+            # elif option == 'Categorical':
+            #     # Independent variable is categorical
+            #     row1 =[]
+            #     observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+            #     _, p_value, _, _ = stats.chi2_contingency(observed)
+    
+            #     row1.append(f"{independent_variable}")
+            #     unique_dependent_values = sorted(self.clean_df[self.selected_dependent_variable].unique())
+            #     row1.extend([np.nan] * len(unique_dependent_values))
+    
+            #     if p_value < 0.0001:
+            #         p_value = '< 0.0001'
+            #         row1.append(p_value,)
+            #     else:
+            #         row1.append(f"{p_value:.4f}")
+            #     self.summary_table = [].append(row1)
+    
+            #     for index, row in observed.iterrows():
+            #         new_row = [index]
+    
+            #         row_sum = row.sum()
+            #         percent_selection = "column"
+            #         if percent_selection == 'row':
+            #             for value in row:
+            #                 new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
+            #         if percent_selection == 'column':
+            #             column_sums = observed.sum(axis=0)
+            #             for value, column_sum in zip(row, column_sums):
+            #                 new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
+            #         new_row.append(np.nan)
+            #         self.summary_table = [].append(new_row)
+            #     self.summary_table = [].append([np.nan] * len(row1))
 
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs))
-        save_summary_button.pack()
 
-        view_correlation_matrix_button = ttk.Button(self.results_display_frame, text="View Correlation Matrix", command=lambda: plot_correlation_matrix())
-        view_correlation_matrix_button.pack()
 
-        def plot_correlation_matrix():
-            correlation_matrix = x.corr()
-            plt.figure(figsize=(10, 8))
-            sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
-            plt.title('Correlation Matrix')
-            plt.show()
 
 
 
