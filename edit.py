@@ -22,29 +22,23 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     style.configure("dataframe_view_button.TButton", background="gray")
     style.configure("edit_button.TButton", background="white")
     style.configure("visualize_button.TButton", background="gray")
+
     utils.remove_frame_widgets(sub_button_frame)
- 
 
     style.configure("clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     clean_button = ttk.Button(sub_button_frame, text="Clean Data", style="clean_button.TButton")
-    clean_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+    clean_button.pack(side="left", fill="x", expand=True)
     clean_button.config(command=lambda: CleanData(editing_content_frame, dataframe_content_frame, df))
- 
-    style.configure("fix_columns_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    fix_columns_button = ttk.Button(sub_button_frame, text="Fix Columns", style="fix_columns_button.TButton", command=fix_columns(editing_content_frame, dataframe_content_frame, df))
-    fix_columns_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    # fix_columns_button.config(command=lambda: fix_columns(df, editing_content_frame))
- 
-    style.configure("create_cat_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    create_cat_var_button = ttk.Button(sub_button_frame, text="Create Categorical Variable", style="create_cat_var_button.TButton")
-    create_cat_var_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    # create_cat_var_button.config(command=lambda: create_cat_var(editing_content_frame, df))
- 
 
-    editing_content_frame.pack(fill=tk.BOTH, expand=True)
+    style.configure("create_cat_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    create_cat_var_button = ttk.Button(sub_button_frame, text="Create New Variable", style="create_cat_var_button.TButton")
+    create_cat_var_button.pack(side="left", fill="x", expand=True)
+    create_cat_var_button.config(command=lambda: CreateVariableClass(editing_content_frame, dataframe_content_frame, df))
+
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
     dataframe_content_frame.pack_forget()
+    editing_content_frame.pack(fill=tk.BOTH, expand=True)
 
 
 
@@ -568,11 +562,6 @@ class CleanData():
 
 
 
-
-
-
-
-
 ################################################
 ################################################
  
@@ -580,300 +569,7 @@ class CleanData():
  
 ################################################
 ################################################
- 
-class fix_columns():
+
+class CreateVariableClass():
     def __init__(self, editing_content_frame, dataframe_content_frame, df):
-        self.df = df
-        self.dataframe_content_frame = dataframe_content_frame
-        self.editing_content_frame = editing_content_frame
-        self.fix_columns()
- 
-    def fix_columns(self):
-        utils.remove_frame_widgets(self.editing_content_frame)
-        self.df.columns = self.df.columns.str.replace(' ', '_')
-        self.df.columns = self.df.columns.str.replace('__', '_')
-        self.df.columns = self.df.columns.str.replace('___', '_')
-        self.df.columns = self.df.columns.str.replace(r'\W+', '', regex=True)
-        self.update_dataframe()
- 
-    def update_dataframe(self):
-        data_manager.set_dataframe(self.df)
- 
-        utils.create_table(self.dataframe_content_frame, self.df, table_name="main_table")
-        summary_df = utils.create_summary_table(self.df)
-        utils.create_table(self.dataframe_content_frame, summary_df, table_name="summary_table", title="COLUMN SUMMARY TABLE")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def finalize_variable(df):
- 
-    return
-
-
-
-
-def create_cat_variable(df, editing_content_frame, style):
- 
-    utils.remove_frame_widgets(editing_content_frame)
- 
-    left_frame = tk.Frame(editing_content_frame, bg="lightblue")  # Set the background color
-    left_frame.pack(side="left", fill=tk.BOTH)
- 
-    left_top_frame = tk.Frame(left_frame, bg='yellow')
-    left_top_frame.pack(side="top", fill="both")
-   
-    left_bottom_frame = tk.Frame(left_frame, bg='orange')
-    left_bottom_frame.pack(side="top", fill="both", expand=True)
- 
-    style.configure("finalize_variable_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    finalize_variable_button = ttk.Button(left_bottom_frame, text="Finalize Variable", style="finalize_variable.TButton")
-    finalize_variable_button.pack(side="left", fill="both", expand=True, padx=100, pady=100)  # Set expand=True to fill the horizontal space
-    finalize_variable_button.config(command=lambda: finalize_variable(df, right_frame))
- 
-
-    text_prompt = 'Choose which variables will be used to create your new variable:'
-    selected_choices = []
-    column_selection_frame = utils.MultipleChoiceSelectionFrame(left_top_frame, df.columns, selected_choices, text_prompt)
-    column_selection_frame.pack(side="top", pady=5, padx=5)
- 
-
-    variable_name_label = tk.Label(left_top_frame, text="NAME of New Variable:")
-    variable_name_label.pack(side="top", pady=5, padx=5)
- 
-    variable_name_entry = tk.Entry(left_top_frame)
-    variable_name_entry.pack(side="top")
- 
-    set_variable_parameters_button = tk.Button(left_top_frame, text="Set Variable Parameters", font=("Arial", 18))
-    set_variable_parameters_button.pack(side="top", pady=5, padx=5)
-    set_variable_parameters_button.config(command=lambda: set_variable_parameters(right_frame, selected_choices, df))
- 
-
-    # Create the right frame
-    right_frame = tk.Frame(editing_content_frame, bg="lightgreen")  # Set the background color
-    right_frame.pack(side="left", fill=tk.BOTH, expand=True)
- 
-class App:
-    def __init__(self, categories_frame, selected_choices, df):
-        self.df = df
-        self.categories_frame = categories_frame
-        self.selected_choices = selected_choices
-        self.category_frame_list = []
-        self.condition_frames = []
-        self.create_category_frame()
-        self.create_button_frame()
- 
-
-    def create_category_frame(self):
-        # Create the initial frame
-        category_frame = tk.Frame(self.categories_frame, bd=1)
-        category_frame.pack(side=tk.TOP, pady=5)
- 
-        self.category_frame_list.append(category_frame)
- 
-        category_value_frame = tk.Frame(category_frame, bd=1)
-        category_value_frame.pack(side=tk.TOP)
- 
-        # Category Name Label and Entry
-        category_name_label = tk.Label(category_value_frame, text=f"Category {len(self.category_frame_list)} Value:")
-        category_name_label.pack(side=tk.LEFT)
- 
-        category_name_entry = tk.Entry(category_value_frame)
-        category_name_entry.pack(side=tk.LEFT)
-   
- 
-        condition_frame = tk.Frame(category_frame, bd=1, relief=tk.SOLID)
-        condition_frame.pack(side=tk.TOP)
- 
-        self.create_condition_line(condition_frame)
- 
-        condition_button_frame = tk.Frame(category_frame, relief=tk.SOLID)
-        condition_button_frame.pack(side=tk.BOTTOM)
- 
-        and_button = tk.Button(condition_button_frame, text="simple AND", command=lambda: self.add_simple_AND_condition(condition_frame))
-        and_button.pack(side=tk.LEFT)
- 
-        or_button = tk.Button(condition_button_frame, text="simple OR", command=lambda: self.add_simple_OR_condition(condition_frame))
-        or_button.pack(side=tk.LEFT)
- 
-        and_button = tk.Button(condition_button_frame, text=" major AND", command=lambda: self.add_major_AND_condition(condition_frame))
-        and_button.pack(side=tk.LEFT)
- 
-        or_button = tk.Button(condition_button_frame, text="major OR", command=lambda: self.add_major_OR_condition(condition_frame))
-        or_button.pack(side=tk.LEFT)
- 
-        remove_button = tk.Button(condition_button_frame, text="Remove Condition", command=self.remove_condition)
-        remove_button.pack(side=tk.LEFT)
-
-
-
-    def create_condition_line(self, condition_frame, option=None):
-        condition_line_frame = tk.Frame(condition_frame)
-        condition_line_frame.pack(side=tk.TOP)
- 
-        if option is None:
-            condition_label = tk.Label(condition_line_frame, text="")
-            condition_label.pack(side="left")
-        elif option == "simple AND":
-            condition_label = tk.Label(condition_line_frame, text="and")
-            condition_label.pack(side="left")
-        elif option == "simple OR":
-            condition_label = tk.Label(condition_line_frame, text="or")
-            condition_label.pack(side="left")
-        elif option == "major AND":
-            condition_label = tk.Label(condition_line_frame, text="AND")
-            condition_label.pack(side="left")
-        elif option == "major OR":
-            condition_label = tk.Label(condition_line_frame, text="OR")
-            condition_label.pack(side="left")
- 
-        # Selected Variable Dropdown
-        choice_var = tk.StringVar(condition_line_frame)
-        choice_var.set(self.selected_choices[0])
-        column_dropdown = tk.OptionMenu(condition_line_frame, choice_var, *self.selected_choices)
-        column_dropdown.pack(side=tk.LEFT, padx=10)
-        def update_column_values(*args):
-            column_values = ["user_choice"] + list(self.df[choice_var.get()].unique())
-            values_var.set(column_values[0])
-            column_values_dropdown['menu'].delete(0, 'end')
-            for value in column_values:
-                column_values_dropdown['menu'].add_command(label=value, command=tk._setit(values_var, value))
-        choice_var.trace('w', update_column_values)
- 
-        # Comparison Operator Dropdown
-        operator_options = ['==', '!=', '>', '>=', '<', '<=']
-        operator_var = tk.StringVar(condition_line_frame)
-        operator_var.set(operator_options[0])
-        operator_dropdown = tk.OptionMenu(condition_line_frame, operator_var, *operator_options)
-        operator_dropdown.pack(side=tk.LEFT, padx=10)
- 
-        # Column Values Dropdown or Entry
-        column_values = ["user_choice"] + list(self.df[choice_var.get()].unique())
-        values_var = tk.StringVar(condition_line_frame)
-        values_var.set(column_values[0])
-        column_values_dropdown = tk.OptionMenu(condition_line_frame, values_var, *column_values)
-        column_values_dropdown.pack(side=tk.LEFT, padx=10)
- 
-        # Value Entry
-        value_label = tk.Label(condition_line_frame, text="User Choice:")
-        value_label.pack(side=tk.LEFT, pady=5)
-        value_entry = tk.Entry(condition_line_frame)
-        value_entry.pack(side=tk.LEFT)
- 
-        self.condition_frames.append(condition_line_frame)
- 
-
-    def remove_condition(self):
-        if len(self.condition_frames) > 1:
-            condition_frame = self.condition_frames.pop()
-            condition_frame.destroy()
-
-
-
-    def add_simple_AND_condition(self, condition_frame):
-        self.create_condition_line(condition_frame, option="simple AND")
- 
-    def add_simple_OR_condition(self, condition_frame):
-        self.create_condition_line(condition_frame, option="simple OR")
- 
-    def add_major_AND_condition(self, condition_frame):
-        self.create_condition_line(condition_frame, option="major AND")
- 
-    def add_major_OR_condition(self, condition_frame):
-        self.create_condition_line(condition_frame, option="major OR")
- 
-
-    def create_button_frame(self):
-        self.button_frame = tk.Frame(self.categories_frame, bd=5)
-        self.button_frame.pack(side=tk.BOTTOM, pady=5)
- 
-        add_button = tk.Button(self.button_frame, text="Add", command=self.add_new_frame)
-        add_button.pack(side=tk.LEFT)
- 
-        remove_button = tk.Button(self.button_frame, text="Remove", command=self.delete_previous_frame)
-        remove_button.pack(side=tk.LEFT)
- 
-    def add_new_frame(self):
-        self.create_category_frame()
- 
-
-    def delete_previous_frame(self):
-        # If there is more than one frame, remove the most recent frame
-        if len(self.category_frame_list) > 1:
-            last_frame = self.category_frame_list.pop()
-            last_frame.pack_forget()
-            self.button_frame.pack_forget()
- 
-            # Recreate the button_frame at the bottom after removing the frame
-            self.create_button_frame()
-        else:
-            print("Cannot remove the initial frame.")
-
-
-
-
-def set_variable_parameters(right_frame, selected_choices, df):
-    if len(selected_choices) < 1:
         return
- 
-    # Destroy the previous categories_frame if it exists
-    if hasattr(right_frame, 'categories_frame'):
-        right_frame.categories_frame.destroy()
- 
-    # Create the new categories_frame
-    categories_frame = tk.Frame(right_frame, bg='yellow')
-    categories_frame.pack(fill=tk.BOTH)
-    right_frame.categories_frame = categories_frame
-   
- 
-    # Create the App instance and pass the categories_frame and app_instance to it
-    app = App(categories_frame, selected_choices, df)
