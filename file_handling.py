@@ -82,16 +82,25 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
 
 def open_file(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     # Specify the path of the specific dataframe file you want to load
-    # file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx"), ("CSV files", "*.csv")])
+    file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx"), ("CSV files", "*.csv")])
     # file_path = "X:\OHSU Shared\Restricted\SOM\SURG\ORTH\Smith\Projects\YOO\OHSU Lumbar Fusions\master_8.1.23.xlsx"
-    file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
- 
+    # file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+
+    def fix_columns(df):
+            df.columns = df.columns.str.replace(' ', '_')
+            df.columns = df.columns.str.replace('__', '_')
+            df.columns = df.columns.str.replace('___', '_')
+            df.columns = df.columns.str.replace(r'\W+', '', regex=True)
+
     try:
         if file_path.endswith('.xlsx'):
             df = pd.read_excel(file_path, keep_default_na=False, na_values=[''])
         else:
             df = pd.read_csv(file_path, keep_default_na=False, na_values=[''])
- 
+
+
+
+        fix_columns(df)
         data_manager.set_dataframe(df)  # Set the df variable
  
         setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=True)
@@ -126,3 +135,19 @@ def save_file(df):
             return
  
         print(f"DataFrame saved to: {file_path}")
+
+
+
+
+
+
+
+################################################
+################################################
+ 
+                # CLEAN DATA #
+ 
+################################################
+################################################
+ 
+
