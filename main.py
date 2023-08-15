@@ -13,10 +13,8 @@ import data_manager
 # Create the main window
 main_window = tk.Tk()
 main_window.title("DataFrame Editor")
- 
-screen_width = main_window.winfo_screenwidth()
-screen_height = main_window.winfo_screenheight()
-main_window.geometry(f"{screen_width}x{screen_height}")
+main_window.wm_state('zoomed')
+
  
 style = ttk.Style()
 style.theme_use("clam")
@@ -53,7 +51,7 @@ file_button.config(command=lambda: file_handling.setup_file_tab(style, sub_butto
 style.configure("dataframe_view_button.TButton", background="gray", borderwidth=0, padding=0, font=("Arial", 48))
 dataframe_view_button = ttk.Button(button_frame, text="Dataframe View", style="dataframe_view_button.TButton")
 dataframe_view_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-dataframe_view_button.config(command=lambda: file_handling.setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
+dataframe_view_button.config(command=lambda: file_handling.setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=False))
  
 style.configure("edit_button.TButton", background="gray", borderwidth=0, padding=0, font=("Arial", 48))
 edit_button = ttk.Button(button_frame, text="Edit/Clean Data", style="edit_button.TButton")
