@@ -57,7 +57,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
  
 class CleanData():
     def __init__(self, editing_content_frame, dataframe_content_frame, df):
-        self.df = df
+        self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
  
 
