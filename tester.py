@@ -185,13 +185,79 @@ class CreateNewVariableClass:
 
 
     def create_conditions_frame(self):
+
+        # VARIABLE NAME FRAME
+        self.column_name_frame = tk.Frame(self.conditions_frame, bg='green')
+        self.column_name_frame.pack(side=tk.TOP, fill=tk.X)
+
+        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='orange')
+        self.column_name_frame_label.pack(side=tk.TOP, fill=tk.X)
+
+        self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
+        self.column_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
+
+        # ADD/REMOVE CONDITIONS BUTTONS FRAME
+        self.condition_buttons_frame = tk.Frame(self.conditions_frame, bg='yellow')
+        self.condition_buttons_frame.pack(side=tk.TOP, fill=tk.X)
+
+        self.add_condition_button = tk.Button(self.condition_buttons_frame, text='Add Condition', command=self.add_value_frame, font=('Arial', 36))
+        self.add_condition_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.remove_condition_button = tk.Button(self.condition_buttons_frame, text='Remove Condition', command=self.remove_value_frame, font=('Arial', 36))
+        self.remove_condition_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+
+
+
+        # CONDITIONS OPTIONS FRAME
+        self.value_frames = []
+        self.condition_frames = []
+
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='orange')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
+        def on_mousewheel(event):
+            self.canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
+        self.canvas = tk.Canvas(self.condition_options_frame)
+        self.scrollbar = ttk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Bind mouse wheel event to the canvas
+        self.canvas.bind("<MouseWheel>", on_mousewheel)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        # MENU FRAME
 
         self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='lightgray')
         self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
@@ -202,8 +268,81 @@ class CreateNewVariableClass:
         self.advance_to_conditions_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", font=("Arial", 36))
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
-        self.conditions_variable_name_label = tk.Label(self.conditions_menu_frame, text='Variable Name',font=("Arial", 36))
-        self.conditions_variable_name_label.pack(side=tk.LEFT, fill=tk.X)
+
+
+
+
+
+
+
+    def add_value_frame(self):
+        def add_condition():
+            condition_frame = tk.Frame(new_value_frame)
+            condition_frame.pack(side=tk.TOP)
+
+            condition_label = tk.Label(condition_frame, text='Where:')
+            condition_label.pack(side=tk.LEFT)
+
+            selected_option = tk.StringVar()
+            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_option, values=self.selected_columns)
+            column_dropdown.pack(side=tk.LEFT)
+
+
+        # NEW VALUE FRAME
+        new_value_frame = tk.Frame(self.scrollable_frame, relief=tk.RAISED, borderwidth=2)
+        new_value_frame.pack(pady=10)
+
+        # FRAME WHERE USER INPUTS WHAT THE VALUE WILL BE BASED ON THE CONDITIONS BELOW
+        value_entry_frame = tk.Frame(new_value_frame)
+        value_entry_frame.pack(side=tk.TOP)
+
+        label = tk.Label(value_entry_frame, text="Value:")
+        label.pack(side=tk.LEFT)
+
+        value_entry = tk.Entry(value_entry_frame)
+        value_entry.pack(side=tk.LEFT)
+
+
+        # FRAME WHERE THE USER EDITS THE CONDITIONS
+        add_condition()
+
+
+        # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
+        condition_handling_frame = tk.Frame(new_value_frame)
+        condition_handling_frame.pack(side=tk.BOTTOM)
+
+        add_simple_and_button = tk.Button(condition_handling_frame, text='and')
+        add_simple_and_button.pack(side=tk.LEFT)
+
+        add_simple_or_button = tk.Button(condition_handling_frame, text='or')
+        add_simple_or_button.pack(side=tk.LEFT)
+
+        
+        self.value_frames.append(new_value_frame)
+
+
+
+
+
+
+
+
+
+    def remove_value_frame(self):
+        print(self.value_frames)
+        if self.value_frames:
+            frame = self.value_frames.pop()
+            frame.destroy()
+
+    def get_values_from_frames(self):
+        for idx, frame in enumerate(self.value_frames, start=1):
+            print(idx)
+            for subframe in frame.winfo_children():
+                for widget in subframe.winfo_children():
+                    try:
+                        print("Widget:", widget.get())
+                    except:
+                        pass
 
 
     ###################################################################################################################################################################################################
@@ -218,15 +357,6 @@ class CreateNewVariableClass:
 
 
 
-        # VARIABLE NAME FRAME
-        self.column_name_frame = tk.Frame(self.finalize_frame, bg='green')
-        self.column_name_frame.pack(side=tk.TOP, fill=tk.X)
-
-        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='orange')
-        self.column_name_frame_label.pack(side=tk.TOP, fill=tk.X)
-
-        self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
-        self.column_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
 
 
@@ -249,7 +379,9 @@ class CreateNewVariableClass:
         self.finalize_variable_name_label.pack(side=tk.LEFT, fill=tk.X)
 
 
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
     
     def switch_to_column_selection_frame(self):
         self.conditions_frame.pack_forget()
@@ -257,12 +389,16 @@ class CreateNewVariableClass:
         self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
 
     def switch_to_conditions_frame(self):
-        print(self.selected_columns)
+        if not self.selected_columns:
+            return
         self.finalize_frame.pack_forget()
         self.column_selection_frame.pack_forget()
         self.conditions_frame.pack(fill=tk.BOTH, expand=True)
 
     def switch_to_finalize_frame(self):
+        if not self.column_name_entry.get():
+            return
+        self.get_values_from_frames()
         self.conditions_frame.pack_forget()
         self.column_selection_frame.pack_forget()
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
