@@ -18,7 +18,7 @@ import statsmodels.api as sm
 
 
 # df = pd.read_excel(r"E:\new\master_8.1.23.xlsx")
-df = pd.read_excel(r"C:\Users\smithsp\OneDrive - Oregon Health & Science University\Desktop\data_app\MIS_Open_Data_Coded_Stats_8-13-23.xlsx")
+df = pd.read_excel(r"/Users/spencersmith/Desktop/coding/OHSU_data.xlsx")
 # Create the main window
 main_window = tk.Tk()
 main_window.title("DataFrame Editor")
@@ -139,6 +139,8 @@ class CreateNewVariableClass:
         self.advance_to_conditions_button = tk.Button(self.column_selection_menu_frame, command=self.switch_to_conditions_frame, text="Next", font=("Arial", 36))
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
+        self.column_selection_frame.update_idletasks()
+
 
     def update_available_columns_listbox(self, *args):
         search_term = self.available_column_search_var.get().lower()
@@ -176,7 +178,7 @@ class CreateNewVariableClass:
         for index in reversed(selections):
             self.selected_columns_listbox.delete(index)
 
-
+        
 
 
     ###################################################################################################################################################################################################
@@ -201,19 +203,20 @@ class CreateNewVariableClass:
         self.condition_buttons_frame = tk.Frame(self.conditions_frame, bg='yellow')
         self.condition_buttons_frame.pack(side=tk.TOP, fill=tk.X)
 
-        self.add_condition_button = tk.Button(self.condition_buttons_frame, text='Add Condition', command=self.add_value_frame, font=('Arial', 36))
-        self.add_condition_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.add_new_value_button = tk.Button(self.condition_buttons_frame, text='Add New Value', command=self.add_value_frame, font=('Arial', 36))
+        self.add_new_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.remove_condition_button = tk.Button(self.condition_buttons_frame, text='Remove Condition', command=self.remove_value_frame, font=('Arial', 36))
-        self.remove_condition_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-
+        self.remove_value_button = tk.Button(self.condition_buttons_frame, text='Remove Value', command=self.remove_value_frame, font=('Arial', 36))
+        self.remove_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
+
+        
         # CONDITIONS OPTIONS FRAME
         self.value_frames = []
         self.condition_frames = []
-
+        self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than and Equal', 'Greater Than and Equal', 'Contains', 'Does Not Contain']
+        
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='orange')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -276,16 +279,81 @@ class CreateNewVariableClass:
 
 
     def add_value_frame(self):
-        def add_condition():
+        condition_frames = []
+
+        # REMOVE MOST RECENT CONDITION LINE
+        def remove_condition():
+            if len(condition_frames) > 1:
+                frame = condition_frames.pop()
+                next_frame = condition_frames[-1]
+                print(next_frame.winfo_children()[0])
+                print(condition_frames[-1].winfo_children()[0].cget("text"))
+                if condition_frames and condition_frames[-1].winfo_children()[0].cget("text") in {'AND', 'OR'}:
+                    separation_frame = condition_frames.pop()
+                    separation_frame.destroy()
+                frame.destroy()
+
+            else:
+                return
+        
+        # ADD NEW CONDITION LINE
+        def add_condition(label=''):
+            if label == 'AND' or label == 'OR':
+                separation_frame = tk.Frame(new_value_frame)
+                separation_frame.pack(side=tk.TOP)
+
+                condition_frames.append(separation_frame)
+                if label == 'AND':
+                    separation_label = tk.Label(separation_frame, text=label)
+                    separation_label.pack(side=tk.TOP)
+                    label = 'Where'
+
+                if label == 'OR':
+                    separation_label = tk.Label(separation_frame, text=label)
+                    separation_label.pack(side=tk.TOP)
+                    label = 'Where'
+
+
+
             condition_frame = tk.Frame(new_value_frame)
             condition_frame.pack(side=tk.TOP)
 
-            condition_label = tk.Label(condition_frame, text='Where:')
+            condition_frames.append(condition_frame)
+            
+            condition_label = tk.Label(condition_frame, text=label)
             condition_label.pack(side=tk.LEFT)
 
-            selected_option = tk.StringVar()
-            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_option, values=self.selected_columns)
+
+            # COLUMN DROPDOWN FOR CONDITION
+            def on_combobox_select(event):
+                column_selected = column_dropdown.get()
+                value_list = list(self.df[column_selected].unique()) + ['USER CHOICE']
+                column_values_dropdown["values"] = value_list
+
+            selected_column_option = tk.StringVar()
+            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_column_option, values=self.selected_columns)
             column_dropdown.pack(side=tk.LEFT)
+            column_dropdown.bind("<<ComboboxSelected>>", on_combobox_select)
+
+            # CONDITION SIGN DROPDOWN
+            selected_condition_sign = tk.StringVar()
+            selected_condition_sign_dropdown = ttk.Combobox(condition_frame, textvariable=selected_condition_sign, values=self.condition_signs)
+            selected_condition_sign_dropdown.pack(side=tk.LEFT)
+
+            # VALUE SELECTION DROPDOWN
+            selected_value = tk.StringVar()
+            value_list = ['USER CHOICE']
+            column_values_dropdown = ttk.Combobox(condition_frame, textvariable=selected_value, values=value_list)
+            column_values_dropdown.pack(side=tk.LEFT)
+
+            # USER ENTRY VALUE
+            user_entry_value = tk.Entry(condition_frame)
+            user_entry_value.pack(side=tk.LEFT)
+
+
+
+
+
 
 
         # NEW VALUE FRAME
@@ -304,19 +372,27 @@ class CreateNewVariableClass:
 
 
         # FRAME WHERE THE USER EDITS THE CONDITIONS
-        add_condition()
+        add_condition(label='Where')
 
 
         # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
         condition_handling_frame = tk.Frame(new_value_frame)
         condition_handling_frame.pack(side=tk.BOTTOM)
 
-        add_simple_and_button = tk.Button(condition_handling_frame, text='and')
+        add_simple_and_button = tk.Button(condition_handling_frame, text='and', command=lambda: add_condition(label='and'))
         add_simple_and_button.pack(side=tk.LEFT)
 
-        add_simple_or_button = tk.Button(condition_handling_frame, text='or')
+        add_simple_or_button = tk.Button(condition_handling_frame, text='or', command=lambda: add_condition(label='or'))
         add_simple_or_button.pack(side=tk.LEFT)
 
+        add_major_and_button = tk.Button(condition_handling_frame, text='AND', command=lambda: add_condition(label='AND'))
+        add_major_and_button.pack(side=tk.LEFT)
+
+        add_major_or_button = tk.Button(condition_handling_frame, text='OR', command=lambda: add_condition(label='OR'))
+        add_major_or_button.pack(side=tk.LEFT)
+
+        add_remove_button = tk.Button(condition_handling_frame, text='Remove Condition', command=remove_condition)
+        add_remove_button.pack(side=tk.LEFT)
         
         self.value_frames.append(new_value_frame)
 
@@ -342,7 +418,7 @@ class CreateNewVariableClass:
                     try:
                         print("Widget:", widget.get())
                     except:
-                        pass
+                        print("Widget:", widget.cget("text"))
 
 
     ###################################################################################################################################################################################################
