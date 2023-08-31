@@ -215,8 +215,10 @@ class CreateNewVariableClass:
         # CONDITIONS OPTIONS FRAME
         self.value_frames = []
         self.condition_frames = []
-        self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than and Equal', 'Greater Than and Equal', 'Contains', 'Does Not Contain']
-        
+        self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To', 'Contains', 'Does Not Contain']
+        self.condition_signs_dict = {'Equals':'==', 'Does Not Equal':'!=', 'Less Than':'<', 'Greater Than':'>', 'Less Than or Equal To':'<=', 'Greater Than or Equal To':'>=',
+                                     'Contains':'Contains', 'Does Not Contain':'Does Not Contain'}
+
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='orange')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -327,7 +329,7 @@ class CreateNewVariableClass:
             # COLUMN DROPDOWN FOR CONDITION
             def on_combobox_select(event):
                 column_selected = column_dropdown.get()
-                value_list = list(self.df[column_selected].unique()) + ['USER CHOICE']
+                value_list = ['USER CHOICE'] + list(self.df[column_selected].unique())
                 column_values_dropdown["values"] = value_list
 
             selected_column_option = tk.StringVar()
@@ -370,14 +372,9 @@ class CreateNewVariableClass:
         value_entry = tk.Entry(value_entry_frame)
         value_entry.pack(side=tk.LEFT)
 
-
-        # FRAME WHERE THE USER EDITS THE CONDITIONS
-        add_condition(label='Where')
-
-
         # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
         condition_handling_frame = tk.Frame(new_value_frame)
-        condition_handling_frame.pack(side=tk.BOTTOM)
+        condition_handling_frame.pack(side=tk.TOP)
 
         add_simple_and_button = tk.Button(condition_handling_frame, text='and', command=lambda: add_condition(label='and'))
         add_simple_and_button.pack(side=tk.LEFT)
@@ -393,6 +390,12 @@ class CreateNewVariableClass:
 
         add_remove_button = tk.Button(condition_handling_frame, text='Remove Condition', command=remove_condition)
         add_remove_button.pack(side=tk.LEFT)
+
+        # FRAME WHERE THE USER EDITS THE CONDITIONS
+        add_condition(label='Where')
+
+
+
         
         self.value_frames.append(new_value_frame)
 
@@ -411,14 +414,55 @@ class CreateNewVariableClass:
             frame.destroy()
 
     def get_values_from_frames(self):
+
         for idx, frame in enumerate(self.value_frames, start=1):
-            print(idx)
-            for subframe in frame.winfo_children():
+            condition_list_total = []
+            for subframe_number, subframe in enumerate(frame.winfo_children(), start=1):
+                condition_list = []
+                if subframe_number == 1:
+                    condition_value = subframe.winfo_children()[1].get()
+                    continue
+
+                if subframe_number == 2:
+                    continue
+
                 for widget in subframe.winfo_children():
                     try:
-                        print("Widget:", widget.get())
+                        condition_list.append(widget.get())
                     except:
-                        print("Widget:", widget.cget("text"))
+                        condition_list.append(widget.cget("text"))
+                print(condition_list)
+                condition_list_total.append(condition_list)
+
+            print('\n')
+            print(f"Value: {condition_value}")
+            print(condition_list_total)
+            print('\n')
+
+        
+
+
+
+# self.df.loc[self.df.eval(condition_string), column_name] = condition_value
+
+# data = {'A': [1, 2, 3, 4, 5]}
+# df = pd.DataFrame(data)
+
+# # Define condition strings
+# condition_high = "A > 3"
+# condition_low = "A <= 3"
+
+# # Evaluate conditions and create a new column
+# df['Category'] = 'Unknown'
+# df.loc[df.eval(condition_high), 'Category'] = 'High'
+# df.loc[df.eval(condition_low), 'Category'] = 'Low'
+
+# # Define the complex condition string
+# condition_string = "(A < 3) | (A == 5)"
+
+# # Evaluate the condition and create a new column
+# df['Category'] = 'Other'
+# df.loc[df.eval(condition_string), 'Category'] = 'Selected'
 
 
     ###################################################################################################################################################################################################
