@@ -1,7 +1,8 @@
-from math import exp
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog
 from tkinter import ttk
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import utils
 import file_handling
 import pandas as pd
@@ -15,7 +16,10 @@ import tkinter.font as tkFont
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import statsmodels.api as sm
-
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # df = pd.read_excel(r"E:\new\master_8.1.23.xlsx")
 df = pd.read_excel(r"/Users/spencersmith/Desktop/coding/OHSU_data.xlsx")
@@ -142,6 +146,8 @@ class CreateNewVariableClass:
         self.column_selection_frame.update_idletasks()
 
 
+
+
     def update_available_columns_listbox(self, *args):
         search_term = self.available_column_search_var.get().lower()
         self.available_columns_listbox.delete(0, tk.END)
@@ -218,33 +224,33 @@ class CreateNewVariableClass:
         self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To', 'Contains', 'Does Not Contain']
         self.condition_signs_dict = {'Equals':'==', 'Does Not Equal':'!=', 'Less Than':'<', 'Greater Than':'>', 'Less Than or Equal To':'<=', 'Greater Than or Equal To':'>=',
                                      'Contains':'Contains', 'Does Not Contain':'Does Not Contain'}
-
+        
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='orange')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
         def on_mousewheel(event):
-            self.canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            self.condition_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-        self.canvas = tk.Canvas(self.condition_options_frame)
-        self.scrollbar = ttk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
+        self.condition_canvas = tk.Canvas(self.condition_options_frame)
+        self.scrollbar = ttk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.condition_canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.condition_canvas)
 
         self.scrollable_frame.bind(
             "<Configure>",
-            lambda e: self.canvas.configure(
-                scrollregion=self.canvas.bbox("all")
+            lambda e: self.condition_canvas.configure(
+                scrollregion=self.condition_canvas.bbox("all")
             )
         )
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.condition_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.condition_canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        self.canvas.pack(side="left", fill="both", expand=True)
+        self.condition_canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
         # Bind mouse wheel event to the canvas
-        self.canvas.bind("<MouseWheel>", on_mousewheel)
+        self.condition_canvas.bind("<MouseWheel>", on_mousewheel)
 
 
 
@@ -273,6 +279,8 @@ class CreateNewVariableClass:
         self.advance_to_conditions_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", font=("Arial", 36))
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
+        self.conditions_frame.update_idletasks()
+
 
 
 
@@ -288,8 +296,7 @@ class CreateNewVariableClass:
             if len(condition_frames) > 1:
                 frame = condition_frames.pop()
                 next_frame = condition_frames[-1]
-                print(next_frame.winfo_children()[0])
-                print(condition_frames[-1].winfo_children()[0].cget("text"))
+
                 if condition_frames and condition_frames[-1].winfo_children()[0].cget("text") in {'AND', 'OR'}:
                     separation_frame = condition_frames.pop()
                     separation_frame.destroy()
@@ -382,11 +389,11 @@ class CreateNewVariableClass:
         add_simple_or_button = tk.Button(condition_handling_frame, text='or', command=lambda: add_condition(label='or'))
         add_simple_or_button.pack(side=tk.LEFT)
 
-        add_major_and_button = tk.Button(condition_handling_frame, text='AND', command=lambda: add_condition(label='AND'))
-        add_major_and_button.pack(side=tk.LEFT)
+        # add_major_and_button = tk.Button(condition_handling_frame, text='AND', command=lambda: add_condition(label='AND'))
+        # add_major_and_button.pack(side=tk.LEFT)
 
-        add_major_or_button = tk.Button(condition_handling_frame, text='OR', command=lambda: add_condition(label='OR'))
-        add_major_or_button.pack(side=tk.LEFT)
+        # add_major_or_button = tk.Button(condition_handling_frame, text='OR', command=lambda: add_condition(label='OR'))
+        # add_major_or_button.pack(side=tk.LEFT)
 
         add_remove_button = tk.Button(condition_handling_frame, text='Remove Condition', command=remove_condition)
         add_remove_button.pack(side=tk.LEFT)
@@ -408,19 +415,24 @@ class CreateNewVariableClass:
 
 
     def remove_value_frame(self):
-        print(self.value_frames)
+
         if self.value_frames:
             frame = self.value_frames.pop()
             frame.destroy()
 
     def get_values_from_frames(self):
-
+        self.column_name = self.column_name_entry.get()
         for idx, frame in enumerate(self.value_frames, start=1):
             condition_list_total = []
+            condition_strings = []
+            condition_syntax = {}
+
             for subframe_number, subframe in enumerate(frame.winfo_children(), start=1):
                 condition_list = []
+
                 if subframe_number == 1:
                     condition_value = subframe.winfo_children()[1].get()
+
                     continue
 
                 if subframe_number == 2:
@@ -431,38 +443,54 @@ class CreateNewVariableClass:
                         condition_list.append(widget.get())
                     except:
                         condition_list.append(widget.cget("text"))
-                print(condition_list)
+
+
                 condition_list_total.append(condition_list)
 
-            print('\n')
-            print(f"Value: {condition_value}")
-            print(condition_list_total)
-            print('\n')
+            for condition in condition_list_total:
+                if len(condition) == 1:
+                    if condition[0] == 'AND':
+                        condition_strings.append("&")
+                    elif condition[0] == 'OR':
+                        condition_strings.append("&")
+                    continue
+
+                condition_string = ''
+                if condition[0] == 'or':
+                    condition_string = "|"
+                if condition[0] == 'and':
+                    condition_string = "&"
+
+                condition_string = condition_string + "("
+                condition_string = condition_string + condition[1]
+                condition_string = condition_string + self.condition_signs_dict[condition[2]]
+
+                if condition[3] == 'USER CHOICE':
+                    try:
+                        self.df[condition[1]] = self.df[condition[1]].astype(float)
+                        condition_string = condition_string + str(float(condition[4]))
+                    except:
+                        self.df[condition[1]] = self.df[condition[1]].astype(object)
+                        condition_string = condition_string + "'" + condition[4] + "'"
+                else:
+                    try:
+                        self.df[condition[1]] = self.df[condition[1]].astype(float)
+                        condition_string = condition_string + str(float(condition[3]))
+                    except:
+                        self.df[condition[1]] = self.df[condition[1]].astype(object)
+                        condition_string = condition_string + "'" + condition[3] + "'"
+                
+                condition_string = condition_string + ')'
+                condition_strings.append(condition_string)
+
+
+            final_condition_string = ''.join(condition_strings)
+
+            self.df.loc[self.df.eval(final_condition_string), self.column_name] = condition_value
+
+
 
         
-
-
-
-# self.df.loc[self.df.eval(condition_string), column_name] = condition_value
-
-# data = {'A': [1, 2, 3, 4, 5]}
-# df = pd.DataFrame(data)
-
-# # Define condition strings
-# condition_high = "A > 3"
-# condition_low = "A <= 3"
-
-# # Evaluate conditions and create a new column
-# df['Category'] = 'Unknown'
-# df.loc[df.eval(condition_high), 'Category'] = 'High'
-# df.loc[df.eval(condition_low), 'Category'] = 'Low'
-
-# # Define the complex condition string
-# condition_string = "(A < 3) | (A == 5)"
-
-# # Evaluate the condition and create a new column
-# df['Category'] = 'Other'
-# df.loc[df.eval(condition_string), 'Category'] = 'Selected'
 
 
     ###################################################################################################################################################################################################
@@ -495,9 +523,25 @@ class CreateNewVariableClass:
         self.update_dataframe_button = tk.Button(self.finalize_menu_frame, command=self.update_dataframe, text="Update Dataframe", font=("Arial", 36))
         self.update_dataframe_button.pack(side=tk.RIGHT)
 
-        self.finalize_variable_name_label = tk.Label(self.finalize_menu_frame, text='Variable Name',font=("Arial", 36))
-        self.finalize_variable_name_label.pack(side=tk.LEFT, fill=tk.X)
 
+
+    def plot_new_column(self):
+        for widget in self.finalize_display_frame.winfo_children():
+            widget.destroy()
+        category_counts = self.df[self.column_name].value_counts()
+        fig, ax = plt.subplots(figsize=(8, 6))
+        category_counts.plot(kind='bar', color='skyblue', ax=ax)
+
+        ax.set_xlabel('Value')
+        ax.set_ylabel('Frequency')
+        ax.set_title(f'Frequency Bar Chart of {self.column_name}')
+
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+
+        canvas = FigureCanvasTkAgg(fig, master=self.finalize_display_frame)
+        canvas_widget = canvas.get_tk_widget()
+        canvas_widget.pack(fill=tk.BOTH, expand=True)
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -508,6 +552,7 @@ class CreateNewVariableClass:
         self.finalize_frame.pack_forget()
         self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
 
+
     def switch_to_conditions_frame(self):
         if not self.selected_columns:
             return
@@ -515,13 +560,19 @@ class CreateNewVariableClass:
         self.column_selection_frame.pack_forget()
         self.conditions_frame.pack(fill=tk.BOTH, expand=True)
 
+
     def switch_to_finalize_frame(self):
         if not self.column_name_entry.get():
             return
+        if self.column_name_entry.get() in self.df.columns:
+            self.df = self.df.drop(self.column_name_entry.get(), axis=1)
         self.get_values_from_frames()
+        self.plot_new_column()
         self.conditions_frame.pack_forget()
         self.column_selection_frame.pack_forget()
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
+
+
 
 
     def update_dataframe(self):
