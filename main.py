@@ -32,13 +32,13 @@ sub_button_frame = tk.Frame(banner_frame)
 sub_button_frame.pack(fill=tk.X)  # Change to fill=tk.X to expand horizontally
 sub_button_frame.pack_propagate(True)
  
-content_frame = tk.Frame(main_window, bg="green")
+content_frame = tk.Frame(main_window, bg="beige")
 content_frame.pack(side="top", fill=tk.BOTH, expand=True)
  
-dataframe_content_frame = tk.Frame(content_frame, bg="pink")
-file_handling_content_frame = tk.Frame(content_frame, bg="orange")
-editing_content_frame = tk.Frame(content_frame, bg="blue")
-visualize_content_frame = tk.Frame(content_frame, bg="yellow")
+dataframe_content_frame = tk.Frame(content_frame, bg="beige")
+file_handling_content_frame = tk.Frame(content_frame, bg="beige")
+editing_content_frame = tk.Frame(content_frame, bg="beige")
+visualize_content_frame = tk.Frame(content_frame, bg="beige")
  
 # Add Buttons
  
