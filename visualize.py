@@ -105,10 +105,10 @@ class ComparisonTableClass:
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
-        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='hotpink')
-        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='red')
-        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='green')
-        self.results_frame = tk.Frame(self.visualize_content_frame, bg='blue')
+        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
 
 
 
@@ -130,7 +130,7 @@ class ComparisonTableClass:
     def create_dependent_variable_frame(self):
 
 
-        self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='yellow')
+        self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -140,7 +140,7 @@ class ComparisonTableClass:
         self.advance_to_independent_variables_button = tk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, font=("Arial", 36))
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
-        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -152,7 +152,7 @@ class ComparisonTableClass:
 
 
 
-        self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='hotpink')
+        self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
         self.dependent_column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -167,7 +167,7 @@ class ComparisonTableClass:
 
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
-        self.dependent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -221,7 +221,7 @@ class ComparisonTableClass:
     def create_independent_variables_frame(self):
 
 
-        self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='hotpink')
+        self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -237,7 +237,7 @@ class ComparisonTableClass:
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
 
-        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -246,14 +246,14 @@ class ComparisonTableClass:
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
 
-        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='orange')
+        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
 
 
 
-        self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='yellow')
+        self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.available_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -264,7 +264,7 @@ class ComparisonTableClass:
 
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.available_independent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.available_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -272,20 +272,20 @@ class ComparisonTableClass:
 
 
 
-        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='purple')
+        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>", command=self.transfer_right, font=("Arial", 30))
-        self.transfer_right_button.pack(pady=20)
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
+        self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<", command=self.transfer_left, font=("Arial", 30))
-        self.transfer_left_button.pack(pady=5)
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
+        self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
 
-        self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='brown')
+        self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -296,16 +296,16 @@ class ComparisonTableClass:
 
 
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.selected_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
 
 
 
 
-        self.table_options_frame = tk.Frame(self.independent_variable_options_frame, bg='green')
+        self.table_options_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.table_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.percentage_type_selection_frame = tk.Frame(self.table_options_frame, bg='blue')
+        self.percentage_type_selection_frame = tk.Frame(self.table_options_frame, bg='beige')
         self.percentage_type_selection_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def on_percentage_radio_button_selected():
@@ -313,16 +313,16 @@ class ComparisonTableClass:
 
         self.percentage_type_radio_var = tk.IntVar()
 
-        self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value=1, command=on_percentage_radio_button_selected, font=("Arial", 24))
+        self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value=1, command=on_percentage_radio_button_selected, font=("Arial", 40))
         self.row_percentage_radiobutton.pack(side=tk.TOP)
 
-        self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value=2, command=on_percentage_radio_button_selected, font=("Arial", 24))
+        self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value=2, command=on_percentage_radio_button_selected, font=("Arial", 40))
         self.column_percentage_radiobutton.pack(side=tk.TOP)
 
 
 
 
-        self.data_choice_frame = tk.Frame(self.table_options_frame, bg='purple')
+        self.data_choice_frame = tk.Frame(self.table_options_frame, bg='beige')
         self.data_choice_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         def on_data_choice_radio_button_selected():
@@ -330,10 +330,10 @@ class ComparisonTableClass:
 
         self.data_choice_radio_var = tk.IntVar()
 
-        self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value=1, command=on_data_choice_radio_button_selected, font=("Arial", 24))
+        self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value=1, command=on_data_choice_radio_button_selected, font=("Arial", 40))
         self.independent_data_radiobutton.pack(side=tk.TOP)
 
-        self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value=2, command=on_data_choice_radio_button_selected, font=("Arial", 24))
+        self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value=2, command=on_data_choice_radio_button_selected, font=("Arial", 40))
         self.dependent_data_radiobutton.pack(side=tk.TOP)
 
 
@@ -391,7 +391,7 @@ class ComparisonTableClass:
         self.variable_handling_label.pack(side=tk.TOP)
 
 
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
+        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -407,7 +407,7 @@ class ComparisonTableClass:
         self.view_results_button.pack(side=tk.RIGHT)
 
 
-        self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -427,7 +427,7 @@ class ComparisonTableClass:
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -908,10 +908,10 @@ class RegressionAnalysisClass:
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
-        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='hotpink')
-        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='red')
-        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='green')
-        self.results_frame = tk.Frame(self.visualize_content_frame, bg='blue')
+        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
 
 
 
@@ -932,11 +932,11 @@ class RegressionAnalysisClass:
     def create_dependent_variable_frame(self):
 
 
-        self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='yellow')
+        self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
-        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='lightgray')
+        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
 
@@ -944,7 +944,7 @@ class RegressionAnalysisClass:
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
 
-        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -956,7 +956,7 @@ class RegressionAnalysisClass:
 
 
 
-        self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='hotpink')
+        self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
         self.dependent_column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -971,7 +971,7 @@ class RegressionAnalysisClass:
 
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
-        self.dependent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -1026,7 +1026,7 @@ class RegressionAnalysisClass:
     def create_independent_variables_frame(self):
 
 
-        self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='hotpink')
+        self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1042,7 +1042,7 @@ class RegressionAnalysisClass:
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
 
-        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1058,7 +1058,7 @@ class RegressionAnalysisClass:
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
 
-        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='orange')
+        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1072,7 +1072,7 @@ class RegressionAnalysisClass:
 
 
 
-        self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='yellow')
+        self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.available_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -1083,7 +1083,7 @@ class RegressionAnalysisClass:
 
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.available_independent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.available_independent_variable_listbox.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -1097,25 +1097,25 @@ class RegressionAnalysisClass:
 
 
 
-        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='purple')
+        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>", command=self.transfer_right, font=("Arial", 30))
-        self.transfer_right_button.pack(pady=20)
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
+        self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<", command=self.transfer_left, font=("Arial", 30))
-        self.transfer_left_button.pack(pady=5)
-
-
-
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
+        self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
 
 
 
-        self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='brown')
+
+
+
+        self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -1126,14 +1126,14 @@ class RegressionAnalysisClass:
 
 
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10)
+        self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
         self.available_independent_variable_listbox.update_idletasks()
 
 
 
-        self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='green')
+        self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.regression_type_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1146,11 +1146,11 @@ class RegressionAnalysisClass:
         self.regression_type_radio_var = tk.IntVar()
 
 
-        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, font=("Arial", 24))
+        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, font=("Arial", 40))
         self.logistic_regression_radiobutton.pack(side=tk.TOP)
 
 
-        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value=2, command=on_radio_button_selected, font=("Arial", 24))
+        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value=2, command=on_radio_button_selected, font=("Arial", 40))
         self.linear_regression_radiobutton.pack(side=tk.TOP)
 
 
@@ -1208,7 +1208,7 @@ class RegressionAnalysisClass:
         self.variable_handling_label.pack(side=tk.TOP)
 
 
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
+        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1224,7 +1224,7 @@ class RegressionAnalysisClass:
         self.view_results_button.pack(side=tk.RIGHT)
 
 
-        self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1251,7 +1251,7 @@ class RegressionAnalysisClass:
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray')
+        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1680,17 +1680,17 @@ class CreatePlotClass():
  
 
         self.create_plot_options_list()
- 
+
 
     def create_plot_options_list(self):
  
-        self.available_plots = ["Scatter Plot", "Histogram", "Box and Whisker"]
+        self.available_plots = ["Scatter Plot"]
         self.selected_plot = None
         self.selected_plot = tk.StringVar(value=self.selected_plot)
  
         self.radiobuttons = []
  
-        self.choice_frame = tk.Frame(self.plot_options_frame, bg='orange')
+        self.choice_frame = tk.Frame(self.plot_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.choice_frame_label = tk.Label(self.choice_frame, text="PLOT SELECTION", font=("Arial", 30, "bold"))
@@ -1698,7 +1698,7 @@ class CreatePlotClass():
  
 
         self.plot_type_selection = tk.StringVar()
-        self.plot_choice_listbox = tk.Listbox(self.choice_frame)
+        self.plot_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
         self.plot_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
         for plot in self.available_plots:
@@ -1716,10 +1716,10 @@ class CreatePlotClass():
         self.plot_choice_listbox.bind("<<ListboxSelect>>", on_plot_choice_listbox_selection)
  
 
-        self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg='yellow')
+        self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg='beige')
         self.plot_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg='orange', command=lambda: self.choose_plot())
+        self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg='beige', command=lambda: self.choose_plot())
         self.choose_plot_button.pack(side=tk.LEFT)
 
 
@@ -1738,42 +1738,40 @@ class CreatePlotClass():
         if selected_index:
             self.selected_plot = self.plot_choice_listbox.get(selected_index[0])
  
-            print(self.selected_plot)
- 
             self.display_plot_settings()
-            # fig=None
-            # self.fig = self.create_virtual_figure()
- 
-            # if self.fig is not None:
-            #     self.create_graph()
- 
+
+
 
     def display_plot_settings(self):
  
         if self.selected_plot == "Scatter Plot":
             self.display_scatter_plot_settings()
 
+        # if self.selected_plot == "Histogram":
+        #     self.display_histogram_settings()
+
 
 
     def display_scatter_plot_settings(self):
-        self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg='pink')
+        self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg='beige')
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
-        self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg='red')
+        self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg='beige')
         self.submit_settings_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
  
         self.x_axis_selection = tk.StringVar()
         self.y_axis_selection = tk.StringVar()
  
         ###################### X AXIS ######################
-        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg='orange')
+        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
         self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.x_axis_frame_label.pack(side=tk.TOP)
+        
  
-        self.x_axis_listbox = tk.Listbox(self.x_axis_frame)
-        self.x_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.x_axis_listbox = tk.Listbox(self.x_axis_frame, font=('Arial', 24))
+        self.x_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
         for column in self.df.columns:
             self.x_axis_listbox.insert(tk.END, column)
  
@@ -1789,20 +1787,21 @@ class CreatePlotClass():
  
         self.x_axis_label = tk.Label(self.x_axis_frame, textvariable=self.x_axis_selection)
         self.x_axis_label.pack(side=tk.TOP)
+        self.x_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
         ###################### X AXIS ######################
  
         ###################### Y AXIS ######################
-        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg='orange')
+        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
         self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.y_axis_frame_label.pack(side=tk.TOP)
  
-        self.y_axis_listbox = tk.Listbox(self.y_axis_frame)
-        self.y_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.y_axis_listbox = tk.Listbox(self.y_axis_frame, font=('Arial', 24))
+        self.y_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
         for column in self.df.columns:
             self.y_axis_listbox.insert(tk.END, column)
- 
+
 
         def on_y_axis_listbox_selection(event):
             selected_index = self.y_axis_listbox.curselection()
@@ -1816,6 +1815,7 @@ class CreatePlotClass():
  
         self.y_axis_label = tk.Label(self.y_axis_frame, textvariable=self.y_axis_selection)
         self.y_axis_label.pack(side=tk.TOP)
+        self.y_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
  
         # Force update the Listboxes after the frame becomes visible
         self.x_axis_listbox.update()
@@ -1823,11 +1823,7 @@ class CreatePlotClass():
         ###################### Y AXIS ######################
  
         # Add the Submit button
-        self.submit_button = tk.Button(
-            self.submit_settings_button_frame,
-            text="Submit",
-            command=self.submit_plot_settings
-        )
+        self.submit_button = tk.Button(self.submit_settings_button_frame, text="Submit", command=self.submit_plot_settings, font=('Arial', 40))
         self.submit_button.pack(pady=10)
  
 
@@ -1893,36 +1889,6 @@ class CreatePlotClass():
 
        
 
-
-
-
-
-
-# def create_plot():
- 
-#     utils.remove_frame_widgets(visualize_content_frame)
-   
-#     CreatePlotClass(visualize_content_frame, df)
-   
- 
-    # available_plots = ["Scatter Plot", "Histogram"]
-    # text_prompt = "Choose a PLOT you want to make"
-    # plot_choice = utils.get_single_choice(visualize_content_frame, available_plots, text_prompt)
-    # if not plot_choice:
-    #     utils.show_message("No plot Selected", "No plot selected.")
-    #     return
-   
- 
-    # if plot_choice == "Scatter Plot":
-    #     fig = create_scatter_plot(visualize_content_frame, df)
- 
-    # if plot_choice == "Histogram":
-    #     fig = create_histogram(visualize_content_frame, df)
-
-
-
-    # if fig is not None:
-    #     utils.create_graph(visualize_content_frame, fig)
 
 
 
