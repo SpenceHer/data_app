@@ -12,7 +12,7 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     style.configure("visualize_button.TButton", background="gray")
     def initialize_file_tab():
         file_handling_content_frame.pack(fill=tk.BOTH, expand=True)
-        style.configure("open_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+        style.configure("open_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 72))
         open_file_button = ttk.Button(file_handling_content_frame, text="Open File", style="open_file_button.TButton")
         open_file_button.pack(side="left", fill="both", expand=True, padx=100, pady=100)  # Set expand=True to fill the horizontal space
         open_file_button.config(command=lambda: open_file(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
@@ -142,12 +142,4 @@ def save_file(df):
 
 
 
-################################################
-################################################
- 
-                # CLEAN DATA #
- 
-################################################
-################################################
- 
 
