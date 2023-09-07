@@ -68,9 +68,6 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
 
 
 
-def summarize_column(column, df):
- 
-    return
 
 
 
@@ -100,6 +97,7 @@ class ComparisonTableClass:
         self.selected_independent_variables = []
         self.selected_percent_type = ""
         self.selected_data = ""
+        
 
 
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -415,7 +413,7 @@ class ComparisonTableClass:
     def create_results_frame(self):
 
 
-        self.results_display_frame = tk.Frame(self.results_frame, bg='blue')
+        self.results_display_frame = tk.Frame(self.results_frame, bg='beige')
         self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -903,7 +901,7 @@ class RegressionAnalysisClass:
         self.selected_dependent_variable = ""
         self.selected_independent_variables = []
         self.selected_analysis = ""
-
+        self.selected_dependent_variable_value = ""
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
@@ -936,7 +934,7 @@ class RegressionAnalysisClass:
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
-        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
+        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='lightgray')
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
 
@@ -1204,25 +1202,23 @@ class RegressionAnalysisClass:
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
 
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Choose your variable types", font=("Arial", 36))
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Variable Handling", font=("Arial", 36))
         self.variable_handling_label.pack(side=tk.TOP)
-
 
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
+
+
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
 
         self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', font=("Arial", 36))
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
-
         self.view_results_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_results_frame, text="View Results", font=("Arial", 36))
         self.view_results_button.pack(side=tk.RIGHT)
-
 
         self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
@@ -1239,7 +1235,7 @@ class RegressionAnalysisClass:
     def create_results_frame(self):
 
 
-        self.results_display_frame = tk.Frame(self.results_frame, bg='blue')
+        self.results_display_frame = tk.Frame(self.results_frame, bg='beige')
         self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1279,7 +1275,7 @@ class RegressionAnalysisClass:
     def switch_to_independent_variables_frame(self):
         if self.selected_dependent_variable == "":
             return
-   
+
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -1290,20 +1286,24 @@ class RegressionAnalysisClass:
         self.available_independent_variable_listbox.update_idletasks()
 
 
-
-
-
-
     def switch_to_variable_handling_frame(self):
 
         if self.selected_analysis not in [1,2]:
             return
-       
+        
         if self.selected_analysis == 1:
+            if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
+                
+                utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
+                return
             self.handle_variables_logistic_regression()
 
-
         if self.selected_analysis == 2:
+            try:
+                self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
+            except:
+                utils.show_message('dependent variable error', 'Dependent Variable not numeric for linear regression')
+                return
             self.handle_variables_linear_regression()
 
 
@@ -1385,13 +1385,47 @@ class RegressionAnalysisClass:
 
 
         self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
+        self.variable_handling_label.configure(text="Logistic Regression Variable Settings")
 
         utils.forget_frame_widgets(self.variable_handling_options_frame)
 
 
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
         self.clean_df.dropna(inplace=True)
+
+
+        self.dependent_variable_handling_frame = tk.Frame(self.variable_handling_options_frame, bg='beige')
+        self.dependent_variable_handling_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32))
+        self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
+
+        def on_dependent_variable_value_selected():
+            self.selected_dependent_variable_value = self.selected_dependent_variable_radio_value.get()
+
+
+        self.selected_dependent_variable_radio_value = tk.IntVar()
+
+        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.selected_dependent_variable_radio_value, value=1, command=on_dependent_variable_value_selected, font=("Arial", 40))
+        self.dependent_variable_unique_value_1.pack(side=tk.TOP)
+
+        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.selected_dependent_variable_radio_value, value=2, command=on_dependent_variable_value_selected, font=("Arial", 40))
+        self.dependent_variable_unique_value_2.pack(side=tk.TOP)
+
+
+
+
+
+
+
+
+    
+        self.independent_variable_handling_frame = tk.Frame(self.variable_handling_options_frame, bg='beige')
+        self.independent_variable_handling_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+        self.independent_variable_handling_frame_label = tk.Label(self.independent_variable_handling_frame, text='Choose variable types', font=('Arial', 32))
+        self.independent_variable_handling_frame_label.pack(side=tk.TOP)
+
 
 
 
@@ -1408,7 +1442,7 @@ class RegressionAnalysisClass:
         for value in self.unique_values:
 
 
-            options_frame = tk.Frame(self.variable_handling_options_frame)
+            options_frame = tk.Frame(self.independent_variable_handling_frame)
             options_frame.pack(side=tk.TOP)
 
 
@@ -1454,6 +1488,14 @@ class RegressionAnalysisClass:
 
 
     def apply_logistic_regression_selection(self):
+        if self.selected_dependent_variable_value == 1:
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 1
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 0
+
+        if self.selected_dependent_variable_value == 2:
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 0
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 1
+
         self.selected_options.clear()
         for value, var in self.variable_type_radio_var.items():
             option = var.get()
@@ -1471,12 +1513,12 @@ class RegressionAnalysisClass:
                 elif column_data_type == 'float64':
                     input_value = float(input_value)  # Convert to float
                     self.reference_value_dict[value] = input_value
+        
 
 
 
     def switch_to_results_frame(self):
         self.run_analysis()
-
 
         self.indedependent_variables_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -1499,15 +1541,13 @@ class RegressionAnalysisClass:
         elif self.selected_analysis == 2:
             self.linear_regression()
 
-
-
+        
 
     def logistic_regression(self):
         self.apply_logistic_regression_selection()
         model_string = f"{self.selected_dependent_variable} ~ "
+        self.clean_df[self.selected_dependent_variable] = self.clean_df[self.selected_dependent_variable].astype(int)
 
-        self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].astype(int)
-        print(self.df[self.selected_dependent_variable])
         for value, option in self.selected_options.items():
             if option == 'Continuous':
                 model_string = model_string + f"{value} + "
@@ -1516,6 +1556,7 @@ class RegressionAnalysisClass:
                     model_string = model_string + f"C({value}, Treatment('{self.reference_value_dict[value]}')) + "
                 else:
                     model_string = model_string + f"C({value}, Treatment({self.reference_value_dict[value]})) + "
+
         model_string = model_string.rstrip(" +")
         print(model_string)
         model = smf.logit(model_string, data=self.clean_df)
@@ -1668,13 +1709,13 @@ class CreatePlotClass():
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
  
-        self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg='yellow')
+        self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.plot_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
-        self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg='blue')
+        self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.figure_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg='orange')
+        self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.figure_display_frame.pack_forget()
  
