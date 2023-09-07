@@ -82,7 +82,7 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
 
 def open_file(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     # Specify the path of the specific dataframe file you want to load
-    file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx"), ("CSV files", "*.csv")])
+    file_path = filedialog.askopenfilename()
     # file_path = "X:\OHSU Shared\Restricted\SOM\SURG\ORTH\Smith\Projects\YOO\OHSU Lumbar Fusions\master_8.1.23.xlsx"
     # file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
