@@ -64,10 +64,10 @@ class CleanData():
         self.editing_content_frame = editing_content_frame
         utils.remove_frame_widgets(self.editing_content_frame)
  
-        self.column_options_frame = tk.Frame(self.editing_content_frame, bg='yellow')
+        self.column_options_frame = tk.Frame(self.editing_content_frame, bg='beige')
         self.column_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
-        self.clean_settings_frame = tk.Frame(self.editing_content_frame, bg='pink')
+        self.clean_settings_frame = tk.Frame(self.editing_content_frame, bg='beige')
         self.clean_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.create_column_options_list()
@@ -79,7 +79,7 @@ class CleanData():
         self.selected_column = None
         self.selected_column = tk.StringVar(value=self.selected_column)
  
-        self.choice_frame = tk.Frame(self.column_options_frame, bg='orange')
+        self.choice_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.choice_frame_label = tk.Label(self.choice_frame, text="COLUMN SELECTION", font=("Arial", 30, "bold"))
@@ -104,11 +104,11 @@ class CleanData():
 
         self.column_choice_listbox.bind("<<ListboxSelect>>", on_column_choice_listbox_selection)
  
-        self.column_options_button_frame = tk.Frame(self.column_options_frame, bg='yellow')
+        self.column_options_button_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.column_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Clean Column", bg='orange', command=lambda: self.clean_column())
-        self.choose_column_button.pack(side=tk.LEFT)
+        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit Column", bg='beige', command=lambda: self.clean_column(), font=('Arial', 24))
+        self.choose_column_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
  
     def clean_column(self):
         selected_index = self.column_choice_listbox.curselection()
@@ -119,10 +119,10 @@ class CleanData():
     def choose_variable_type(self):
         utils.remove_frame_widgets(self.clean_settings_frame)
  
-        self.variable_type_choice_frame = tk.Frame(self.clean_settings_frame, bg='purple')
+        self.variable_type_choice_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.variable_type_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
-        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_frame, bg='purple')
+        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
         self.categorical_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.continuous_variable_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
@@ -140,7 +140,7 @@ class CleanData():
         self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
         self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
  
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray")
+        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray", fg='black')
         self.menu_column_choice.pack(side=tk.TOP, padx= 10, pady=10, fill=tk.BOTH, expand=True)
 
 
@@ -175,7 +175,7 @@ class CleanData():
         utils.remove_frame_widgets(self.clean_settings_frame)
        
  
-        self.handle_non_numerics_frame = tk.Frame(self.clean_settings_frame, bg='purple')
+        self.handle_non_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.handle_non_numerics_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
         self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
@@ -200,20 +200,20 @@ class CleanData():
             self.non_numeric_values = self.temp_df[self.selected_column].loc[~self.temp_df[self.selected_column].apply(lambda x: isinstance(x, (int, float)))]
             self.unique_non_numeric_values = self.non_numeric_values.unique()
  
-            self.value_choice_frame = tk.Frame(self.handle_non_numerics_frame, bg='orange')
+            self.value_choice_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
             self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
-            self.value_action_frame = tk.Frame(self.handle_non_numerics_frame, bg='yellow')
+            self.value_action_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
             self.value_action_frame.pack(side=tk.LEFT)
  
-            self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value())
+            self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), font=("Arial", 36))
             self.remove_button.grid(row=0, column=0, padx=5, pady=5)
  
-            self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value())
+            self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 36))
             self.change_value_button.grid(row=1, column=0, padx=5, pady=5)
  
             # Create the Entry widget
-            self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 18))
+            self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 36))
             self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
 
 
@@ -316,13 +316,13 @@ class CleanData():
         return fig
  
     def handle_other_numeric_values(self):
-        self.handle_other_numerics_frame = tk.Frame(self.clean_settings_frame, bg='pink')
+        self.handle_other_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.handle_other_numerics_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
-        self.histogram_frame = tk.Frame(self.handle_other_numerics_frame, bg='pink')
+        self.histogram_frame = tk.Frame(self.handle_other_numerics_frame, bg='beige')
         self.histogram_frame.pack(side=tk.TOP, fill=tk.X)
  
-        self.options_frame = tk.Frame(self.handle_other_numerics_frame, bg='green')
+        self.options_frame = tk.Frame(self.handle_other_numerics_frame, bg='beige')
         self.options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
 
@@ -404,7 +404,7 @@ class CleanData():
     def handle_categorical_values(self):
         utils.remove_frame_widgets(self.clean_settings_frame)
  
-        self.handle_categorical_values_frame = tk.Frame(self.clean_settings_frame, bg='purple')
+        self.handle_categorical_values_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.handle_categorical_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
         self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
@@ -427,10 +427,10 @@ class CleanData():
         self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
  
 
-        self.value_choice_frame = tk.Frame(self.handle_categorical_values_frame, bg='orange')
+        self.value_choice_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
         self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
-        self.value_action_frame = tk.Frame(self.handle_categorical_values_frame, bg='yellow')
+        self.value_action_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
         self.value_action_frame.pack(side=tk.LEFT)
  
         self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value())
@@ -505,7 +505,7 @@ class CleanData():
     def view_categorical_value_counts(self):
         utils.remove_frame_widgets(self.clean_settings_frame)
        
-        self.barplot_frame = tk.Frame(self.clean_settings_frame, bg='pink')
+        self.barplot_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.barplot_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
 
@@ -595,9 +595,9 @@ class CreateNewVariableClass:
 
         utils.remove_frame_widgets(self.editing_content_frame)
 
-        self.column_selection_frame = tk.Frame(self.editing_content_frame, bg='hotpink')
-        self.conditions_frame = tk.Frame(self.editing_content_frame, bg='purple')
-        self.finalize_frame = tk.Frame(self.editing_content_frame, bg='red')
+        self.column_selection_frame = tk.Frame(self.editing_content_frame, bg='beige')
+        self.conditions_frame = tk.Frame(self.editing_content_frame, bg='beige')
+        self.finalize_frame = tk.Frame(self.editing_content_frame, bg='beige')
 
         self.create_column_selection_frame()
         self.create_conditions_frame()
@@ -613,24 +613,24 @@ class CreateNewVariableClass:
 
         self.selected_columns = []
 
-        self.column_choice_frame = tk.Frame(self.column_selection_frame, bg='yellow')
+        self.column_choice_frame = tk.Frame(self.column_selection_frame, bg='beige')
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.choose_columns_label = tk.Label(self.column_choice_frame, text="Choose columns to use", font=("Arial", 36))
         self.choose_columns_label.pack(side=tk.TOP, fill=tk.X)
 
-        self.selection_frame = tk.Frame(self.column_choice_frame, bg='blue')
+        self.selection_frame = tk.Frame(self.column_choice_frame, bg='beige')
         self.selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
 
-        self.available_columns_frame = tk.Frame(self.selection_frame, bg='green')
+        self.available_columns_frame = tk.Frame(self.selection_frame, bg='beige')
         self.available_columns_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     
-        self.transfer_buttons_frame = tk.Frame(self.selection_frame, bg='red')
+        self.transfer_buttons_frame = tk.Frame(self.selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_columns_frame = tk.Frame(self.selection_frame, bg='pink')
+        self.selected_columns_frame = tk.Frame(self.selection_frame, bg='beige')
         self.selected_columns_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
@@ -742,10 +742,10 @@ class CreateNewVariableClass:
     def create_conditions_frame(self):
 
         # VARIABLE NAME FRAME
-        self.column_name_frame = tk.Frame(self.conditions_frame, bg='green')
+        self.column_name_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.column_name_frame.pack(side=tk.TOP, fill=tk.X)
 
-        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='orange')
+        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='beige', foreground='black')
         self.column_name_frame_label.pack(side=tk.TOP, fill=tk.X)
 
         self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
@@ -753,7 +753,7 @@ class CreateNewVariableClass:
 
 
         # ADD/REMOVE CONDITIONS BUTTONS FRAME
-        self.condition_buttons_frame = tk.Frame(self.conditions_frame, bg='yellow')
+        self.condition_buttons_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.condition_buttons_frame.pack(side=tk.TOP, fill=tk.X)
 
         self.add_new_value_button = tk.Button(self.condition_buttons_frame, text='Add New Value', command=self.add_value_frame, font=('Arial', 36))
@@ -772,7 +772,7 @@ class CreateNewVariableClass:
         self.condition_signs_dict = {'Equals':'==', 'Does Not Equal':'!=', 'Less Than':'<', 'Greater Than':'>', 'Less Than or Equal To':'<=', 'Greater Than or Equal To':'>=',
                                      'Contains':'Contains', 'Does Not Contain':'Does Not Contain'}
         
-        self.condition_options_frame = tk.Frame(self.conditions_frame, bg='orange')
+        self.condition_options_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
