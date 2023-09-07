@@ -26,9 +26,9 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     utils.remove_frame_widgets(sub_button_frame)
 
     style.configure("clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    clean_button = ttk.Button(sub_button_frame, text="Clean Data", style="clean_button.TButton")
+    clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="clean_button.TButton")
     clean_button.pack(side="left", fill="x", expand=True)
-    clean_button.config(command=lambda: CleanData(editing_content_frame, dataframe_content_frame, df))
+    clean_button.config(command=lambda: EditData(editing_content_frame, dataframe_content_frame, df))
 
     style.configure("create_cat_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_cat_var_button = ttk.Button(sub_button_frame, text="Create New Variable", style="create_cat_var_button.TButton")
@@ -50,12 +50,12 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 ################################################
 ################################################
  
-                # CLEAN DATA #
+                # EDIT DATA #
  
 ################################################
 ################################################
  
-class CleanData():
+class EditData():
     def __init__(self, editing_content_frame, dataframe_content_frame, df):
         self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
@@ -72,6 +72,13 @@ class CleanData():
  
         self.create_column_options_list()
    
+    def update_column_listbox(self, *args):
+        search_term = self.column_search_var.get().lower()
+        self.column_choice_listbox.delete(0, tk.END)
+        for column in self.df.columns:
+            if search_term in column.lower():
+                self.column_choice_listbox.insert(tk.END, column)
+
     def create_column_options_list(self):
         utils.remove_frame_widgets(self.column_options_frame)
  
@@ -85,6 +92,10 @@ class CleanData():
         self.choice_frame_label = tk.Label(self.choice_frame, text="COLUMN SELECTION", font=("Arial", 30, "bold"))
         self.choice_frame_label.pack(side=tk.TOP)
  
+        self.column_search_var = tk.StringVar()
+        self.column_search_var.trace("w", self.update_column_listbox)
+        self.search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
+        self.search_entry.pack(side=tk.TOP, pady=5)
 
         self.column_type_selection = tk.StringVar()
         self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 18))
