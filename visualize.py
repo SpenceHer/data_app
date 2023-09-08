@@ -312,10 +312,10 @@ class ComparisonTableClass:
         self.percentage_type_radio_var = tk.IntVar()
 
         self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value=1, command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
-        self.row_percentage_radiobutton.pack(side=tk.TOP)
+        self.row_percentage_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value=2, command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
-        self.column_percentage_radiobutton.pack(side=tk.TOP)
+        self.column_percentage_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
 
@@ -329,10 +329,10 @@ class ComparisonTableClass:
         self.data_choice_radio_var = tk.IntVar()
 
         self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value=1, command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
-        self.independent_data_radiobutton.pack(side=tk.TOP)
+        self.independent_data_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value=2, command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
-        self.dependent_data_radiobutton.pack(side=tk.TOP)
+        self.dependent_data_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
 
@@ -1145,11 +1145,11 @@ class RegressionAnalysisClass:
 
 
         self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, indicator = 0,font=("Arial", 40))
-        self.logistic_regression_radiobutton.pack(side=tk.TOP)
+        self.logistic_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
         self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value=2, command=on_radio_button_selected, indicator = 0, font=("Arial", 40))
-        self.linear_regression_radiobutton.pack(side=tk.TOP)
+        self.linear_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
 
@@ -1408,10 +1408,10 @@ class RegressionAnalysisClass:
         self.selected_dependent_variable_radio_value = tk.IntVar()
 
         self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.selected_dependent_variable_radio_value, value=1, command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40))
-        self.dependent_variable_unique_value_1.pack(side=tk.TOP)
+        self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.selected_dependent_variable_radio_value, value=2, command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40))
-        self.dependent_variable_unique_value_2.pack(side=tk.TOP)
+        self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
 
