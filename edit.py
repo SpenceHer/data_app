@@ -898,19 +898,19 @@ class CreateNewVariableClass:
                 column_values_dropdown["values"] = value_list
 
             selected_column_option = tk.StringVar()
-            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_column_option, values=self.selected_columns)
+            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_column_option, values=self.selected_columns, state="readonly")
             column_dropdown.pack(side=tk.LEFT)
             column_dropdown.bind("<<ComboboxSelected>>", on_combobox_select)
 
             # CONDITION SIGN DROPDOWN
             selected_condition_sign = tk.StringVar()
-            selected_condition_sign_dropdown = ttk.Combobox(condition_frame, textvariable=selected_condition_sign, values=self.condition_signs)
+            selected_condition_sign_dropdown = ttk.Combobox(condition_frame, textvariable=selected_condition_sign, values=self.condition_signs, state="readonly")
             selected_condition_sign_dropdown.pack(side=tk.LEFT)
 
             # VALUE SELECTION DROPDOWN
             selected_value = tk.StringVar()
             value_list = ['USER CHOICE']
-            column_values_dropdown = ttk.Combobox(condition_frame, textvariable=selected_value, values=value_list)
+            column_values_dropdown = ttk.Combobox(condition_frame, textvariable=selected_value, values=value_list, state="readonly")
             column_values_dropdown.pack(side=tk.LEFT)
 
             # USER ENTRY VALUE
