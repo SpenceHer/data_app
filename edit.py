@@ -54,13 +54,12 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
  
 ################################################
 ################################################
- 
+
 class EditData():
     def __init__(self, editing_content_frame, dataframe_content_frame, df):
         self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
  
-
         self.editing_content_frame = editing_content_frame
         utils.remove_frame_widgets(self.editing_content_frame)
  
@@ -91,17 +90,17 @@ class EditData():
  
         self.choice_frame_label = tk.Label(self.choice_frame, text="COLUMN SELECTION", font=("Arial", 30, "bold"))
         self.choice_frame_label.pack(side=tk.TOP)
- 
+
         self.column_search_var = tk.StringVar()
         self.column_search_var.trace("w", self.update_column_listbox)
         self.search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
         self.search_entry.pack(side=tk.TOP, pady=5)
 
         self.column_type_selection = tk.StringVar()
-        self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 18))
+        self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
         self.column_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
-        for column in self.available_columns:
+        for column in sorted(self.available_columns):
             self.column_choice_listbox.insert(tk.END, column)
  
         self.column_choice_listbox.update_idletasks()
@@ -383,6 +382,13 @@ class EditData():
 
     def update_dataframe(self):
         self.df = self.temp_df.copy()
+        def fix_columns(df):
+            df.columns = df.columns.str.replace(' ', '_')
+            df.columns = df.columns.str.replace('__', '_')
+            df.columns = df.columns.str.replace('___', '_')
+            df.columns = df.columns.str.replace(r'\W+', '', regex=True)
+
+        fix_columns(self.df)
         data_manager.set_dataframe(self.df)
  
         utils.remove_frame_widgets(self.dataframe_content_frame)
@@ -444,14 +450,14 @@ class EditData():
         self.value_action_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
         self.value_action_frame.pack(side=tk.LEFT)
  
-        self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value())
+        self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), font=("Arial", 36))
         self.remove_button.grid(row=0, column=0, padx=5, pady=5)
  
-        self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value())
+        self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), font=("Arial", 36))
         self.change_value_button.grid(row=1, column=0, padx=5, pady=5)
  
         # Create the Entry widget
-        self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 18))
+        self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 36))
         self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
  
 
@@ -620,6 +626,7 @@ class CreateNewVariableClass:
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
+    
     def create_column_selection_frame(self):
 
         self.selected_columns = []
@@ -780,8 +787,12 @@ class CreateNewVariableClass:
         self.value_frames = []
         self.condition_frames = []
         self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To', 'Contains', 'Does Not Contain']
-        self.condition_signs_dict = {'Equals':'==', 'Does Not Equal':'!=', 'Less Than':'<', 'Greater Than':'>', 'Less Than or Equal To':'<=', 'Greater Than or Equal To':'>=',
-                                     'Contains':'Contains', 'Does Not Contain':'Does Not Contain'}
+        self.condition_signs_dict = {'Equals':'==',
+                                     'Does Not Equal':'!=',
+                                     'Less Than':'<',
+                                     'Greater Than':'>',
+                                     'Less Than or Equal To':'<=',
+                                     'Greater Than or Equal To':'>='}
         
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -828,7 +839,7 @@ class CreateNewVariableClass:
 
         # MENU FRAME
 
-        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='lightgray')
+        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.return_to_column_selection_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_column_selection_frame, text="Back", font=("Arial", 36))
@@ -853,7 +864,6 @@ class CreateNewVariableClass:
         def remove_condition():
             if len(condition_frames) > 1:
                 frame = condition_frames.pop()
-                next_frame = condition_frames[-1]
 
                 if condition_frames and condition_frames[-1].winfo_children()[0].cget("text") in {'AND', 'OR'}:
                     separation_frame = condition_frames.pop()
