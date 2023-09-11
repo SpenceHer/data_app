@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import statsmodels.api as sm
 
- 
+
 def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     df = data_manager.get_dataframe()
     if df is None:
@@ -941,7 +941,6 @@ class RegressionAnalysisClass:
         self.advance_to_independent_variables_button = tk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, font=("Arial", 36))
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
-
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
@@ -1728,9 +1727,9 @@ class CreatePlotClass():
         self.available_plots = ["Scatter Plot"]
         self.selected_plot = None
         self.selected_plot = tk.StringVar(value=self.selected_plot)
- 
+
         self.radiobuttons = []
- 
+
         self.choice_frame = tk.Frame(self.plot_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
@@ -1744,9 +1743,9 @@ class CreatePlotClass():
  
         for plot in self.available_plots:
             self.plot_choice_listbox.insert(tk.END, plot)
- 
+
         self.plot_choice_listbox.update()
- 
+
         def on_plot_choice_listbox_selection(event):
             selected_index = self.plot_choice_listbox.curselection()
             if selected_index:
@@ -1761,7 +1760,7 @@ class CreatePlotClass():
         self.plot_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
         self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg='beige', command=lambda: self.choose_plot())
-        self.choose_plot_button.pack(side=tk.LEFT)
+        self.choose_plot_button.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5)
 
 
 
@@ -1809,11 +1808,19 @@ class CreatePlotClass():
  
         self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.x_axis_frame_label.pack(side=tk.TOP)
-        
- 
+
+
+
+
+        self.x_axis_search_var = tk.StringVar()
+        self.x_axis_search_var.trace("w", self.update_x_axis_variable_listbox)
+        self.x_axis_search_entry = tk.Entry(self.x_axis_frame, textvariable=self.x_axis_search_var, font=("Arial", 24))
+        self.x_axis_search_entry.pack(side=tk.TOP, pady=10)
+
         self.x_axis_listbox = tk.Listbox(self.x_axis_frame, font=('Arial', 24))
         self.x_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-        for column in self.df.columns:
+        
+        for column in sorted(self.df.columns):
             self.x_axis_listbox.insert(tk.END, column)
  
         def on_x_axis_listbox_selection(event):
@@ -1822,8 +1829,8 @@ class CreatePlotClass():
                 selected_column = self.x_axis_listbox.get(selected_index[0])
                 self.x_axis_selection.set(selected_column)
                 self.x_axis_label.config(text=self.x_axis_selection.get(), font=("Arial", 30, "bold"))  # Update x_axis_label text
- 
-       
+        
+
         self.x_axis_listbox.bind("<<ListboxSelect>>", on_x_axis_listbox_selection)
  
         self.x_axis_label = tk.Label(self.x_axis_frame, textvariable=self.x_axis_selection)
@@ -1838,9 +1845,17 @@ class CreatePlotClass():
         self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.y_axis_frame_label.pack(side=tk.TOP)
  
+
+
+        self.y_axis_search_var = tk.StringVar()
+        self.y_axis_search_var.trace("w", self.update_y_axis_variable_listbox)
+        self.y_axis_search_entry = tk.Entry(self.y_axis_frame, textvariable=self.y_axis_search_var, font=("Arial", 24))
+        self.y_axis_search_entry.pack(side=tk.TOP, pady=10)
+
         self.y_axis_listbox = tk.Listbox(self.y_axis_frame, font=('Arial', 24))
         self.y_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-        for column in self.df.columns:
+        
+        for column in sorted(self.df.columns):
             self.y_axis_listbox.insert(tk.END, column)
 
 
@@ -1867,6 +1882,19 @@ class CreatePlotClass():
         self.submit_button = tk.Button(self.submit_settings_button_frame, text="Submit", command=self.submit_plot_settings, font=('Arial', 40))
         self.submit_button.pack(pady=10)
  
+    def update_x_axis_variable_listbox(self, *args):
+        search_term = self.x_axis_search_var.get().lower()
+        self.x_axis_listbox.delete(0, tk.END)
+        for column in sorted(self.df.columns):
+            if search_term in column.lower():
+                self.x_axis_listbox.insert(tk.END, column)
+
+    def update_y_axis_variable_listbox(self, *args):
+        search_term = self.y_axis_search_var.get().lower()
+        self.y_axis_listbox.delete(0, tk.END)
+        for column in sorted(self.df.columns):
+            if search_term in column.lower():
+                self.y_axis_listbox.insert(tk.END, column)
 
     def submit_plot_settings(self):
         self.figure_settings_frame.pack_forget()
