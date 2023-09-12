@@ -112,7 +112,7 @@ class SetupFileTabClass():
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
 
-        utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe(), height=30)
+        utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe())
         summary_df = utils.create_summary_table(data_manager.get_dataframe())
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
         setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=False)
