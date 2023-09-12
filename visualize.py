@@ -309,7 +309,8 @@ class ComparisonTableClass:
         def on_percentage_radio_button_selected():
             self.selected_percent_type = self.percentage_type_radio_var.get()
 
-        self.percentage_type_radio_var = tk.IntVar()
+        self.percentage_type_radio_var = tk.IntVar(value=2)
+        self.selected_percent_type = self.percentage_type_radio_var.get()
 
         self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value=1, command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
         self.row_percentage_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -326,7 +327,8 @@ class ComparisonTableClass:
         def on_data_choice_radio_button_selected():
             self.selected_data = self.data_choice_radio_var.get()
 
-        self.data_choice_radio_var = tk.IntVar()
+        self.data_choice_radio_var = tk.IntVar(value=1)
+        self.selected_data = self.data_choice_radio_var.get()
 
         self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value=1, command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
         self.independent_data_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -1140,7 +1142,8 @@ class RegressionAnalysisClass:
             self.selected_analysis = self.regression_type_radio_var.get()
 
 
-        self.regression_type_radio_var = tk.IntVar()
+        self.regression_type_radio_var = tk.IntVar(value=1)
+        self.selected_analysis = self.regression_type_radio_var.get()
 
 
         self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, indicator = 0,font=("Arial", 40))
