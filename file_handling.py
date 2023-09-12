@@ -53,7 +53,6 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 class SetupFileTabClass():
     def __init__(self, style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize):
-        self.df_dict = {}
         self.sub_button_frame = sub_button_frame
         self.dataframe_content_frame = dataframe_content_frame
         self.file_handling_content_frame = file_handling_content_frame
@@ -63,25 +62,27 @@ class SetupFileTabClass():
         self.selected_dataframe = None
 
         self.file_handling_content_frame.pack(fill=tk.BOTH, expand=True)
-        self.style.configure("open_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 72))
+        self.style.configure("open_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 48))
 
         # LEFT FRAME
         self.left_file_menu_frame = tk.Frame(file_handling_content_frame, bg='beige')
         self.left_file_menu_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
-        self.open_file_button = tk.Button(self.left_file_menu_frame, text="Open New File", font=("Arial", 72))
+        self.open_file_button = tk.Button(self.left_file_menu_frame, text="Open New File", font=("Arial", 48))
         self.open_file_button.pack(side=tk.TOP, padx=10, pady=10)  # Set expand=True to fill the horizontal space
         self.open_file_button.config(command=self.open_file)
 
         self.dataframe_list_label = tk.Label(self.left_file_menu_frame, text="List of Dataframes", font=("Arial", 36))
         self.dataframe_list_label.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
+        self.dataframe_choice_submit_button = tk.Button(self.left_file_menu_frame, text="Change Dataframe", font=("Arial", 28), command=self.update_dataframe)
+        self.dataframe_choice_submit_button.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
+
         self.dataframe_listbox = tk.Listbox(self.left_file_menu_frame, font=("Arial", 36))
-        self.dataframe_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.dataframe_listbox.pack(side=tk.TOP, fill=tk.BOTH, padx=5, pady=5)
         self.dataframe_listbox.bind("<<ListboxSelect>>", self.on_dataframe_listbox_select)
 
-        self.dataframe_choice_submit_button = tk.Button(self.left_file_menu_frame, text="Change Dataframe", font=("Arial", 28), command=self.update_dataframe)
-        self.dataframe_choice_submit_button.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
 
 
 
@@ -92,7 +93,7 @@ class SetupFileTabClass():
         self.create_new_dataframe_button_frame = tk.Frame(self.right_file_menu_frame)
         self.create_new_dataframe_button_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.create_new_dataframe_button = tk.Button(self.create_new_dataframe_button_frame, text="Create New Custom Dataframe\n\n(Select from available dataframes)", font=("Arial", 72), command=self.create_new_dataframe)
+        self.create_new_dataframe_button = tk.Button(self.create_new_dataframe_button_frame, text="Create New Custom Dataframe\n\n(Select from available dataframes)", font=("Arial", 48), command=self.create_new_dataframe)
         self.create_new_dataframe_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
@@ -104,14 +105,15 @@ class SetupFileTabClass():
             return
 
     def update_dataframe(self):
-        self.df = self.df_dict[self.selected_dataframe]
 
-        data_manager.set_dataframe(self.df)
+        data_manager.set_dataframe_name(self.selected_dataframe)
+        data_manager.set_dataframe(data_manager.get_dataframe_name())
+
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
 
-        utils.create_table(self.dataframe_content_frame, self.df)
-        summary_df = utils.create_summary_table(self.df)
+        utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe(), height=30)
+        summary_df = utils.create_summary_table(data_manager.get_dataframe())
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
         setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=False)
         utils.remove_frame_widgets(self.editing_content_frame)
@@ -162,9 +164,12 @@ class SetupFileTabClass():
 
         fix_columns(self.df)
 
-        data_manager.set_dataframe(self.df)  # Set the df variable
+        data_manager.set_dataframe_name(os.path.basename(self.file_path))
+        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
+        data_manager.set_dataframe(data_manager.get_dataframe_name())  # Set the df variable
 
-        self.df_dict[os.path.basename(self.file_path)] = self.df
+        
+
         self.update_dataframe_listbox()
         
         setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=True)
@@ -174,7 +179,7 @@ class SetupFileTabClass():
 
     def update_dataframe_listbox(self):
         self.dataframe_listbox.delete(0, tk.END)
-        for key, value in self.df_dict.items():
+        for key, value in data_manager.get_df_dict().items():
             self.dataframe_listbox.insert(tk.END, key)
 
 
@@ -202,7 +207,8 @@ class SetupFileTabClass():
             utils.show_message("Error", "Select A Dataframe from the Left First")
             return
 
-        self.df = self.df_dict[self.selected_dataframe]
+        self.df = data_manager.get_df_dict()[self.selected_dataframe]
+        print(self.df)
 
 
         self.column_selection_frame = tk.Frame(self.right_file_menu_frame, bg='beige')
@@ -352,7 +358,7 @@ class SetupFileTabClass():
         for index in reversed(selections):
             self.selected_columns_listbox.delete(index)
 
-        
+
 
 
     ###################################################################################################################################################################################################
@@ -408,7 +414,7 @@ class SetupFileTabClass():
 
 
         # SUBMIT SETTINGS BUTTON
-        self.submit_settings_button = tk.Button(self.condition_options_frame, text="SUBMIT SETTINGS AND CREATE NEW DATAFRAME", font=("Arial", 42), command=self.submit_dataframe_settings)
+        self.submit_settings_button = tk.Button(self.condition_options_frame, text="SUBMIT AND CREATE NEW DATAFRAME", font=("Arial", 36), command=self.submit_dataframe_settings)
         self.submit_settings_button.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True, padx=30, pady=30)
 
 
@@ -546,12 +552,11 @@ class SetupFileTabClass():
 
 
         final_condition_string = ''.join(condition_strings)
-
+        print(final_condition_string)
 
         self.new_df = self.df.loc[self.df.eval(final_condition_string)]
 
-
-        self.df_dict[self.dataframe_name_entry.get()] = self.new_df
+        data_manager.add_dataframe_to_dict(self.new_df, self.dataframe_name_entry.get())
         self.update_dataframe_listbox()
 
 
@@ -660,24 +665,28 @@ def save_file(df):
     if df is None:
         utils.show_message("Error", "Please open a file first.")
         return
+
     file_path = filedialog.asksaveasfilename(
         defaultextension=".xlsx",
         filetypes=[("Excel files", "*.xlsx"), ("CSV files", "*.csv"), ("All files", "*.*")]
     )
- 
-    # Check if the user selected a file
-    if file_path:
-        # Get the selected file name and extension
-        file_name = file_path.split('/')[-1]
- 
-        # Get the file extension
-        file_extension = file_name.split('.')[-1]
- 
-        # Save the DataFrame to the chosen file path based on the selected file extension
-        if file_extension == 'csv':
-            df.to_csv(file_path, index=False)
-        elif file_extension == 'xlsx':
-            df.to_excel(file_path, index=False)
-        else:
-            return
+
+    # Check if the user canceled the file dialog
+    if not file_path:
+        return
+
+    # Get the selected file name and extension
+    file_name = file_path.split('/')[-1]
+
+    # Get the file extension
+    file_extension = file_name.split('.')[-1]
+
+    # Save the DataFrame to the chosen file path based on the selected file extension
+    if file_extension == 'csv':
+        df.to_csv(file_path, index=False)
+    elif file_extension == 'xlsx':
+        df.to_excel(file_path, index=False)
+    else:
+        return
+
  
