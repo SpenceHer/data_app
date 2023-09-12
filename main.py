@@ -39,9 +39,9 @@ dataframe_content_frame = tk.Frame(content_frame, bg="beige")
 file_handling_content_frame = tk.Frame(content_frame, bg="beige")
 editing_content_frame = tk.Frame(content_frame, bg="beige")
 visualize_content_frame = tk.Frame(content_frame, bg="beige")
- 
+
 # Add Buttons
- 
+
 # Banner Frame
 style.configure("file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 48))
 file_button = ttk.Button(button_frame, text="File", style="file_button.TButton")
