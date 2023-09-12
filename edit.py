@@ -117,7 +117,7 @@ class EditData():
         self.column_options_button_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.column_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit Column", bg='beige', command=lambda: self.clean_column(), font=('Arial', 24))
+        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit Column", command=lambda: self.clean_column(), font=('Arial', 24))
         self.choose_column_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
  
     def clean_column(self):
@@ -228,7 +228,7 @@ class EditData():
 
 
 
-            self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="NON-NUMERIC VALUE SELECTION", font=("Arial", 30, "bold"))
+            self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="NON-NUMERIC VALUES", font=("Arial", 30, "bold"))
             self.value_choice_frame_label.pack(side=tk.TOP)
  
             self.value_selection = tk.StringVar()
@@ -389,8 +389,11 @@ class EditData():
             df.columns = df.columns.str.replace(r'\W+', '', regex=True)
 
         fix_columns(self.df)
-        data_manager.set_dataframe(self.df)
- 
+
+
+        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
+        data_manager.set_dataframe(data_manager.get_dataframe_name())
+
         utils.remove_frame_widgets(self.dataframe_content_frame)
  
         utils.create_table(self.dataframe_content_frame, self.df)
@@ -461,7 +464,7 @@ class EditData():
         self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
  
 
-        self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="NON-NUMERIC VALUE SELECTION", font=("Arial", 30, "bold"))
+        self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="UNIQUE VALUES", font=("Arial", 30, "bold"))
         self.value_choice_frame_label.pack(side=tk.TOP)
  
         self.value_selection = tk.StringVar()
@@ -786,7 +789,7 @@ class CreateNewVariableClass:
         # CONDITIONS OPTIONS FRAME
         self.value_frames = []
         self.condition_frames = []
-        self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To', 'Contains', 'Does Not Contain']
+        self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To']
         self.condition_signs_dict = {'Equals':'==',
                                      'Does Not Equal':'!=',
                                      'Less Than':'<',
@@ -1144,8 +1147,19 @@ class CreateNewVariableClass:
 
 
     def update_dataframe(self):
-        data_manager.set_dataframe(self.df)
- 
+
+        def fix_columns(df):
+            df.columns = df.columns.str.replace(' ', '_')
+            df.columns = df.columns.str.replace('__', '_')
+            df.columns = df.columns.str.replace('___', '_')
+            df.columns = df.columns.str.replace(r'\W+', '', regex=True)
+
+        fix_columns(self.df)
+
+        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
+        data_manager.set_dataframe(data_manager.get_dataframe_name())
+
+
         utils.remove_frame_widgets(self.dataframe_content_frame)
  
         utils.create_table(self.dataframe_content_frame, self.df)
