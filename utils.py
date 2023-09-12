@@ -184,9 +184,9 @@ def create_summary_table(df):
         summary = pd.concat([summary, pd.DataFrame({
             'Column': [column],
             'Mode': [mode],
-            'Non-Null Count': [non_null_count],
-            'Null Count': [null_count],
-            'Non-Null Unique Count': [non_null_unique_count],
+            'Non-Missing Count': [non_null_count],
+            'Missing Count': [null_count],
+            'Non-Missing Unique Count': [non_null_unique_count],
             **describe_data.to_dict()
         })])
     
