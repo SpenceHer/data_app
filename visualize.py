@@ -855,7 +855,7 @@ class ComparisonTableClass:
         self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
 
 
-        utils.create_table(self.results_display_frame, self.summary_df, height=30)
+        utils.create_table(self.results_display_frame, self.summary_df)
 
         save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df))
         save_summary_button.pack()
