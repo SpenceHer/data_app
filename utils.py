@@ -76,26 +76,26 @@ def forget_frame_widgets(frame):
 def create_table(parent, df, show_index=True, table_name="", graph_name="", title=""):
  
     table_frame = tk.Frame(parent)
-    table_frame.pack()
+    table_frame.pack(fill=tk.Y, expand=True)
  
     if title != "":
         label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'))
         label.pack(pady=10)
  
     treeview_frame = tk.Frame(table_frame)
-    treeview_frame.pack(fill="both", expand=True)
+    treeview_frame.pack(fill=tk.BOTH, expand=True)
  
     yscrollbar = ttk.Scrollbar(treeview_frame, orient="vertical")
     yscrollbar.pack(side="right", fill="y")
- 
+
     xscrollbar = ttk.Scrollbar(table_frame, orient="horizontal")
     xscrollbar.pack(side="bottom", fill="x")
- 
+
     table_treeview = ttk.Treeview(
-        treeview_frame, height=15, show="headings",
+        treeview_frame, show="headings",
         yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set
     )
- 
+
     yscrollbar.configure(command=table_treeview.yview)
     xscrollbar.configure(command=table_treeview.xview)
  
@@ -168,7 +168,7 @@ def is_column_numeric(df, column_name):
         return False
 
 def create_summary_table(df):
-    summary = pd.DataFrame(columns=['Column', 'Mode', 'Non-Null Count', 'Null Count', 'Non-Null Unique Count'] + list(df.describe().transpose().columns))
+    summary = pd.DataFrame(columns=['Column', 'Mode', 'Non-Missing Count', 'Missing Count', 'Non-Missing Unique Count'] + list(df.describe().transpose().columns))
     
     for column in df.columns:
         
