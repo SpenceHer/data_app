@@ -61,11 +61,19 @@ class SetupFileTabClass():
         self.style = style
         self.selected_dataframe = None
 
+
+
+        self.create_main_frame()
+
+
+        
+    def create_main_frame(self):
+
         self.file_handling_content_frame.pack(fill=tk.BOTH, expand=True)
         self.style.configure("open_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 48))
 
         # LEFT FRAME
-        self.left_file_menu_frame = tk.Frame(file_handling_content_frame, bg='beige')
+        self.left_file_menu_frame = tk.Frame(self.file_handling_content_frame, bg='beige')
         self.left_file_menu_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
         self.open_file_button = tk.Button(self.left_file_menu_frame, text="Open New File", font=("Arial", 48))
@@ -95,8 +103,6 @@ class SetupFileTabClass():
 
         self.create_new_dataframe_button = tk.Button(self.create_new_dataframe_button_frame, text="Create New Custom Dataframe\n\n(Select from available dataframes)", font=("Arial", 48), command=self.create_new_dataframe)
         self.create_new_dataframe_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-
 
     def on_dataframe_listbox_select(self, event):
         if self.dataframe_listbox.curselection():
