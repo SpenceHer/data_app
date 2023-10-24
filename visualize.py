@@ -29,25 +29,27 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
  
     utils.remove_frame_widgets(sub_button_frame)
  
+
+
     style.configure("comparison_table_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     comparison_table_button = ttk.Button(sub_button_frame, text="Comparison Table", style="comparison_table_button.TButton")
     comparison_table_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, df))
+    comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, df, style))
  
     style.configure("multi_log_reg_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     multi_log_reg_button = ttk.Button(sub_button_frame, text="Regression", style="multi_log_reg_button.TButton")
     multi_log_reg_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    multi_log_reg_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, df))
+    multi_log_reg_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, df, style))
  
     style.configure("create_plot_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_plot_button = ttk.Button(sub_button_frame, text="Create Plot", style="create_plot_button.TButton")
     create_plot_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    create_plot_button.config(command=lambda: CreatePlotClass(visualize_content_frame, df))
+    create_plot_button.config(command=lambda: CreatePlotClass(visualize_content_frame, df, style))
  
     style.configure("machine_learning_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     machine_learning_button = ttk.Button(sub_button_frame, text="Machine Learning", style="machine_learning_button.TButton")
     machine_learning_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    machine_learning_button.config(command=lambda: create_machine_learing(visualize_content_frame, df))
+    machine_learning_button.config(command=lambda: create_machine_learing(visualize_content_frame, df, style))
  
     editing_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
@@ -88,9 +90,16 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
 ################################################
  
 class ComparisonTableClass:
-    def __init__(self, visualize_content_frame, df):
+    def __init__(self, visualize_content_frame, df, style):
         self.df = data_manager.get_dataframe()
         self.visualize_content_frame = visualize_content_frame
+
+        self.style = style
+
+        self.style.configure("comparison_table_button.TButton", background="white")
+        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("create_plot_button.TButton", background="gray")
+        self.style.configure("machine_learning_button.TButton", background="gray")
 
 
         self.selected_dependent_variable = ""
@@ -160,9 +169,10 @@ class ComparisonTableClass:
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
-        self.search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=10)
+        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
+        self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
+        
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
@@ -257,8 +267,8 @@ class ComparisonTableClass:
 
         self.available_independent_search_var = tk.StringVar()
         self.available_independent_search_var.trace("w", self.update_available_independent_variable_listbox)
-        self.search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=10)
+        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=("Arial", 24))
+        self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
@@ -443,6 +453,7 @@ class ComparisonTableClass:
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.dependent_var_search_entry.focus_set()
 
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
@@ -455,6 +466,8 @@ class ComparisonTableClass:
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.independent_var_search_entry.focus_set()
 
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.available_independent_variable_listbox.update_idletasks()
@@ -895,10 +908,16 @@ class ComparisonTableClass:
 ################################################
 
 class RegressionAnalysisClass:
-    def __init__(self, visualize_content_frame, df):
+    def __init__(self, visualize_content_frame, df, style):
         self.df = data_manager.get_dataframe()
         self.visualize_content_frame = visualize_content_frame
 
+        self.style = style
+
+        self.style.configure("comparison_table_button.TButton", background="gray")
+        self.style.configure("multi_log_reg_button.TButton", background="white")
+        self.style.configure("create_plot_button.TButton", background="gray")
+        self.style.configure("machine_learning_button.TButton", background="gray")
 
         self.selected_dependent_variable = ""
         self.selected_independent_variables = []
@@ -965,8 +984,9 @@ class RegressionAnalysisClass:
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
-        self.search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=10)
+        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
+        self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
+
 
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
@@ -1077,8 +1097,8 @@ class RegressionAnalysisClass:
 
         self.available_independent_search_var = tk.StringVar()
         self.available_independent_search_var.trace("w", self.update_available_independent_variable_listbox)
-        self.search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=10)
+        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=("Arial", 24))
+        self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
@@ -1264,6 +1284,7 @@ class RegressionAnalysisClass:
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.dependent_var_search_entry.focus_set()
 
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
@@ -1283,6 +1304,7 @@ class RegressionAnalysisClass:
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.independent_var_search_entry.focus_set()
 
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.available_independent_variable_listbox.update_idletasks()
@@ -1705,9 +1727,16 @@ class RegressionAnalysisClass:
 
 class CreatePlotClass():
  
-    def __init__(self, visualize_content_frame, df):
+    def __init__(self, visualize_content_frame, df, style):
         self.df = df
  
+        self.style = style
+
+        self.style.configure("comparison_table_button.TButton", background="gray")
+        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("create_plot_button.TButton", background="white")
+        self.style.configure("machine_learning_button.TButton", background="gray")
+
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
  
@@ -1724,6 +1753,13 @@ class CreatePlotClass():
 
         self.create_plot_options_list()
 
+    def update_column_listbox(self, *args):
+        search_term = self.column_search_var.get().lower()
+        self.plot_choice_listbox.delete(0, tk.END)
+        for plot in self.available_plots:
+            if search_term in plot.lower():
+                self.plot_choice_listbox.insert(tk.END, plot)
+
 
     def create_plot_options_list(self):
  
@@ -1735,10 +1771,17 @@ class CreatePlotClass():
 
         self.choice_frame = tk.Frame(self.plot_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
  
-        self.choice_frame_label = tk.Label(self.choice_frame, text="PLOT SELECTION", font=("Arial", 30, "bold"))
+        self.choice_frame_label = tk.Label(self.choice_frame, text="COLUMN SELECTION", font=("Arial", 30, "bold"))
         self.choice_frame_label.pack(side=tk.TOP)
- 
+
+        self.column_search_var = tk.StringVar()
+        self.column_search_var.trace("w", self.update_column_listbox)
+        self.column_search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
+        self.column_search_entry.pack(side=tk.TOP, pady=5)
+        self.column_search_entry.focus_set()
+
 
         self.plot_type_selection = tk.StringVar()
         self.plot_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
@@ -2008,7 +2051,28 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 
 
 
+################################################################################################################################################################################################
+################################################################################################################################################################################################
+################################################################################################################################################################################################
 
 
-def create_machine_learing(visualize_content_frame, df):
-    return
+
+################################################
+################################################
+ 
+                # MACHINE LEARNING #
+ 
+################################################
+################################################
+
+
+class create_machine_learing():
+
+    def __init__(self, visualize_content_frame, df, style):
+        self.style = style
+
+        self.style.configure("comparison_table_button.TButton", background="gray")
+        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("create_plot_button.TButton", background="gray")
+        self.style.configure("machine_learning_button.TButton", background="white")
+
