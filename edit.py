@@ -25,15 +25,15 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
     utils.remove_frame_widgets(sub_button_frame)
 
-    style.configure("clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="clean_button.TButton")
-    clean_button.pack(side="left", fill="x", expand=True)
-    clean_button.config(command=lambda: EditData(editing_content_frame, dataframe_content_frame, df))
+    style.configure("edit_clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    edit_clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_clean_button.TButton")
+    edit_clean_button.pack(side="left", fill="x", expand=True)
+    edit_clean_button.config(command=lambda: EditData(editing_content_frame, dataframe_content_frame, df, style))
 
     style.configure("create_cat_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_cat_var_button = ttk.Button(sub_button_frame, text="Create New Variable", style="create_cat_var_button.TButton")
     create_cat_var_button.pack(side="left", fill="x", expand=True)
-    create_cat_var_button.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df))
+    create_cat_var_button.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df, style))
 
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
@@ -43,6 +43,10 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
 
+
+################################################################################################################################################################################################
+################################################################################################################################################################################################
+################################################################################################################################################################################################
 
 
 
@@ -56,10 +60,16 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 ################################################
 
 class EditData():
-    def __init__(self, editing_content_frame, dataframe_content_frame, df):
+    def __init__(self, editing_content_frame, dataframe_content_frame, df, style):
         self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
- 
+
+        self.style = style
+
+        self.style.configure("edit_clean_button.TButton", background="white")
+        self.style.configure("create_cat_var_button.TButton", background="gray")
+
+
         self.editing_content_frame = editing_content_frame
         utils.remove_frame_widgets(self.editing_content_frame)
  
@@ -93,8 +103,9 @@ class EditData():
 
         self.column_search_var = tk.StringVar()
         self.column_search_var.trace("w", self.update_column_listbox)
-        self.search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=5)
+        self.column_search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
+        self.column_search_entry.pack(side=tk.TOP, pady=5)
+        self.column_search_entry.focus_set()
 
         self.column_type_selection = tk.StringVar()
         self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
@@ -400,6 +411,8 @@ class EditData():
         summary_df = utils.create_summary_table(self.df)
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
 
+        utils.show_message("Dataframe Update Status", "Database Has Been Updated")
+
 
 
 
@@ -596,6 +609,10 @@ class EditData():
 
 
 
+################################################################################################################################################################################################
+################################################################################################################################################################################################
+################################################################################################################################################################################################
+
 
 
 ################################################
@@ -608,10 +625,15 @@ class EditData():
 
 
 class CreateNewVariableClass:
-    def __init__(self, editing_content_frame, dataframe_content_frame, df):
+    def __init__(self, editing_content_frame, dataframe_content_frame, df, style):
         self.df = data_manager.get_dataframe()
         self.editing_content_frame = editing_content_frame
         self.dataframe_content_frame = dataframe_content_frame
+
+        self.style = style
+
+        self.style.configure("edit_clean_button.TButton", background="gray")
+        self.style.configure("create_cat_var_button.TButton", background="white")
 
         utils.remove_frame_widgets(self.editing_content_frame)
 
@@ -660,8 +682,9 @@ class CreateNewVariableClass:
         # AVAILABLE COLUMNS FRAME
         self.available_column_search_var = tk.StringVar()
         self.available_column_search_var.trace("w", self.update_available_columns_listbox)
-        self.search_entry = tk.Entry(self.available_columns_frame, textvariable=self.available_column_search_var, font=("Arial", 24))
-        self.search_entry.pack(side=tk.TOP, pady=5)
+        self.column_search_entry = tk.Entry(self.available_columns_frame, textvariable=self.available_column_search_var, font=("Arial", 24))
+        self.column_search_entry.pack(side=tk.TOP, pady=5)
+        self.column_search_entry.focus_set()
 
         self.available_columns_listbox = tk.Listbox(self.available_columns_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.available_columns_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
