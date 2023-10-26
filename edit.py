@@ -30,10 +30,22 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     edit_clean_button.pack(side="left", fill="x", expand=True)
     edit_clean_button.config(command=lambda: EditData(editing_content_frame, dataframe_content_frame, df, style))
 
-    style.configure("create_cat_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    create_cat_var_button = ttk.Button(sub_button_frame, text="Create New Variable", style="create_cat_var_button.TButton")
-    create_cat_var_button.pack(side="left", fill="x", expand=True)
-    create_cat_var_button.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df, style))
+    style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    create_new_var = ttk.Button(sub_button_frame, text="Create New Variable", style="create_new_var_button.TButton")
+    create_new_var.pack(side="left", fill="x", expand=True)
+    create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df, style))
+
+    tab_dict = data_manager.get_tab_dict()
+    try:
+        if tab_dict['current_edit_tab']:
+            for tab in ['edit_clean', 'create_new_var']:
+                if tab_dict['current_edit_tab'] == tab:
+                    style.configure(f"{tab_dict['current_edit_tab']}_button.TButton", background="white")
+                else:
+                    style.configure(f"{tab}_button.TButton", background="gray")
+    except:
+        pass
+
 
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
@@ -67,8 +79,9 @@ class EditData():
         self.style = style
 
         self.style.configure("edit_clean_button.TButton", background="white")
-        self.style.configure("create_cat_var_button.TButton", background="gray")
+        self.style.configure("create_new_var_button.TButton", background="gray")
 
+        data_manager.add_tab_to_dict("current_edit_tab", "edit_clean")
 
         self.editing_content_frame = editing_content_frame
         utils.remove_frame_widgets(self.editing_content_frame)
@@ -633,7 +646,9 @@ class CreateNewVariableClass:
         self.style = style
 
         self.style.configure("edit_clean_button.TButton", background="gray")
-        self.style.configure("create_cat_var_button.TButton", background="white")
+        self.style.configure("create_new_var_button.TButton", background="white")
+
+        data_manager.add_tab_to_dict("current_edit_tab", "create_new_var")
 
         utils.remove_frame_widgets(self.editing_content_frame)
 
