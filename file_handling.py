@@ -111,19 +111,27 @@ class SetupFileTabClass():
             return
 
     def update_dataframe(self):
+        # CHECK TO MAKE SURE USER ACTUALLY WANTS TO CHANGE THE DATAFRAME
+        result = messagebox.askyesno("Confirmation", "WARNING: changing dataframes will reset all other tabs. Are you sure you want to continue?")
 
-        data_manager.set_dataframe_name(self.selected_dataframe)
-        data_manager.set_dataframe(data_manager.get_dataframe_name())
+        if result:
+            data_manager.set_dataframe_name(self.selected_dataframe)
+            data_manager.set_dataframe(data_manager.get_dataframe_name())
 
 
-        utils.remove_frame_widgets(self.dataframe_content_frame)
+            utils.remove_frame_widgets(self.dataframe_content_frame)
 
-        utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe())
-        summary_df = utils.create_summary_table(data_manager.get_dataframe())
-        utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
-        setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=False)
-        utils.remove_frame_widgets(self.editing_content_frame)
-        utils.remove_frame_widgets(self.visualize_content_frame)
+            utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe())
+            summary_df = utils.create_summary_table(data_manager.get_dataframe())
+            utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+            setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=False)
+            utils.remove_frame_widgets(self.editing_content_frame)
+            utils.remove_frame_widgets(self.visualize_content_frame)
+        else:
+            return
+        
+
+
 
 
 
