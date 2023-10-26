@@ -331,23 +331,7 @@ class EditData():
         except:
             return
  
-    def create_histogram(self):
-        clean_df = self.temp_df[self.selected_column].dropna()
- 
-        # Create scatter plot with seaborn
-        sns.set(style="ticks")
-        fig, ax = plt.subplots(figsize=(10,4))
- 
-        # Create the histogram using Seaborn
-        sns.histplot(clean_df, kde=True, color='skyblue', ax=ax)
- 
-        # Set the title and labels
-        plt.title('Histogram')
-        plt.xlabel('Value')
-        plt.ylabel('Frequency')
-        plt.tight_layout()
- 
-        return fig
+
  
     def handle_other_numeric_values(self):
         self.handle_other_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
@@ -386,14 +370,13 @@ class EditData():
         self.temp_df.loc[self.temp_df[self.selected_column] < 0, self.selected_column] = np.nan
         self.create_continuous_variable_histogram()
        
- 
     def remove_zero_values(self):
         self.temp_df.loc[self.temp_df[self.selected_column] == 0, self.selected_column] = np.nan
         self.create_continuous_variable_histogram()
        
- 
+
     def create_continuous_variable_histogram(self):
-        self.figure = self.create_histogram()
+        self.figure = self.create_histogram_figure()
  
         utils.remove_frame_widgets(self.histogram_frame)
         # Create a canvas to display the histogram in the frame
@@ -403,6 +386,59 @@ class EditData():
         # Remove expand=True and add height=histogram_frame_height
         self.canvas.get_tk_widget().pack(pady=5, padx=5, ipadx=5, ipady=5, side=tk.TOP)
  
+    def create_histogram_figure(self):
+        self.temp_df[self.selected_column] = pd.to_numeric(self.temp_df[self.selected_column], errors='coerce')
+
+        print(1)
+        print(self.temp_df[self.selected_column])
+
+        clean_df = self.temp_df.dropna(subset=[self.selected_column])
+        print(2)
+        print(clean_df[self.selected_column])
+
+
+        print(3)
+        print(clean_df[self.selected_column].unique())
+        print(4)
+ 
+        # Create scatter plot with seaborn
+        # sns.set(style="ticks")
+        fig, ax = plt.subplots()
+
+        print(5)
+
+        # Create the histogram using Seaborn
+        # sns.histplot(clean_df[self.selected_column], kde=True, color='skyblue', ax=ax)
+        plt.hist(clean_df[self.selected_column], bins=20, color='skyblue', edgecolor='black')
+
+
+
+        print(6)
+        # Set the title and labels
+        plt.title('Histogram')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+ 
+        return fig
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def update_dataframe(self):
         self.df = self.temp_df.copy()
@@ -425,11 +461,6 @@ class EditData():
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
-
-
-
-
-
 
 
 
@@ -547,7 +578,7 @@ class EditData():
             self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
         except:
             print('')
- 
+
     def view_categorical_value_counts(self):
         utils.remove_frame_widgets(self.clean_settings_frame)
        
@@ -572,7 +603,7 @@ class EditData():
  
 
     def create_categorical_variable_barplot(self):
-        self.figure = self.create_categorical_barplot()
+        self.figure = self.create_barplot_figure()
  
         utils.remove_frame_widgets(self.barplot_frame)
         # Create a canvas to display the histogram in the frame
@@ -581,7 +612,7 @@ class EditData():
  
         self.canvas.get_tk_widget().pack(pady=5, padx=5, ipadx=5, ipady=5, side=tk.TOP, fill=tk.BOTH, expand=True)
  
-    def create_categorical_barplot(self):
+    def create_barplot_figure(self):
         self.temp_df[self.selected_column] = self.temp_df[self.selected_column].replace('nan', np.nan)
  
         # Drop rows containing NaN values in the selected column
@@ -945,7 +976,24 @@ class CreateNewVariableClass:
             # COLUMN DROPDOWN FOR CONDITION
             def on_combobox_select(event):
                 column_selected = column_dropdown.get()
-                value_list = ['USER CHOICE'] + list(self.df[column_selected].unique())
+                print(self.df[column_selected])
+                clean_df = self.df.dropna(subset=[column_selected])
+                
+                is_numeric = pd.to_numeric(clean_df[column_selected], errors='coerce').notna().all()
+                print(clean_df[column_selected])
+                print(is_numeric)
+                if is_numeric:
+                    print(1)
+                    clean_df[column_selected] = clean_df[column_selected].astype(float)
+                    q1 = np.percentile(clean_df[column_selected], 25)
+                    q2 = np.percentile(clean_df[column_selected], 50)  # Median (Q2)
+                    q3 = np.percentile(clean_df[column_selected], 75)
+
+                    value_list = ['USER CHOICE'] + [q1, q2, q3] + list(self.df[column_selected].unique())
+                else:
+                    print(2)
+                    value_list = ['USER CHOICE'] + list(self.df[column_selected].unique())
+
                 column_values_dropdown["values"] = value_list
 
             selected_column_option = tk.StringVar()
