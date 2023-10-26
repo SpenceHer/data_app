@@ -28,6 +28,8 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     style.configure("visualize_button.TButton", background="white")
  
     utils.remove_frame_widgets(sub_button_frame)
+
+
  
 
 
@@ -36,10 +38,10 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     comparison_table_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, df, style))
  
-    style.configure("multi_log_reg_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    multi_log_reg_button = ttk.Button(sub_button_frame, text="Regression", style="multi_log_reg_button.TButton")
-    multi_log_reg_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    multi_log_reg_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, df, style))
+    style.configure("regression_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    regression_button = ttk.Button(sub_button_frame, text="Regression", style="regression_button.TButton")
+    regression_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+    regression_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, df, style))
  
     style.configure("create_plot_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_plot_button = ttk.Button(sub_button_frame, text="Create Plot", style="create_plot_button.TButton")
@@ -51,6 +53,19 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     machine_learning_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     machine_learning_button.config(command=lambda: create_machine_learing(visualize_content_frame, df, style))
  
+
+    tab_dict = data_manager.get_tab_dict()
+    try:
+        if tab_dict:
+            for tab in ['comparison_table', 'regression', 'create_plot', 'machine_learning']:
+                if tab_dict['current_visualize_tab'] == tab:
+                    style.configure(f"{tab_dict['current_visualize_tab']}_button.TButton", background="white")
+                else:
+                    style.configure(f"{tab}_button.TButton", background="gray")
+    except:
+        pass
+
+
     editing_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
     dataframe_content_frame.pack_forget()
@@ -97,9 +112,11 @@ class ComparisonTableClass:
         self.style = style
 
         self.style.configure("comparison_table_button.TButton", background="white")
-        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("regression_button.TButton", background="gray")
         self.style.configure("create_plot_button.TButton", background="gray")
         self.style.configure("machine_learning_button.TButton", background="gray")
+
+        data_manager.add_tab_to_dict("current_visualize_tab", "comparison_table")
 
 
         self.selected_dependent_variable = ""
@@ -915,9 +932,11 @@ class RegressionAnalysisClass:
         self.style = style
 
         self.style.configure("comparison_table_button.TButton", background="gray")
-        self.style.configure("multi_log_reg_button.TButton", background="white")
+        self.style.configure("regression_button.TButton", background="white")
         self.style.configure("create_plot_button.TButton", background="gray")
         self.style.configure("machine_learning_button.TButton", background="gray")
+
+        data_manager.add_tab_to_dict("current_visualize_tab", "regression")
 
         self.selected_dependent_variable = ""
         self.selected_independent_variables = []
@@ -1733,9 +1752,11 @@ class CreatePlotClass():
         self.style = style
 
         self.style.configure("comparison_table_button.TButton", background="gray")
-        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("regression_button.TButton", background="gray")
         self.style.configure("create_plot_button.TButton", background="white")
         self.style.configure("machine_learning_button.TButton", background="gray")
+
+        data_manager.add_tab_to_dict("current_visualize_tab", "create_plot")
 
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -2069,10 +2090,31 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 class create_machine_learing():
 
     def __init__(self, visualize_content_frame, df, style):
+        self.df = data_manager.get_dataframe()
+        self.visualize_content_frame = visualize_content_frame
+
         self.style = style
 
         self.style.configure("comparison_table_button.TButton", background="gray")
-        self.style.configure("multi_log_reg_button.TButton", background="gray")
+        self.style.configure("regression_button.TButton", background="gray")
         self.style.configure("create_plot_button.TButton", background="gray")
         self.style.configure("machine_learning_button.TButton", background="white")
+
+        data_manager.add_tab_to_dict("current_visualize_tab", "machine_learning")
+
+
+        self.selected_dependent_variable = ""
+        self.selected_independent_variables = []
+        self.selected_percent_type = ""
+        self.selected_data = ""
+        
+
+
+        utils.remove_frame_widgets(self.visualize_content_frame)
+
+
+        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
 
