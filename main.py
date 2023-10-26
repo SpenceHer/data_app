@@ -11,8 +11,15 @@ import data_manager
  
 
 # Create the main window
+
+
 main_window = tk.Tk()
+screen_width = main_window.winfo_screenwidth() // 3
+screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
+
+# main_window.geometry(f"{screen_width}x{screen_height}+0+0")
+
 main_window.wm_state('zoomed')
 
  
