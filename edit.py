@@ -13,6 +13,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
  
+
+ 
 def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     df = data_manager.get_dataframe()
     if df is None:
@@ -389,31 +391,19 @@ class EditData():
     def create_histogram_figure(self):
         self.temp_df[self.selected_column] = pd.to_numeric(self.temp_df[self.selected_column], errors='coerce')
 
-        print(1)
-        print(self.temp_df[self.selected_column])
-
         clean_df = self.temp_df.dropna(subset=[self.selected_column])
-        print(2)
-        print(clean_df[self.selected_column])
 
 
-        print(3)
-        print(clean_df[self.selected_column].unique())
-        print(4)
- 
         # Create scatter plot with seaborn
         # sns.set(style="ticks")
         fig, ax = plt.subplots()
 
-        print(5)
 
         # Create the histogram using Seaborn
         # sns.histplot(clean_df[self.selected_column], kde=True, color='skyblue', ax=ax)
-        plt.hist(clean_df[self.selected_column], bins=20, color='skyblue', edgecolor='black')
+        plt.hist(clean_df[self.selected_column], color='skyblue', edgecolor='black')
 
 
-
-        print(6)
         # Set the title and labels
         plt.title('Histogram')
         plt.xlabel('Value')
@@ -976,22 +966,25 @@ class CreateNewVariableClass:
             # COLUMN DROPDOWN FOR CONDITION
             def on_combobox_select(event):
                 column_selected = column_dropdown.get()
-                print(self.df[column_selected])
+
                 clean_df = self.df.dropna(subset=[column_selected])
                 
                 is_numeric = pd.to_numeric(clean_df[column_selected], errors='coerce').notna().all()
-                print(clean_df[column_selected])
-                print(is_numeric)
-                if is_numeric:
-                    print(1)
-                    clean_df[column_selected] = clean_df[column_selected].astype(float)
-                    q1 = np.percentile(clean_df[column_selected], 25)
-                    q2 = np.percentile(clean_df[column_selected], 50)  # Median (Q2)
-                    q3 = np.percentile(clean_df[column_selected], 75)
 
-                    value_list = ['USER CHOICE'] + [q1, q2, q3] + list(self.df[column_selected].unique())
+                if is_numeric:
+
+                    clean_df[column_selected] = clean_df[column_selected].astype(float)
+                    self.q1 = np.percentile(clean_df[column_selected], 25)
+                    self.q2 = np.percentile(clean_df[column_selected], 50)  # Median (Q2)
+                    self.q3 = np.percentile(clean_df[column_selected], 75)
+
+                    self.q1_string = f"q1-{self.q1}"
+                    self.q2_string = f"q2-{self.q2}"
+                    self.q3_string = f"q3-{self.q3}"
+
+
+                    value_list = ['USER CHOICE'] + [self.q1_string, self.q2_string, self.q3_string] + list(self.df[column_selected].unique())
                 else:
-                    print(2)
                     value_list = ['USER CHOICE'] + list(self.df[column_selected].unique())
 
                 column_values_dropdown["values"] = value_list
@@ -1123,6 +1116,7 @@ class CreateNewVariableClass:
                 condition_string = condition_string + self.condition_signs_dict[condition[2]]
 
                 if condition[3] == 'USER CHOICE':
+                    
                     try:
                         self.df[condition[1]] = self.df[condition[1]].astype(float)
                         condition_string = condition_string + str(float(condition[4]))
@@ -1130,10 +1124,21 @@ class CreateNewVariableClass:
                         self.df[condition[1]] = self.df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[4] + "'"
                 else:
+                    
                     try:
-                        self.df[condition[1]] = self.df[condition[1]].astype(float)
-                        condition_string = condition_string + str(float(condition[3]))
+
+                        if condition[3] == self.q1_string:
+                            condition_string = condition_string + str(float(self.q1))
+                        elif condition[3] == self.q2_string:
+                            condition_string = condition_string + str(float(self.q2))
+                        elif condition[3] == self.q3_string:
+                            condition_string = condition_string + str(float(self.q3))
+                        else:
+                            self.df[condition[1]] = self.df[condition[1]].astype(float)
+                            condition_string = condition_string + str(float(condition[3]))
+
                     except:
+
                         self.df[condition[1]] = self.df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[3] + "'"
                 
@@ -1142,7 +1147,6 @@ class CreateNewVariableClass:
 
 
             final_condition_string = ''.join(condition_strings)
-
             self.df.loc[self.df.eval(final_condition_string), self.column_name] = condition_value
 
 
@@ -1251,3 +1255,5 @@ class CreateNewVariableClass:
         utils.create_table(self.dataframe_content_frame, self.df)
         summary_df = utils.create_summary_table(self.df)
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+
+        utils.show_message("Dataframe Update Status", "Database Has Been Updated")
