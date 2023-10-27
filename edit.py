@@ -210,7 +210,13 @@ class EditData():
     def handle_non_numeric_values(self):
         utils.remove_frame_widgets(self.clean_settings_frame)
        
- 
+        def is_float(value):
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+        
         self.handle_non_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
         self.handle_non_numerics_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
@@ -233,9 +239,10 @@ class EditData():
             no_non_numerics_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
  
         except:
-            self.non_numeric_values = self.temp_df[self.selected_column].loc[~self.temp_df[self.selected_column].apply(lambda x: isinstance(x, (int, float)))]
-            self.unique_non_numeric_values = self.non_numeric_values.unique()
- 
+            # self.non_numeric_values = self.temp_df[self.selected_column].loc[~self.temp_df[self.selected_column].apply(lambda x: isinstance(x, (int, float)))]
+            self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
+            self.unique_non_numeric_values = list(set(self.non_numeric_values))
+
             self.value_choice_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
             self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
@@ -309,8 +316,15 @@ class EditData():
  
 
     def update_non_numeric_listbox(self):
-        self.non_numeric_values = self.temp_df[self.selected_column].loc[~self.temp_df[self.selected_column].apply(lambda x: isinstance(x, (int, float)))]
-        self.unique_non_numeric_values = self.non_numeric_values.unique()
+
+        def is_float(value):
+            try:
+                float(value)
+                return True
+            except ValueError:
+                return False
+        self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
+        self.unique_non_numeric_values = list(set(self.non_numeric_values))
  
         # Clear the listbox and insert the updated values
         self.value_choice_listbox.delete(0, tk.END)
@@ -323,7 +337,7 @@ class EditData():
             self.selected_value = tk.StringVar(value=self.unique_non_numeric_values[0])
         except:
             print('')
- 
+
 
     def check_for_other_numeric_values(self):
         try:
@@ -681,6 +695,7 @@ class CreateNewVariableClass:
         self.create_conditions_frame()
         self.create_finalize_frame()
 
+
         self.switch_to_column_selection_frame()
 
 
@@ -718,9 +733,10 @@ class CreateNewVariableClass:
         # AVAILABLE COLUMNS FRAME
         self.available_column_search_var = tk.StringVar()
         self.available_column_search_var.trace("w", self.update_available_columns_listbox)
+
         self.column_search_entry = tk.Entry(self.available_columns_frame, textvariable=self.available_column_search_var, font=("Arial", 24))
         self.column_search_entry.pack(side=tk.TOP, pady=5)
-        self.column_search_entry.focus_set()
+        
 
         self.available_columns_listbox = tk.Listbox(self.available_columns_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.available_columns_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
@@ -770,7 +786,7 @@ class CreateNewVariableClass:
         self.advance_to_conditions_button = tk.Button(self.column_selection_menu_frame, command=self.switch_to_conditions_frame, text="Next", font=("Arial", 36))
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
-        self.column_selection_frame.update_idletasks()
+
 
 
 
@@ -830,6 +846,7 @@ class CreateNewVariableClass:
 
         self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
         self.column_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+        
 
 
         # ADD/REMOVE CONDITIONS BUTTONS FRAME
@@ -1028,6 +1045,7 @@ class CreateNewVariableClass:
 
         value_entry = tk.Entry(value_entry_frame)
         value_entry.pack(side=tk.LEFT)
+        value_entry.focus_set()
 
         # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
         condition_handling_frame = tk.Frame(new_value_frame)
@@ -1212,6 +1230,7 @@ class CreateNewVariableClass:
         self.conditions_frame.pack_forget()
         self.finalize_frame.pack_forget()
         self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
+        self.column_search_entry.focus_set()
 
 
     def switch_to_conditions_frame(self):
@@ -1220,6 +1239,7 @@ class CreateNewVariableClass:
         self.finalize_frame.pack_forget()
         self.column_selection_frame.pack_forget()
         self.conditions_frame.pack(fill=tk.BOTH, expand=True)
+        self.column_name_entry.focus_set()
 
 
     def switch_to_finalize_frame(self):
