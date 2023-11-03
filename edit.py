@@ -884,23 +884,23 @@ class CreateNewVariableClass:
         self.scrollbar = ttk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.condition_canvas.yview)
         self.scrollable_frame = ttk.Frame(self.condition_canvas)
 
+
+
+        self.condition_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.condition_canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.condition_canvas.pack(side=tk.LEFT, fill="both", expand=True)
+        self.scrollbar.pack(side=tk.RIGHT, fill="y")
+
+        # Bind mouse wheel event to the canvas
+        self.condition_canvas.bind("<MouseWheel>", on_mousewheel)
+
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: self.condition_canvas.configure(
                 scrollregion=self.condition_canvas.bbox("all")
             )
         )
-
-        self.condition_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.condition_canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.condition_canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        # Bind mouse wheel event to the canvas
-        self.condition_canvas.bind("<MouseWheel>", on_mousewheel)
-
-
 
 
 
@@ -1034,7 +1034,7 @@ class CreateNewVariableClass:
 
         # NEW VALUE FRAME
         new_value_frame = tk.Frame(self.scrollable_frame, relief=tk.RAISED, borderwidth=2)
-        new_value_frame.pack(pady=10)
+        new_value_frame.pack(pady=10, side=tk.TOP)
 
         # FRAME WHERE USER INPUTS WHAT THE VALUE WILL BE BASED ON THE CONDITIONS BELOW
         value_entry_frame = tk.Frame(new_value_frame)
@@ -1231,6 +1231,7 @@ class CreateNewVariableClass:
         self.finalize_frame.pack_forget()
         self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
         self.column_search_entry.focus_set()
+        
 
 
     def switch_to_conditions_frame(self):
@@ -1245,10 +1246,19 @@ class CreateNewVariableClass:
     def switch_to_finalize_frame(self):
         if not self.column_name_entry.get():
             return
-        if self.column_name_entry.get() in self.df.columns:
-            self.df = self.df.drop(self.column_name_entry.get(), axis=1)
-        self.get_values_from_frames()
-        self.plot_new_column()
+        if self.column_name_entry.get().lower() in self.df.columns:
+            same_column_name = utils.prompt_yes_no(f"CAUTION: The column, '{self.column_name_entry.get().lower()}' is already in the dataframe. Do you want to replace the old column?")
+            if same_column_name:
+                self.df = self.df.drop(self.column_name_entry.get(), axis=1)
+            else:
+                return
+        try:
+            self.get_values_from_frames()
+            self.plot_new_column()
+
+        except:
+            utils.show_message("value error", "Error with conditions")
+            return
         self.conditions_frame.pack_forget()
         self.column_selection_frame.pack_forget()
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
