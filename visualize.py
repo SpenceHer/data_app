@@ -123,6 +123,7 @@ class ComparisonTableClass:
         self.selected_independent_variables = []
         self.selected_percent_type = ""
         self.selected_data = ""
+        self.variable_type_radio_var = {}
         
 
 
@@ -168,14 +169,6 @@ class ComparisonTableClass:
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
-
-
-
-
-
-
-
-
         self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
         self.dependent_column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -217,8 +210,6 @@ class ComparisonTableClass:
             self.dependent_frame_dependent_label.config(text="")
 
 
-
-
     def update_dependent_variable_listbox(self, *args):
         search_term = self.dependent_search_var.get().lower()
         self.dependent_variable_listbox.delete(0, tk.END)
@@ -229,19 +220,12 @@ class ComparisonTableClass:
 
 
 
+    #####################################################################
+    #####################################################################
+    #####################################################################
 
 
-
-
-
-
-
-
-
-
-
-
-
+    # CREATE INDEPENDENT VARIABLE SELECTION FRAME
 
     def create_independent_variables_frame(self):
 
@@ -407,45 +391,52 @@ class ComparisonTableClass:
             self.selected_independent_variable_listbox.delete(index)
 
 
+    #####################################################################
+    #####################################################################
+    #####################################################################
+
+    # CREATE VARIABLE HANDLING FRAME
+
     def create_variable_handling_frame(self):
 
-
+        # HEADER LABEL
         self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
         self.variable_handling_label_frame.pack(side=tk.TOP)
-
 
         self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Choose your variable types", font=("Arial", 36))
         self.variable_handling_label.pack(side=tk.TOP)
 
 
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
-        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # VARIABLE HANDLING FRAME
+        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
+        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=200, pady=200)
+
+        def on_canvas_configure(event):
+            self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all"))
+
+        self.variable_type_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
+        self.variable_type_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.variable_type_canvas.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.variable_type_canvas.configure(yscrollcommand=self.scrollbar.set)
+
+
+        self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
+        self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
+
+        self.scrollable_frame.bind("<Configure>", on_canvas_configure)
 
         def on_mousewheel(event):
-            self.condition_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-        self.condition_canvas = tk.Canvas(self.variable_handling_options_frame)
-        self.scrollbar = ttk.Scrollbar(self.variable_handling_options_frame, orient="vertical", command=self.condition_canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.condition_canvas)
-
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.condition_canvas.configure(
-                scrollregion=self.condition_canvas.bbox("all")
-            )
-        )
-
-        self.condition_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.condition_canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.condition_canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-
-        # Bind mouse wheel event to the canvas
-        self.condition_canvas.bind("<MouseWheel>", on_mousewheel)
+        self.variable_type_canvas.bind("<MouseWheel>", on_mousewheel)
 
 
 
+        # BOTTOM MENU FRAME
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -461,7 +452,54 @@ class ComparisonTableClass:
         self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+    def handle_variables(self):
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
+        utils.forget_frame_widgets(self.scrollable_frame)
+
+
+
+        self.selected_independent_variables_list = list(self.df[self.selected_independent_variables].columns)
+        self.selected_options = {}
+
+
+        for value in self.selected_independent_variables_list:
+            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+            options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=20)
+
+            value_label = tk.Label(options_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+            value_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            
+            if value in self.variable_type_radio_var:
+                var = tk.StringVar(value=self.variable_type_radio_var[value].get())
+                self.variable_type_radio_var[value] = var
+
+            else:
+                var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
+                self.variable_type_radio_var[value] = var
+
+            radio1 = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            radio1.pack(side=tk.RIGHT, padx=5, pady=5)
+
+            radio2 = tk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            radio2.pack(side=tk.RIGHT, padx=5, pady=5)
+
+            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator.pack(fill="x", padx=5, pady=5)
+
+
+
+    #####################################################################
+    #####################################################################
+    #####################################################################
+
+    # CREATE RESULTS FRAME
 
     def create_results_frame(self):
 
@@ -486,8 +524,9 @@ class ComparisonTableClass:
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
 
-    def switch_to_dependent_variable_frame(self):
+    # MENU HANDLING FUNCTIONS
 
+    def switch_to_dependent_variable_frame(self):
 
         self.variable_handling_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
@@ -540,45 +579,19 @@ class ComparisonTableClass:
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
 
-    def handle_variables(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
-        utils.forget_frame_widgets(self.scrollable_frame)
-
-
-
-        self.unique_values = list(self.df[self.selected_independent_variables].columns)
-        self.selected_options = {}
-        self.variable_type_radio_var = {}
-
-        for value in self.unique_values:
-
-            options_frame = tk.Frame(self.scrollable_frame)
-            options_frame.pack(side=tk.TOP)
-
-            value_label = tk.Label(options_frame, text=value, font=("Arial", 36))
-            value_label.pack(side=tk.LEFT)
-
-            var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-            self.variable_type_radio_var[value] = var
-
-            radio1 = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 36))
-            radio1.pack(side=tk.LEFT)
-
-            radio2 = tk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 36))
-            radio2.pack(side=tk.LEFT)
 
 
     def apply_comparison_table_variable_selection(self):
+        print(1)
+        print(self.variable_type_radio_var.items())
         self.selected_options.clear()
+        
         for value, var in self.variable_type_radio_var.items():
             option = var.get()
             self.selected_options[value] = option
+        
+        print(self.selected_options)
 
 
 
@@ -2136,9 +2149,6 @@ class MachineLearningClass:
         self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
 
-
-
-
         self.create_dependent_variable_frame()
         self.create_independent_variables_frame()
         self.create_variable_handling_frame()
@@ -2148,7 +2158,9 @@ class MachineLearningClass:
         self.switch_to_dependent_variable_frame()
 
 
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
 
 
@@ -2242,7 +2254,9 @@ class MachineLearningClass:
 
 
 
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
 
 
@@ -2419,20 +2433,74 @@ class MachineLearningClass:
 
 
 
-
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
     def create_variable_handling_frame(self):
 
-
+        # HEADER LABEL
         self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
-
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Variable Handling", font=("Arial", 36))
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Random Forest Settins", font=("Arial", 48))
         self.variable_handling_label.pack(side=tk.TOP)
+
+
 
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
+
+        # VARIABLE HANDLING FRAME
+
+        self.variable_handling_left_frame = tk.Frame(self.variable_handling_options_frame, bg='yellow')
+        self.variable_handling_left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+
+        self.left_frame_label_frame = tk.Frame(self.variable_handling_left_frame, bg='yellow')
+        self.left_frame_label_frame.pack(side=tk.TOP, fill=tk.X)
+
+        self.left_frame_label = tk.Label(self.left_frame_label_frame, text="Assign values to categorical variables", font=("Arial", 36), bg='blue')
+        self.left_frame_label.pack(side=tk.TOP, fill=tk.X)
+
+
+
+        # VARIABLE HANDLING FRAME
+        self.value_assign_frame = tk.Frame(self.variable_handling_left_frame, bg='purple')
+        self.value_assign_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        def on_canvas_configure(event):
+            self.value_assign_canvas.configure(scrollregion=self.value_assign_canvas.bbox("all"))
+
+        self.value_assign_canvas = tk.Canvas(self.value_assign_frame, bg='yellow')
+        self.value_assign_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.scrollbar = tk.Scrollbar(self.value_assign_frame, command=self.value_assign_canvas.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        self.value_assign_canvas.configure(yscrollcommand=self.scrollbar.set)
+
+
+        self.scrollable_frame = tk.Frame(self.value_assign_canvas, bg='yellow')
+        self.value_assign_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
+
+        self.scrollable_frame.bind("<Configure>", on_canvas_configure)
+
+        def on_mousewheel(event):
+            self.value_assign_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
+        self.value_assign_canvas.bind("<MouseWheel>", on_mousewheel)
+
+
+
+
+
+
+
+        self.variable_handling_right_frame = tk.Frame(self.variable_handling_options_frame, bg='green')
+        self.variable_handling_right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
@@ -2451,9 +2519,89 @@ class MachineLearningClass:
 
 
 
+    def handle_variables_machine_learning(self):
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
+
+        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.variable_handling_label.configure(text="Random Forest Settings")
+
+        utils.forget_frame_widgets(self.scrollable_frame)
+
+
+        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+        self.clean_df.dropna(inplace=True)
+
+        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
+        self.non_numeric_columns = []
+
+        self.input_var = {}
+        self.selected_options = {}
+        self.selected_column_map = {}
+
+        for column in self.unique_values:
+            try:
+                if column == 'ASA':
+                    print(self.clean_df[column].unique())
+                    print(self.clean_df[column])
+                self.clean_df[column] = self.clean_df[column].astype(float)
+                print(column)
+                print(1)
+                if column == 'ASA':
+                    print(self.clean_df[column].unique())
+                    print(self.clean_df[column])
+
+            except:
+                print(column)
+                print(2)
+                self.non_numeric_columns.append(column)
+
+        for variable in self.non_numeric_columns:
+            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+            options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+            variable_label_frame = tk.Frame(options_frame, bg='yellow')
+            variable_label_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+            variable_label = tk.Label(variable_label_frame, text=f"Variable: {variable}", font=("Arial", 36), bg='yellow', fg='black')
+            variable_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+            for value in self.clean_df[variable].unique():
+                self.selected_column_map[value] = variable
+                value_frame = tk.Frame(options_frame, bg='yellow')
+                value_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
 
+                input_var = tk.StringVar()
+                self.input_var[value] = input_var
+
+                input_combobox = ttk.Combobox(value_frame, textvariable=input_var, state="readonly", font=("Arial", 36))
+                values = list(range(len(self.clean_df[variable].unique())))
+
+                input_combobox['values'] = values
+                input_combobox.current(0)  # Set default selection to the first item
+                # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
+                input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
+                input_combobox.pack(side=tk.LEFT, padx=5, pady=5)
+
+
+                value_label = tk.Label(value_frame, text=value, font=("Arial", 36), bg='yellow', fg='black')
+                value_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+
+
+            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator.pack(fill="x", padx=5, pady=5)
+        print(self.non_numeric_columns)
+
+
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
 
     def create_results_frame(self):
@@ -2522,61 +2670,6 @@ class MachineLearningClass:
             self.handle_variables_machine_learning()
 
 
-    def handle_variables_machine_learning(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
-
-
-        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        self.variable_handling_label.configure(text="Linear Regression Variable Settings")
-
-        utils.forget_frame_widgets(self.variable_handling_options_frame)
-
-
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.clean_df.dropna(inplace=True)
-
-        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
-        self.non_numeric_columns = []
-
-        self.input_var = {}
-        self.selected_options = {}
-        self.selected_column_map = {}
-
-        for column in self.unique_values:
-            try:
-                self.clean_df[column] = self.clean_df[column].astype(float)
-            except:
-                self.non_numeric_columns.append(column)
-
-        for variable in self.non_numeric_columns:
-            options_frame = tk.Frame(self.variable_handling_options_frame)
-            options_frame.pack(side=tk.TOP)
-
-            variable_label = tk.Label(options_frame, text=variable)
-            variable_label.pack(side=tk.TOP)
-
-            for value in self.clean_df[variable].unique():
-                self.selected_column_map[value] = variable
-                value_frame = tk.Frame(options_frame)
-                value_frame.pack(side=tk.TOP)
-
-                value_label = tk.Label(value_frame, text=value)
-                value_label.pack(side=tk.LEFT)
-
-                input_var = tk.StringVar()
-                self.input_var[value] = input_var
-
-                input_combobox = ttk.Combobox(value_frame, textvariable=input_var, state="readonly")
-                values = list(range(len(self.clean_df[variable].unique())))
-
-                input_combobox['values'] = values
-                input_combobox.current(0)  # Set default selection to the first item
-                # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
-                input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-                input_combobox.pack(side=tk.LEFT)
 
 
     def apply_machine_learning_selection(self):
