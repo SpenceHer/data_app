@@ -159,7 +159,8 @@ class SetupFileTabClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        self.file_path = filedialog.askopenfilename()
+        # self.file_path = filedialog.askopenfilename()
+        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
@@ -222,7 +223,7 @@ class SetupFileTabClass():
             return
 
         self.df = data_manager.get_df_dict()[self.selected_dataframe]
-        print(self.df)
+
 
 
         self.column_selection_frame = tk.Frame(self.right_file_menu_frame, bg='beige')
@@ -274,6 +275,7 @@ class SetupFileTabClass():
         self.available_column_search_var.trace("w", self.update_available_columns_listbox)
         self.search_entry = tk.Entry(self.available_columns_frame, textvariable=self.available_column_search_var, font=("Arial", 24))
         self.search_entry.pack(side=tk.TOP, pady=5)
+
 
         self.available_columns_listbox = tk.Listbox(self.available_columns_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.available_columns_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
@@ -329,7 +331,12 @@ class SetupFileTabClass():
         self.df_in_use_column_selection_menu_label = tk.Label(self.column_selection_menu_frame, text="", font=("Arial", 36))
         self.df_in_use_column_selection_menu_label.pack(side=tk.RIGHT, expand=True)
 
-        self.column_selection_frame.update_idletasks()
+
+        self.search_entry.focus_set()
+
+        print(self.column_selection_frame.focus_get())
+
+        
 
 
 
@@ -391,7 +398,7 @@ class SetupFileTabClass():
 
         self.dataframe_name_entry = tk.Entry(self.dataframe_name_frame, font=('Arial', 24))
         self.dataframe_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
-
+        self.dataframe_name_entry.focus_set()
 
 
         # CONDITIONS OPTIONS FRAME
@@ -433,7 +440,7 @@ class SetupFileTabClass():
 
 
         # MENU FRAME
-        self.dataframe_settings_menu = tk.Frame(self.dataframe_settings_frame, bg='beige')
+        self.dataframe_settings_menu = tk.Frame(self.dataframe_settings_frame, bg='lightgray')
         self.dataframe_settings_menu.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.return_to_column_selection_button = tk.Button(self.dataframe_settings_menu, command=self.switch_to_column_selection_frame, text="Back", font=("Arial", 36))
@@ -443,7 +450,8 @@ class SetupFileTabClass():
         self.df_in_use_dataframe_settings_menu_label.pack(side=tk.RIGHT, expand=True)
 
 
-        self.dataframe_settings_frame.update_idletasks()
+
+        
 
         
     # REMOVE MOST RECENT CONDITION LINE
@@ -566,7 +574,7 @@ class SetupFileTabClass():
 
 
         final_condition_string = ''.join(condition_strings)
-        print(final_condition_string)
+
 
         self.new_df = self.df.loc[self.df.eval(final_condition_string)]
 
@@ -584,10 +592,14 @@ class SetupFileTabClass():
         self.dataframe_settings_frame.pack_forget()
         self.create_new_dataframe_button_frame.pack(fill=tk.BOTH, expand=True)
 
+        
+
     def switch_to_column_selection_frame(self):
         self.create_new_dataframe_button_frame.pack_forget()
         self.dataframe_settings_frame.pack_forget()
         self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.dataframe_name_entry.focus_set()
 
 
     def switch_to_dataframe_settings_frame(self):
