@@ -15,7 +15,11 @@ import tkinter.font as tkFont
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import statsmodels.api as sm
-
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
+# import shap
 
 def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     df = data_manager.get_dataframe()
@@ -583,15 +587,12 @@ class ComparisonTableClass:
 
 
     def apply_comparison_table_variable_selection(self):
-        print(1)
-        print(self.variable_type_radio_var.items())
         self.selected_options.clear()
         
         for value, var in self.variable_type_radio_var.items():
             option = var.get()
             self.selected_options[value] = option
-        
-        print(self.selected_options)
+
 
 
 
@@ -682,28 +683,33 @@ class ComparisonTableClass:
             elif option == 'Categorical':
                 self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
                 # Independent variable is categorical
-                observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-                # Calculate the odds ratio
-                odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
+                try:
+                    observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+                    # Calculate the odds ratio
+                    odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
 
-                a = observed.iloc[0, 0]
-                b = observed.iloc[0, 1]
-                c = observed.iloc[1, 0]
-                d = observed.iloc[1, 1]
+                    a = observed.iloc[0, 0]
+                    b = observed.iloc[0, 1]
+                    c = observed.iloc[1, 0]
+                    d = observed.iloc[1, 1]
 
-                # Calculate odds ratio
-                odds_ratio = (a * d) / (b * c)
+                    # Calculate odds ratio
+                    odds_ratio = (a * d) / (b * c)
 
-                # Calculate standard error of log odds ratio
-                se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+                    # Calculate standard error of log odds ratio
+                    se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
 
-                # Calculate 95% confidence interval for log odds ratio
-                ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
-                ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+                    # Calculate 95% confidence interval for log odds ratio
+                    ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+                    ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
 
-                # Convert confidence interval back to odds ratio scale
-                ci_lower = np.exp(ci_lower_ln)
-                ci_upper = np.exp(ci_upper_ln)
+                    # Convert confidence interval back to odds ratio scale
+                    ci_lower = np.exp(ci_lower_ln)
+                    ci_upper = np.exp(ci_upper_ln)
+                except:
+                    odds_ratio = np.nan
+                    ci_lower = np.nan
+                    ci_upper = np.nan
 
                 _, p_value, _, _ = stats.chi2_contingency(observed)
 
@@ -1377,7 +1383,7 @@ class RegressionAnalysisClass:
             self.handle_variables_logistic_regression()
 
         if self.selected_analysis == 2:
-            print('eeeeeee')
+
             try:
                 self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
             except:
@@ -1636,7 +1642,7 @@ class RegressionAnalysisClass:
                     model_string = model_string + f"C({value}, Treatment({self.reference_value_dict[value]})) + "
 
         model_string = model_string.rstrip(" +")
-        print(model_string)
+
         model = smf.logit(model_string, data=self.clean_df)
         results = model.fit(method='bfgs', maxiter=1000)
    
@@ -2502,6 +2508,21 @@ class MachineLearningClass:
         self.variable_handling_right_frame = tk.Frame(self.variable_handling_options_frame, bg='green')
         self.variable_handling_right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        self.right_frame_label_frame = tk.Frame(self.variable_handling_right_frame, bg='yellow')
+        self.right_frame_label_frame.pack(side=tk.TOP, fill=tk.X)
+
+        self.right_frame_label = tk.Label(self.variable_handling_right_frame, text="Model Settings", font=("Arial", 36), bg='blue')
+        self.right_frame_label.pack(side=tk.TOP, fill=tk.X)
+
+
+        self.model_settings_frame = tk.Frame(self.variable_handling_right_frame)
+
+
+
+
+
+
+
 
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
@@ -2514,6 +2535,7 @@ class MachineLearningClass:
 
         self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
+
 
 
 
@@ -2544,19 +2566,9 @@ class MachineLearningClass:
 
         for column in self.unique_values:
             try:
-                if column == 'ASA':
-                    print(self.clean_df[column].unique())
-                    print(self.clean_df[column])
                 self.clean_df[column] = self.clean_df[column].astype(float)
-                print(column)
-                print(1)
-                if column == 'ASA':
-                    print(self.clean_df[column].unique())
-                    print(self.clean_df[column])
 
             except:
-                print(column)
-                print(2)
                 self.non_numeric_columns.append(column)
 
         for variable in self.non_numeric_columns:
@@ -2596,8 +2608,11 @@ class MachineLearningClass:
 
             separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(fill="x", padx=5, pady=5)
-        print(self.non_numeric_columns)
 
+
+    def on_combobox_select(self, combobox, value):
+        selected_value = combobox.get()
+        self.input_var[value].set(selected_value)
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -2624,6 +2639,9 @@ class MachineLearningClass:
 
 
 
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 
 
     def switch_to_dependent_variable_frame(self):
@@ -2672,23 +2690,6 @@ class MachineLearningClass:
 
 
 
-    def apply_machine_learning_selection(self):
-        for value, input_var in self.input_var.items():
-            selected_value = (input_var.get())
-            column_to_update = self.selected_column_map[value]
-            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
-        for column in self.non_numeric_columns:
-            self.clean_df[column] = self.clean_df[column].astype(float)
-
-
-
-
-    def on_combobox_select(self, combobox, value):
-        selected_value = combobox.get()
-        self.input_var[value].set(selected_value)
-
-
-
     def switch_to_results_frame(self):
         self.run_analysis()
 
@@ -2701,22 +2702,39 @@ class MachineLearningClass:
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+
+
+
     def run_analysis(self):
         utils.remove_frame_widgets(self.results_display_frame)
 
         self.execute_model()
 
 
+    def apply_machine_learning_selection(self):
+        for value, input_var in self.input_var.items():
+            selected_value = (input_var.get())
+            column_to_update = self.selected_column_map[value]
+            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
+        for column in self.non_numeric_columns:
+            self.clean_df[column] = self.clean_df[column].astype(float)
 
 
     def execute_model(self):
         self.apply_machine_learning_selection()
 
+
+
         x = self.clean_df[self.selected_independent_variables]
         y = self.clean_df[self.selected_dependent_variable]
 
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-
+        clf = RandomForestClassifier(n_estimators=100, random_state=42)
+        clf.fit(X_train, y_train)
 
 
 
