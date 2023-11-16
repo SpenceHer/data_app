@@ -2146,18 +2146,21 @@ class MachineLearningClass:
         self.selected_independent_variables = []
         self.selected_analysis = ""
         self.selected_dependent_variable_value = ""
-
+        self.machine_learning_model_options = ['cat_rf', 'cat_xgb', 'cat_logreg', 'cont_linreg']
+        self.model_dict = {'cat_rf':'Random Forest', 'cat_xgb':'XGBoost', 'cat_logreg':'Logistic Regression', 'cont_linreg':'Linear Regression'}
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
         self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.model_settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
 
         self.create_dependent_variable_frame()
         self.create_independent_variables_frame()
         self.create_variable_handling_frame()
+        self.create_model_settings_frame()
         self.create_results_frame()
 
 
@@ -2172,14 +2175,13 @@ class MachineLearningClass:
 
     def create_dependent_variable_frame(self):
 
-
+        # MAIN CONTENT FRAME
         self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
+        # NAVIATION MENU
         self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='lightgray')
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
 
         self.advance_to_independent_variables_button = tk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, font=("Arial", 36))
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
@@ -2195,36 +2197,27 @@ class MachineLearningClass:
 
 
 
-
+        # DEPENDENT VARIABLE CHOICE
         self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
         self.dependent_column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
         self.choose_dependent_variable_label = tk.Label(self.dependent_column_choice_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
         self.choose_dependent_variable_label.pack(side=tk.TOP)
-
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
         self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
-
-
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
-
 
         for column in sorted(self.df.columns, key=str.lower):
             self.dependent_variable_listbox.insert(tk.END, column)
 
-
         self.dependent_variable_listbox.bind("<<ListboxSelect>>", self.on_dependent_variable_listbox_select)
 
-
         self.dependent_variable_listbox.selection_set(0)
-        self.dependent_frame_dependent_label.config(text="")
-
 
         self.dependent_variable_listbox.update_idletasks()
 
@@ -2233,6 +2226,9 @@ class MachineLearningClass:
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
+            self.independent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
+            self.variable_handling_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
+            self.model_settings_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
         else:
             self.dependent_frame_dependent_label.config(text="")
@@ -2273,26 +2269,20 @@ class MachineLearningClass:
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
+
+        # NAVIGATION MENU
+
         self.independent_variable_menu_frame = tk.Frame(self.indedependent_variables_frame, bg='lightgray')
         self.independent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-
+        
         self.return_to_dependent_variable_frame_button = tk.Button(self.independent_variable_menu_frame, command=self.switch_to_dependent_variable_frame, text='Back', font=("Arial", 36))
         self.return_to_dependent_variable_frame_button.pack(side=tk.LEFT)
-
 
         self.advance_to_variable_handling_frame_button = tk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text="Next", font=("Arial", 36))
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
-
         self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
-
-
-
-
-
-
 
 
 
@@ -2343,10 +2333,8 @@ class MachineLearningClass:
         self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-
         self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
-
 
         self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
@@ -2361,41 +2349,75 @@ class MachineLearningClass:
         self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-
         self.selected_independent_variables_label = tk.Label(self.selected_independent_variables_frame, text="Selected Variables", font=("Arial", 24))
         self.selected_independent_variables_label.pack(side=tk.TOP, pady=10)
-
-
-
 
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
 
-        self.available_independent_variable_listbox.update_idletasks()
 
 
 
-        self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
-        self.regression_type_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
-
+        # MACHINE LEARNING MODEL SELECTION
+        self.machine_learning_model_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
+        self.machine_learning_model_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         def on_radio_button_selected():
-            self.selected_analysis = self.regression_type_radio_var.get()
+            self.selected_analysis = self.maching_learning_model_choice.get()
+
+        self.maching_learning_model_choice = tk.StringVar(value='cat_rf')
+        self.selected_analysis = self.maching_learning_model_choice.get()
 
 
-        self.regression_type_radio_var = tk.IntVar(value=1)
-        self.selected_analysis = self.regression_type_radio_var.get()
 
+        #  CATEGORICAL MACHINE LEARNING MODELS FRAME
+        self.categorical_model_options_frame = tk.Frame(self.machine_learning_model_selection_frame, bg='blue')
+        self.categorical_model_options_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        self.random_forest_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Random Forest", variable=self.regression_type_radio_var, value=1, command=on_radio_button_selected, indicator = 0,font=("Arial", 40))
+        self.categorical_model_options_frame_label = tk.Label(self.categorical_model_options_frame, text='Model For Binary Outcome Variable', font=("Arial", 40))
+        self.categorical_model_options_frame_label.pack(side=tk.TOP, fill=tk.X)
+
+        # CATEGORICAL MODEL OPTIONS
+        self.random_forest_radiobutton = tk.Radiobutton(self.categorical_model_options_frame, text="Random Forest", variable=self.maching_learning_model_choice, value='cat_rf', command=on_radio_button_selected, indicator = 0,font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.random_forest_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-
-        self.xgboost_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="XGBoost", variable=self.regression_type_radio_var, value=2, command=on_radio_button_selected, indicator = 0, font=("Arial", 40))
+        self.xgboost_radiobutton = tk.Radiobutton(self.categorical_model_options_frame, text="XGBoost", variable=self.maching_learning_model_choice, value='cat_xgb', command=on_radio_button_selected, indicator = 0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.xgboost_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        self.logistic_regression_radiobutton = tk.Radiobutton(self.categorical_model_options_frame, text="Logistic Regression", variable=self.maching_learning_model_choice, value='cat_logreg', command=on_radio_button_selected, indicator = 0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.logistic_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+
+
+        #  CONTINUOUS MACHINE LEARNING MODEL FRAME
+        self.continuous_model_options_frame = tk.Frame(self.machine_learning_model_selection_frame, bg='green')
+        self.continuous_model_options_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        self.continuous_model_options_frame_label = tk.Label(self.continuous_model_options_frame, text='Model For Continuous Outcome Variable', font=("Arial", 40))
+        self.continuous_model_options_frame_label.pack(side=tk.TOP, fill=tk.X)
+
+        # CONTINUOUS MODEL OPTIONS
+        self.linear_regression_radiobutton = tk.Radiobutton(self.continuous_model_options_frame, text="Linear Regression", variable=self.maching_learning_model_choice, value='cont_linreg', command=on_radio_button_selected, indicator = 0,font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.linear_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2412,12 +2434,10 @@ class MachineLearningClass:
         selections = self.available_independent_variable_listbox.curselection()
         selected_items = [self.available_independent_variable_listbox.get(index) for index in selections]
 
-
         for item in selected_items:
             if item not in self.selected_independent_variables:
                 self.selected_independent_variable_listbox.insert(tk.END, item)
                 self.selected_independent_variables.append(item)
-
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
@@ -2427,11 +2447,9 @@ class MachineLearningClass:
         selections = self.selected_independent_variable_listbox.curselection()
         selected_items = [self.selected_independent_variable_listbox.get(index) for index in selections]
 
-
         for item in selected_items:
             self.available_independent_variable_listbox.insert(tk.END, item)
             self.selected_independent_variables.remove(item)
-
 
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
@@ -2445,45 +2463,29 @@ class MachineLearningClass:
 
     def create_variable_handling_frame(self):
 
-        # HEADER LABEL
+        # HEADER LABEL AND FRAME
         self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Random Forest Settins", font=("Arial", 48))
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text='', font=("Arial", 48))
         self.variable_handling_label.pack(side=tk.TOP)
 
 
-
+        # VARIABLE HANDLING FRAME
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        self.variable_handling_options_frame_label = tk.Label(self.variable_handling_options_frame, text="Assign values to categorical variables", font=("Arial", 36), bg='blue')
+        self.variable_handling_options_frame_label.pack(side=tk.TOP, fill=tk.X)
 
-
-        # VARIABLE HANDLING FRAME
-
-        self.variable_handling_left_frame = tk.Frame(self.variable_handling_options_frame, bg='yellow')
-        self.variable_handling_left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-
-        self.left_frame_label_frame = tk.Frame(self.variable_handling_left_frame, bg='yellow')
-        self.left_frame_label_frame.pack(side=tk.TOP, fill=tk.X)
-
-        self.left_frame_label = tk.Label(self.left_frame_label_frame, text="Assign values to categorical variables", font=("Arial", 36), bg='blue')
-        self.left_frame_label.pack(side=tk.TOP, fill=tk.X)
-
-
-
-        # VARIABLE HANDLING FRAME
-        self.value_assign_frame = tk.Frame(self.variable_handling_left_frame, bg='purple')
-        self.value_assign_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         def on_canvas_configure(event):
             self.value_assign_canvas.configure(scrollregion=self.value_assign_canvas.bbox("all"))
 
-        self.value_assign_canvas = tk.Canvas(self.value_assign_frame, bg='yellow')
+        self.value_assign_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
         self.value_assign_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.scrollbar = tk.Scrollbar(self.value_assign_frame, command=self.value_assign_canvas.yview)
+        self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.value_assign_canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.value_assign_canvas.configure(yscrollcommand=self.scrollbar.set)
@@ -2494,10 +2496,6 @@ class MachineLearningClass:
 
         self.scrollable_frame.bind("<Configure>", on_canvas_configure)
 
-        def on_mousewheel(event):
-            self.value_assign_canvas.yview_scroll(-1 * (event.delta // 120), "units")
-
-        self.value_assign_canvas.bind("<MouseWheel>", on_mousewheel)
 
 
 
@@ -2505,33 +2503,15 @@ class MachineLearningClass:
 
 
 
-        self.variable_handling_right_frame = tk.Frame(self.variable_handling_options_frame, bg='green')
-        self.variable_handling_right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.right_frame_label_frame = tk.Frame(self.variable_handling_right_frame, bg='yellow')
-        self.right_frame_label_frame.pack(side=tk.TOP, fill=tk.X)
-
-        self.right_frame_label = tk.Label(self.variable_handling_right_frame, text="Model Settings", font=("Arial", 36), bg='blue')
-        self.right_frame_label.pack(side=tk.TOP, fill=tk.X)
-
-
-        self.model_settings_frame = tk.Frame(self.variable_handling_right_frame)
-
-
-
-
-
-
-
-
+        # NAVIGATION MENU FRAME
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', font=("Arial", 36))
+        self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='<- Back', font=("Arial", 36))
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
-        self.view_results_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_results_frame, text="View Results", font=("Arial", 36))
-        self.view_results_button.pack(side=tk.RIGHT)
+        self.switch_to_model_settings_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_models_settings_frame, text='Next ->', font=("Arial", 36))
+        self.switch_to_model_settings_frame_button.pack(side=tk.RIGHT)
 
         self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
@@ -2547,9 +2527,7 @@ class MachineLearningClass:
         self.indedependent_variables_frame.pack_forget()
         self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
-
-        self.variable_handling_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        self.variable_handling_label.configure(text="Random Forest Settings")
+        self.variable_handling_label.configure(text=f"Variable Settings for {self.model_dict[self.selected_analysis]} Model")
 
         utils.forget_frame_widgets(self.scrollable_frame)
 
@@ -2618,6 +2596,36 @@ class MachineLearningClass:
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
 
+    def create_model_settings_frame(self):
+
+        self.model_settings_options_frame = tk.Frame(self.model_settings_frame, bg='beige')
+        self.model_settings_options_frame.pack(side=tk.TOP)
+
+
+
+
+
+
+
+
+
+
+        self.model_settings_menu_frame = tk.Frame(self.model_settings_frame, bg='lightgray')
+        self.model_settings_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_independent_variable_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', font=("Arial", 36))
+        self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
+
+        self.model_settings_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.model_settings_dependent_label.pack(side=tk.RIGHT, expand=True)
+
+
+
+
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+
 
     def create_results_frame(self):
 
@@ -2646,7 +2654,7 @@ class MachineLearningClass:
 
     def switch_to_dependent_variable_frame(self):
 
-
+        self.model_settings_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
         self.results_frame.pack_forget()
@@ -2654,7 +2662,7 @@ class MachineLearningClass:
 
         self.dependent_var_search_entry.focus_set()
 
-        self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
 
 
 
@@ -2662,6 +2670,7 @@ class MachineLearningClass:
         if self.selected_dependent_variable == "":
             return
 
+        self.model_settings_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -2669,25 +2678,40 @@ class MachineLearningClass:
 
         self.independent_var_search_entry.focus_set()
 
-        self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
 
     def switch_to_variable_handling_frame(self):
 
-        if self.selected_analysis not in [1,2]:
+        if self.selected_analysis not in self.machine_learning_model_options:
             return
         
         else:
-            
-            try:
-                self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
-            except:
-                utils.show_message('dependent variable error', 'Dependent Variable not numeric for linear regression')
-                return
+            self.model_settings_frame.pack_forget()
+            self.results_frame.pack_forget()
+            self.dependent_variable_frame.pack_forget()
+            self.indedependent_variables_frame.pack_forget()
+            self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
             self.handle_variables_machine_learning()
 
 
+
+
+    def switch_to_models_settings_frame(self):
+        try:
+            self.apply_machine_learning_selection()
+
+            self.variable_handling_frame.pack_forget()
+            self.results_frame.pack_forget()
+            self.dependent_variable_frame.pack_forget()
+            self.indedependent_variables_frame.pack_forget()
+            self.model_settings_frame.pack(fill=tk.BOTH, expand=True)
+        
+        except:
+            utils.show_message('Error Message', 'Error. Please try again.')
+            return
+        
 
 
     def switch_to_results_frame(self):
@@ -2699,7 +2723,6 @@ class MachineLearningClass:
         self.results_frame.pack(fill=tk.BOTH, expand=True)
 
 
-        self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
     ###################################################################################################################################################################################################
@@ -2724,7 +2747,7 @@ class MachineLearningClass:
 
 
     def execute_model(self):
-        self.apply_machine_learning_selection()
+        
 
 
 
