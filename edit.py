@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
  
 
- 
+
 def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     df = data_manager.get_dataframe()
     if df is None:
@@ -27,6 +27,10 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
     utils.remove_frame_widgets(sub_button_frame)
 
+
+
+
+    # SUBHEADING BUTTONS
     style.configure("edit_clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     edit_clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_clean_button.TButton")
     edit_clean_button.pack(side="left", fill="x", expand=True)
@@ -37,7 +41,13 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     create_new_var.pack(side="left", fill="x", expand=True)
     create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df, style))
 
+
+
+
+
+    # SHOW CURRENT TAB
     tab_dict = data_manager.get_tab_dict()
+
     try:
         if tab_dict['current_edit_tab']:
             for tab in ['edit_clean', 'create_new_var']:
@@ -49,6 +59,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
         pass
 
 
+    # LOAD EDIT FRAME
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
     dataframe_content_frame.pack_forget()
@@ -64,12 +75,11 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
 
+################################################
+################################################
 
-################################################
-################################################
- 
                 # EDIT DATA #
- 
+
 ################################################
 ################################################
 
@@ -87,7 +97,7 @@ class EditData():
 
         self.editing_content_frame = editing_content_frame
         utils.remove_frame_widgets(self.editing_content_frame)
- 
+
         self.column_options_frame = tk.Frame(self.editing_content_frame, bg='beige')
         self.column_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
  
@@ -255,6 +265,15 @@ class EditData():
             self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 36))
             self.change_value_button.grid(row=1, column=0, padx=5, pady=5)
  
+
+
+            # RENAME COLUMN FRAME
+            self.rename_column_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
+            self.rename_column_frame.pack(tk.TOP)
+
+
+
+
             # Create the Entry widget
             self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 36))
             self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
