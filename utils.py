@@ -33,13 +33,6 @@ def prompt_yes_no(text_prompt):
 
 
 
-
-
-
-
-
-
-
 def remove_frame_widgets(frame):
     for widget in frame.winfo_children():
         widget.destroy()
