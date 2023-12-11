@@ -43,28 +43,26 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     utils.remove_frame_widgets(sub_button_frame)
 
 
- 
-
 
     style.configure("comparison_table_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     comparison_table_button = ttk.Button(sub_button_frame, text="Comparison Table", style="comparison_table_button.TButton")
     comparison_table_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, df, style))
+    comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, style))
  
     style.configure("regression_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     regression_button = ttk.Button(sub_button_frame, text="Regression", style="regression_button.TButton")
     regression_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    regression_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, df, style))
+    regression_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, style))
  
     style.configure("create_plot_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_plot_button = ttk.Button(sub_button_frame, text="Create Plot", style="create_plot_button.TButton")
     create_plot_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    create_plot_button.config(command=lambda: CreatePlotClass(visualize_content_frame, df, style))
+    create_plot_button.config(command=lambda: CreatePlotClass(visualize_content_frame, style))
  
     style.configure("machine_learning_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     machine_learning_button = ttk.Button(sub_button_frame, text="Machine Learning", style="machine_learning_button.TButton")
     machine_learning_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
-    machine_learning_button.config(command=lambda: MachineLearningClass(visualize_content_frame, df, style))
+    machine_learning_button.config(command=lambda: MachineLearningClass(visualize_content_frame, style))
  
 
     tab_dict = data_manager.get_tab_dict()
@@ -118,7 +116,7 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
 ################################################
  
 class ComparisonTableClass:
-    def __init__(self, visualize_content_frame, df, style):
+    def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
         self.visualize_content_frame = visualize_content_frame
 
@@ -134,8 +132,8 @@ class ComparisonTableClass:
 
         self.selected_dependent_variable = data_manager.get_comp_tab_dep_var()
         self.selected_independent_variables = data_manager.get_comp_tab_ind_var_list()
-        self.selected_percent_type = ""
-        self.selected_data = ""
+        self.selected_percent_type = data_manager.get_comp_tab_percent_type()
+        self.selected_data = data_manager.get_comp_tab_data_selection()
         self.variable_type_radio_var = data_manager.get_comp_tab_ind_var_dict()
 
 
@@ -146,9 +144,6 @@ class ComparisonTableClass:
         self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-
-
-
 
 
 
@@ -167,7 +162,7 @@ class ComparisonTableClass:
     #####################################################################
     #####################################################################
 
-    
+
     # CREATE DEPENDENT VARIABLE SELECTION FRAME
 
     def create_dependent_variable_frame(self):
@@ -190,7 +185,7 @@ class ComparisonTableClass:
         self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
-        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
+        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24), exportselection=False)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -210,11 +205,13 @@ class ComparisonTableClass:
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+
         if self.selected_dependent_variable:
             self.dependent_variable_listbox.selection_clear(0, tk.END)
             items = list(self.dependent_variable_listbox.get(0, tk.END))
             index = items.index(self.selected_dependent_variable)
             self.dependent_variable_listbox.selection_set(index)
+            self.dependent_variable_listbox.yview(index)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
@@ -223,14 +220,6 @@ class ComparisonTableClass:
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
             data_manager.set_comp_tab_dep_var(self.selected_dependent_variable)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        else:
-            if self.selected_dependent_variable:
-                items = list(self.dependent_variable_listbox.get(0, tk.END))
-                index = items.index(self.selected_dependent_variable)
-                self.dependent_variable_listbox.selection_set(index)
-                pass
-            else:
-                self.dependent_frame_dependent_label.config(text="")
 
 
     def update_dependent_variable_listbox(self, *args):
@@ -262,7 +251,7 @@ class ComparisonTableClass:
 
 
 
-        # INDEPENDENT VARIABLES SELECTION FRAME
+        # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
         self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -285,16 +274,16 @@ class ComparisonTableClass:
         self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 48))
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 60))
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 36))
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 60))
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 36))
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -317,9 +306,14 @@ class ComparisonTableClass:
             for index in reversed(selections):
                 self.available_independent_variable_listbox.delete(index)
 
+
+
+
+
         # TABLE OPTIONS
         self.table_options_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.table_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
 
         # ROW OR COLUMN PERCENTAGE SELECTION
         self.percentage_type_selection_frame = tk.Frame(self.table_options_frame, bg='beige')
@@ -327,8 +321,13 @@ class ComparisonTableClass:
 
         def on_percentage_radio_button_selected():
             self.selected_percent_type = self.percentage_type_radio_var.get()
+            data_manager.set_comp_tab_percent_type(self.selected_percent_type)
 
-        self.percentage_type_radio_var = tk.StringVar(value="row")
+        if self.selected_percent_type:
+            self.percentage_type_radio_var = tk.StringVar(value=self.selected_percent_type)
+        else:
+            self.percentage_type_radio_var = tk.StringVar(value="row")
+
         self.selected_percent_type = self.percentage_type_radio_var.get()
 
         self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value="row", command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
@@ -346,8 +345,13 @@ class ComparisonTableClass:
 
         def on_data_choice_radio_button_selected():
             self.selected_data = self.data_choice_radio_var.get()
+            data_manager.set_comp_tab_data_type(self.selected_data)
 
-        self.data_choice_radio_var = tk.StringVar(value="all data")
+        if self.selected_data:
+            self.data_choice_radio_var = tk.StringVar(value=self.selected_data)
+        else:
+            self.data_choice_radio_var = tk.StringVar(value="all data")
+
         self.selected_data = self.data_choice_radio_var.get()
 
         self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value="all data", command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
@@ -360,7 +364,7 @@ class ComparisonTableClass:
 
 
 
-        # NAVIATION MENU
+        # NAVIGATION MENU
         self.independent_variable_menu_frame = tk.Frame(self.indedependent_variables_frame, bg='lightgray')
         self.independent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -379,9 +383,8 @@ class ComparisonTableClass:
         search_term = self.available_independent_search_var.get().lower()
         self.available_independent_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
-            if column not in self.selected_independent_variables:
-                if search_term in column.lower():
-                    self.available_independent_variable_listbox.insert(tk.END, column)
+            if search_term in column.lower():
+                self.available_independent_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -420,9 +423,9 @@ class ComparisonTableClass:
 
         for item in selected_items:
             self.available_independent_variable_listbox.insert(tk.END, item)
-            self.reorder_listbox_alphabetically(self.available_independent_variable_listbox)
-
             self.selected_independent_variables.remove(item)
+
+        self.reorder_available_independent_variable_listbox_alphabetically()
 
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
@@ -443,12 +446,21 @@ class ComparisonTableClass:
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
-    def reorder_listbox_alphabetically(listbox):
-        items = list(listbox.get(0, tk.END))
-        items.sort()  # Sort the items alphabetically
-        listbox.delete(0, tk.END)  # Clear the Listbox
+
+    def reorder_available_independent_variable_listbox_alphabetically(self):
+        top_visible_index = self.available_independent_variable_listbox.nearest(0)
+        top_visible_item = self.available_independent_variable_listbox.get(top_visible_index)
+
+        items = list(self.available_independent_variable_listbox.get(0, tk.END))
+        items = sorted(items, key=lambda x: x.lower())
+
+        self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
         for item in items:
-            listbox.insert(tk.END, item)
+            self.available_independent_variable_listbox.insert(tk.END, item)
+
+        if top_visible_index >= 0:
+            index = items.index(top_visible_item)
+            self.available_independent_variable_listbox.yview(index)
 
     #####################################################################
     #####################################################################
@@ -807,6 +819,7 @@ class ComparisonTableClass:
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
 
@@ -901,7 +914,7 @@ class ComparisonTableClass:
 ################################################
 
 class RegressionAnalysisClass:
-    def __init__(self, visualize_content_frame, df, style):
+    def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
         self.visualize_content_frame = visualize_content_frame
 
@@ -914,12 +927,13 @@ class RegressionAnalysisClass:
 
         data_manager.add_tab_to_dict("current_visualize_tab", "regression")
 
-        self.selected_dependent_variable = ""
-        self.selected_independent_variables = []
-        self.selected_analysis = ""
-        self.selected_dependent_variable_value = ""
+        self.selected_dependent_variable = data_manager.get_reg_tab_dep_var()
+        self.selected_independent_variables = data_manager.get_reg_tab_ind_var_list()
+        self.selected_regression = data_manager.get_reg_tab_selected_regression()
+        self.selected_log_reg_dependent_variable_value = data_manager.get_reg_tab_log_reg_target_value()
 
         self.lin_reg_input_var_dict = {}
+        self.log_reg_input_var_dict = {}
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
@@ -967,7 +981,7 @@ class RegressionAnalysisClass:
         self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
-        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
+        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24), exportselection=False)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -975,7 +989,6 @@ class RegressionAnalysisClass:
 
         self.dependent_variable_listbox.bind("<<ListboxSelect>>", self.on_dependent_variable_listbox_select)
 
-        self.dependent_variable_listbox.selection_set(0)
 
 
         # NAVIGATION MENU
@@ -989,13 +1002,20 @@ class RegressionAnalysisClass:
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
+        if self.selected_dependent_variable:
+            self.dependent_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.dependent_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_dependent_variable)
+            self.dependent_variable_listbox.selection_set(index)
+            self.dependent_variable_listbox.yview(index)
+            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
+            
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
+            data_manager.set_reg_tab_dep_var(self.selected_dependent_variable)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
-        else:
-            self.dependent_frame_dependent_label.config(text="")
 
 
     def update_dependent_variable_listbox(self, *args):
@@ -1022,13 +1042,13 @@ class RegressionAnalysisClass:
         self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
         # TITLE LABEL
         self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
 
-        # INDEPENDENT VARIABLES SELECTION FRAME
+
+        # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
         self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -1051,11 +1071,17 @@ class RegressionAnalysisClass:
         self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 48))
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 36))
+        self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 36))
+        self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
 
@@ -1069,21 +1095,40 @@ class RegressionAnalysisClass:
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.selected_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
+        if len(self.selected_independent_variables) > 0:
+            for var in self.selected_independent_variables:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.available_independent_variable_listbox.selection_set(sorted(self.df.columns, key=str.lower).index(var))
+            selections = self.available_independent_variable_listbox.curselection()
+            for index in reversed(selections):
+                self.available_independent_variable_listbox.delete(index)
+
 
         # MODEL OPTIONS
         self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.regression_type_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        def on_radio_button_selected():
-            self.selected_analysis = self.regression_type_radio_var.get()
 
-        self.regression_type_radio_var = tk.StringVar(value="logistic")
-        self.selected_analysis = self.regression_type_radio_var.get()
 
-        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value="logistic", command=on_radio_button_selected, indicator = 0,font=("Arial", 40))
+
+
+
+        # MODEL TYPE SELECTION
+        def on_selected_regression_radio_button_selected():
+            self.selected_regression = self.regression_type_radio_var.get()
+            data_manager.set_reg_tab_selected_regression(self.selected_regression)
+
+        if self.selected_regression:
+            self.regression_type_radio_var = tk.StringVar(value=self.selected_regression)
+        else:
+            self.regression_type_radio_var = tk.StringVar(value="logistic")
+
+        self.selected_regression = self.regression_type_radio_var.get()
+
+        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value="logistic", command=on_selected_regression_radio_button_selected, indicator = 0,font=("Arial", 40))
         self.logistic_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value="linear", command=on_radio_button_selected, indicator = 0, font=("Arial", 40))
+        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value="linear", command=on_selected_regression_radio_button_selected, indicator = 0, font=("Arial", 40))
         self.linear_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
@@ -1103,8 +1148,6 @@ class RegressionAnalysisClass:
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
-
-
     def update_available_independent_variable_listbox(self, *args):
         search_term = self.available_independent_search_var.get().lower()
         self.available_independent_variable_listbox.delete(0, tk.END)
@@ -1121,6 +1164,23 @@ class RegressionAnalysisClass:
             if item not in self.selected_independent_variables:
                 self.selected_independent_variable_listbox.insert(tk.END, item)
                 self.selected_independent_variables.append(item)
+                data_manager.add_variable_to_reg_tab_ind_var_list(item)
+
+        for index in reversed(selections):
+            self.available_independent_variable_listbox.delete(index)
+
+
+    def transfer_all_right(self):
+
+        for i in range(self.available_independent_variable_listbox.size()):
+            self.available_independent_variable_listbox.selection_set(i)
+
+        selections = self.available_independent_variable_listbox.curselection()
+        selected_items = [self.available_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.selected_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.append(item)
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
@@ -1134,10 +1194,42 @@ class RegressionAnalysisClass:
             self.available_independent_variable_listbox.insert(tk.END, item)
             self.selected_independent_variables.remove(item)
 
+        self.reorder_available_independent_variable_listbox_alphabetically()
+
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
 
+    def transfer_all_left(self):
+
+        for i in range(self.selected_independent_variable_listbox.size()):
+            self.selected_independent_variable_listbox.selection_set(i)
+
+        selections = self.selected_independent_variable_listbox.curselection()
+        selected_items = [self.selected_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.available_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.remove(item)
+
+        for index in reversed(selections):
+            self.selected_independent_variable_listbox.delete(index)
+
+
+    def reorder_available_independent_variable_listbox_alphabetically(self):
+        top_visible_index = self.available_independent_variable_listbox.nearest(0)
+        top_visible_item = self.available_independent_variable_listbox.get(top_visible_index)
+
+        items = list(self.available_independent_variable_listbox.get(0, tk.END))
+        items = sorted(items, key=lambda x: x.lower())
+
+        self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
+        for item in items:
+            self.available_independent_variable_listbox.insert(tk.END, item)
+
+        if top_visible_index >= 0:
+            index = items.index(top_visible_item)
+            self.available_independent_variable_listbox.yview(index)
 
     #####################################################################
     #####################################################################
@@ -1257,11 +1349,11 @@ class RegressionAnalysisClass:
 
     def switch_to_variable_handling_frame(self):
 
-        if (self.selected_analysis not in ["logistic", "linear"]) | (len(self.selected_independent_variables) < 1):
+        if (self.selected_regression not in ["logistic", "linear"]) | (len(self.selected_independent_variables) < 1):
             return
     
         
-        if self.selected_analysis == "logistic":
+        if self.selected_regression == "logistic":
             # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
             if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
                 utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
@@ -1270,7 +1362,7 @@ class RegressionAnalysisClass:
             self.handle_variables_logistic_regression()
 
 
-        if self.selected_analysis == "linear":
+        if self.selected_regression == "linear":
             # CHECK FOR CONTINUOUS VARIABLE BEFORE LINEAR REGRESSION
             try:
                 self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
@@ -1313,9 +1405,8 @@ class RegressionAnalysisClass:
 
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy().dropna()
 
-        # DETERMINE NON-NUMERIC COLUMNS
+        # DETERMINE NON-NUMERIC VARIABLES
         self.non_numeric_columns = []
-
 
         self.selected_options = {}
         self.selected_column_map = {}
@@ -1326,11 +1417,20 @@ class RegressionAnalysisClass:
             except:
                 self.non_numeric_columns.append(independent_variable)
 
+        if len(self.non_numeric_columns) == 0:
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
+            proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+
+        # HANDLE NON-NUMERIC VARIABLES
         for variable in self.non_numeric_columns:
-            options_frame = tk.Frame(self.scrollable_frame)
+
+            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator.pack(fill="x", padx=5, pady=5)
+
+            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
             options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
-            variable_label = tk.Label(options_frame, text=variable)
+            variable_label = tk.Label(options_frame, text=variable, font=("Arial", 28), bg='yellow', fg='black')
             variable_label.pack(side=tk.TOP)
 
 
@@ -1343,12 +1443,9 @@ class RegressionAnalysisClass:
             for value in non_numeric_values:
                 
                 self.selected_column_map[value] = variable
-                value_frame = tk.Frame(options_frame)
+
+                value_frame = tk.Frame(options_frame, bg='yellow')
                 value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
-
-
-                value_label = tk.Label(value_frame, text=value)
-                value_label.pack(side=tk.LEFT)
 
                 if value in self.lin_reg_input_var_dict:
                     input_var = self.lin_reg_input_var_dict[value]
@@ -1356,8 +1453,16 @@ class RegressionAnalysisClass:
                     input_var = tk.StringVar()
                     self.lin_reg_input_var_dict[value] = input_var
 
-                input_entry = tk.Entry(value_frame, textvariable=input_var)
-                input_entry.pack(side=tk.RIGHT)
+
+                input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 28))
+                input_entry.pack(side=tk.LEFT)
+
+                value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+                value_label.pack(side=tk.LEFT)
+
+
+
+                
 
                 # Bind the entry widget to an event
                 input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
@@ -1537,10 +1642,10 @@ class RegressionAnalysisClass:
     def run_analysis(self):
         utils.remove_frame_widgets(self.results_display_frame)
 
-        if self.selected_analysis == "logistic":
+        if self.selected_regression == "logistic":
             self.logistic_regression()
 
-        elif self.selected_analysis == "linear":
+        elif self.selected_regression == "linear":
             self.linear_regression()
 
         
@@ -1705,8 +1810,8 @@ class RegressionAnalysisClass:
 
 class CreatePlotClass():
  
-    def __init__(self, visualize_content_frame, df, style):
-        self.df = df
+    def __init__(self, visualize_content_frame, style):
+        self.df = data_manager.get_dataframe()
  
         self.style = style
 
@@ -2046,7 +2151,7 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 ################################################
 
 class MachineLearningClass:
-    def __init__(self, visualize_content_frame, df, style):
+    def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
         self.visualize_content_frame = visualize_content_frame
 
