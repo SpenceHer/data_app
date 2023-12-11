@@ -132,12 +132,12 @@ class ComparisonTableClass:
         data_manager.add_tab_to_dict("current_visualize_tab", "comparison_table")
 
 
-        self.selected_dependent_variable = ""
-        self.selected_independent_variables = []
+        self.selected_dependent_variable = data_manager.get_comp_tab_dep_var()
+        self.selected_independent_variables = data_manager.get_comp_tab_ind_var_list()
         self.selected_percent_type = ""
         self.selected_data = ""
-        self.variable_type_radio_var = {}
-        
+        self.variable_type_radio_var = data_manager.get_comp_tab_ind_var_dict()
+
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
@@ -146,6 +146,8 @@ class ComparisonTableClass:
         self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+
+
 
 
 
@@ -196,7 +198,6 @@ class ComparisonTableClass:
 
         self.dependent_variable_listbox.bind("<<ListboxSelect>>", self.on_dependent_variable_listbox_select)
 
-        self.dependent_variable_listbox.selection_set(0)
 
 
         # NAVIGATION MENU
@@ -209,13 +210,27 @@ class ComparisonTableClass:
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+        if self.selected_dependent_variable:
+            self.dependent_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.dependent_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_dependent_variable)
+            self.dependent_variable_listbox.selection_set(index)
+            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
 
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
+            data_manager.set_comp_tab_dep_var(self.selected_dependent_variable)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
         else:
-            self.dependent_frame_dependent_label.config(text="")
+            if self.selected_dependent_variable:
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
+                pass
+            else:
+                self.dependent_frame_dependent_label.config(text="")
 
 
     def update_dependent_variable_listbox(self, *args):
@@ -276,6 +291,11 @@ class ComparisonTableClass:
         self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 60))
+        self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 60))
+        self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
 
@@ -289,8 +309,13 @@ class ComparisonTableClass:
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.selected_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
-
-
+        if len(self.selected_independent_variables) > 0:
+            for var in self.selected_independent_variables:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.available_independent_variable_listbox.selection_set(sorted(self.df.columns, key=str.lower).index(var))
+            selections = self.available_independent_variable_listbox.curselection()
+            for index in reversed(selections):
+                self.available_independent_variable_listbox.delete(index)
 
         # TABLE OPTIONS
         self.table_options_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
@@ -354,8 +379,9 @@ class ComparisonTableClass:
         search_term = self.available_independent_search_var.get().lower()
         self.available_independent_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
-            if search_term in column.lower():
-                self.available_independent_variable_listbox.insert(tk.END, column)
+            if column not in self.selected_independent_variables:
+                if search_term in column.lower():
+                    self.available_independent_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -366,6 +392,23 @@ class ComparisonTableClass:
             if item not in self.selected_independent_variables:
                 self.selected_independent_variable_listbox.insert(tk.END, item)
                 self.selected_independent_variables.append(item)
+                data_manager.add_variable_to_comp_tab_ind_var_list(item)
+
+        for index in reversed(selections):
+            self.available_independent_variable_listbox.delete(index)
+
+
+    def transfer_all_right(self):
+
+        for i in range(self.available_independent_variable_listbox.size()):
+            self.available_independent_variable_listbox.selection_set(i)
+
+        selections = self.available_independent_variable_listbox.curselection()
+        selected_items = [self.available_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.selected_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.append(item)
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
@@ -377,11 +420,35 @@ class ComparisonTableClass:
 
         for item in selected_items:
             self.available_independent_variable_listbox.insert(tk.END, item)
+            self.reorder_listbox_alphabetically(self.available_independent_variable_listbox)
+
             self.selected_independent_variables.remove(item)
 
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
+
+    def transfer_all_left(self):
+
+        for i in range(self.selected_independent_variable_listbox.size()):
+            self.selected_independent_variable_listbox.selection_set(i)
+
+        selections = self.selected_independent_variable_listbox.curselection()
+        selected_items = [self.selected_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.available_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.remove(item)
+
+        for index in reversed(selections):
+            self.selected_independent_variable_listbox.delete(index)
+
+    def reorder_listbox_alphabetically(listbox):
+        items = list(listbox.get(0, tk.END))
+        items.sort()  # Sort the items alphabetically
+        listbox.delete(0, tk.END)  # Clear the Listbox
+        for item in items:
+            listbox.insert(tk.END, item)
 
     #####################################################################
     #####################################################################
@@ -458,14 +525,14 @@ class ComparisonTableClass:
 
         for value in list(self.selected_independent_variables):
             options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
-            options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=20)
+            options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=20, anchor=tk.W)
 
             value_label = tk.Label(options_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
             value_label.pack(side=tk.LEFT, padx=5, pady=5)
 
 
 
-            
+
             if value in self.variable_type_radio_var:
                 var = tk.StringVar(value=self.variable_type_radio_var[value].get())
                 self.variable_type_radio_var[value] = var
@@ -852,6 +919,8 @@ class RegressionAnalysisClass:
         self.selected_analysis = ""
         self.selected_dependent_variable_value = ""
 
+        self.lin_reg_input_var_dict = {}
+
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
@@ -1184,13 +1253,13 @@ class RegressionAnalysisClass:
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
     def switch_to_variable_handling_frame(self):
 
         if (self.selected_analysis not in ["logistic", "linear"]) | (len(self.selected_independent_variables) < 1):
             return
-        
-
+    
         
         if self.selected_analysis == "logistic":
             # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
@@ -1211,10 +1280,16 @@ class RegressionAnalysisClass:
             
             self.handle_variables_linear_regression()
 
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
 
     def switch_to_results_frame(self):
-        self.run_analysis()
 
+        self.run_analysis()
+    
         self.indedependent_variables_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
@@ -1229,15 +1304,10 @@ class RegressionAnalysisClass:
 ###################################################################################################################################################################################################
 
 
-
-
     def handle_variables_linear_regression(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.variable_handling_label.configure(text="Linear Regression Variable Settings")
+
+        self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
 
         utils.forget_frame_widgets(self.scrollable_frame)
 
@@ -1246,7 +1316,7 @@ class RegressionAnalysisClass:
         # DETERMINE NON-NUMERIC COLUMNS
         self.non_numeric_columns = []
 
-        self.input_var_dict = {}
+
         self.selected_options = {}
         self.selected_column_map = {}
 
@@ -1258,42 +1328,69 @@ class RegressionAnalysisClass:
 
         for variable in self.non_numeric_columns:
             options_frame = tk.Frame(self.scrollable_frame)
-            options_frame.pack(side=tk.TOP)
+            options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
             variable_label = tk.Label(options_frame, text=variable)
             variable_label.pack(side=tk.TOP)
 
 
+            non_numeric_values = []
 
             for value in self.clean_df[variable].unique():
+                if isinstance(value, str) and not value.isdigit():
+                    non_numeric_values.append(value)
+            
+            for value in non_numeric_values:
                 
                 self.selected_column_map[value] = variable
                 value_frame = tk.Frame(options_frame)
-                value_frame.pack(side=tk.TOP)
+                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
 
                 value_label = tk.Label(value_frame, text=value)
                 value_label.pack(side=tk.LEFT)
 
-                input_var = tk.StringVar()
-                self.input_var_dict[value] = input_var
+                if value in self.lin_reg_input_var_dict:
+                    input_var = self.lin_reg_input_var_dict[value]
+                else:
+                    input_var = tk.StringVar()
+                    self.lin_reg_input_var_dict[value] = input_var
 
-                input_combobox = ttk.Combobox(value_frame, textvariable=input_var, state="readonly")
-                values = list(range(len(self.clean_df[variable].unique())))
+                input_entry = tk.Entry(value_frame, textvariable=input_var)
+                input_entry.pack(side=tk.RIGHT)
 
-                input_combobox['values'] = values
-                input_combobox.current(0)  # Set default selection to the first item
-                # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
-                input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-                input_combobox.pack(side=tk.LEFT)
+                # Bind the entry widget to an event
+                input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
 
+    def on_key_release(self, event, value):
+        # Update the dictionary with the entry's current value
+        self.lin_reg_input_var_dict[value].set(event.widget.get())
+
+    def on_combobox_select(self, combobox, value):
+        selected_value = combobox.get()
+        self.input_var_dict[value].set(selected_value)
+
+        for value, input_var in self.lin_reg_input_var_dict.items():
+            selected_value = input_var.get()
+            column_to_update = self.selected_column_map[value]
+            # Updated to handle string conversion to float
+            try:
+                converted_value = float(selected_value)
+            except ValueError:
+                converted_value = selected_value  # Keep as string if not a float
+            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = converted_value
 
     def apply_linear_regression_selection(self):
-        for value, input_var in self.input_var_dict.items():
-            selected_value = (input_var.get())
-            column_to_update = self.selected_column_map[value]
-            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
-        for column in self.non_numeric_columns:
-            self.clean_df[column] = self.clean_df[column].astype(float)
+            try:
+                for value, input_var in self.lin_reg_input_var_dict.items():
+                    selected_value = (input_var.get())
+                    column_to_update = self.selected_column_map[value]
+                    self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
+                for column in self.non_numeric_columns:
+                    self.clean_df[column] = self.clean_df[column].astype(float)
+            except:
+                utils.show_message("error message", f"Make sure all values are NUMERICAL")
+                raise
 
 
 
@@ -1301,16 +1398,10 @@ class RegressionAnalysisClass:
 
 
     def handle_variables_logistic_regression(self):
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
-
-        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.variable_handling_label.configure(text="Logistic Regression Variable Settings")
 
-        utils.forget_frame_widgets(self.variable_handling_options_frame)
+        utils.forget_frame_widgets(self.scrollable_frame)
 
 
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
@@ -1404,9 +1495,7 @@ class RegressionAnalysisClass:
             radio1.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state=tk.DISABLED))
 
 
-    def on_combobox_select(self, combobox, value):
-        selected_value = combobox.get()
-        self.input_var_dict[value].set(selected_value)
+
 
 
     def apply_logistic_regression_selection(self):
@@ -1448,9 +1537,9 @@ class RegressionAnalysisClass:
     def run_analysis(self):
         utils.remove_frame_widgets(self.results_display_frame)
 
-
         if self.selected_analysis == "logistic":
             self.logistic_regression()
+
         elif self.selected_analysis == "linear":
             self.linear_regression()
 
@@ -1948,7 +2037,6 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 
 
 
-
 ################################################
 ################################################
  
@@ -1971,8 +2059,8 @@ class MachineLearningClass:
 
         data_manager.add_tab_to_dict("current_visualize_tab", "machine_learning")
 
-        self.selected_dependent_variable = ""
-        self.selected_independent_variables = []
+        self.selected_dependent_variable = data_manager.get_mach_learn_dep_var()
+        self.selected_independent_variables = data_manager.get_mach_learn_dep_var_list()
         self.selected_model = ""
         self.selected_dependent_variable_value = ""
         self.machine_learning_model_options = ['cat_rf', 'cat_xgb', 'cat_logreg', 'cont_linreg']
@@ -1997,10 +2085,11 @@ class MachineLearningClass:
         self.switch_to_dependent_variable_frame()
 
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
+    #####################################################################
+    #####################################################################
+    #####################################################################
 
+    # CREATE DEPENDENT VARIABLE SELECTION FRAME
 
     def create_dependent_variable_frame(self):
 
@@ -2008,13 +2097,14 @@ class MachineLearningClass:
         self.dependent_variable_options_frame = tk.Frame(self.dependent_variable_frame, bg='beige')
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        # CONTENT TITLE LABEL
+        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
+        self.choose_dependent_variable_label.pack(side=tk.TOP)
 
-        # DEPENDENT VARIABLE CHOICE
+
+        # DEPENDENT VARIABLE SELECTION FRAME
         self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
         self.dependent_column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.choose_dependent_variable_label = tk.Label(self.dependent_column_choice_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
-        self.choose_dependent_variable_label.pack(side=tk.TOP)
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
@@ -2029,18 +2119,9 @@ class MachineLearningClass:
 
         self.dependent_variable_listbox.bind("<<ListboxSelect>>", self.on_dependent_variable_listbox_select)
 
-        self.dependent_variable_listbox.selection_set(0)
-
-        self.dependent_variable_listbox.update_idletasks()
 
 
-
-
-
-
-
-
-        # NAVIATION MENU
+        # NAVIGATION MENU
         self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg='lightgray')
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -2050,19 +2131,27 @@ class MachineLearningClass:
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
-
+        if self.selected_dependent_variable:
+            self.dependent_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.dependent_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_dependent_variable)
+            self.dependent_variable_listbox.selection_set(index)
+            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
+            data_manager.set_comp_tab_dep_var(self.selected_dependent_variable)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-            self.independent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-            self.variable_handling_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-            self.model_settings_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
         else:
-            self.dependent_frame_dependent_label.config(text="")
+            if self.selected_dependent_variable:
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
+                pass
+            else:
+                self.dependent_frame_dependent_label.config(text="")
 
 
     def update_dependent_variable_listbox(self, *args):
@@ -2077,10 +2166,10 @@ class MachineLearningClass:
 
 
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
 
+    #####################################################################
+    #####################################################################
+    #####################################################################
 
 
     def create_independent_variables_frame(self):
