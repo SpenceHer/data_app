@@ -1420,7 +1420,7 @@ class RegressionAnalysisClass:
         if self.selected_dependent_variable in self.log_reg_target_value_dict:
             self.log_reg_target_value = tk.StringVar(value=self.log_reg_target_value_dict[self.selected_dependent_variable].get())
         else:
-            self.log_reg_target_value = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}")
+            self.log_reg_target_value = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}")
             self.log_reg_target_value_dict[self.selected_dependent_variable] = self.log_reg_target_value
             
 
@@ -1461,13 +1461,12 @@ class RegressionAnalysisClass:
 
 
         row_count = 3
-
+        self.var_dict = {}
+        
         for value in self.unique_values:
-
 
             value_label = tk.Label(self.independent_variable_handling_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
             value_label.grid(row=row_count, column=0, padx=5, pady=5)
-
 
             if value in self.log_reg_variable_type_dict:
                 var = tk.StringVar(value=self.log_reg_variable_type_dict[value].get())
@@ -1477,41 +1476,37 @@ class RegressionAnalysisClass:
                 var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
                 self.log_reg_variable_type_dict[value] = var
 
+            continuous_variable_button = tk.Radiobutton(self.independent_variable_handling_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            continuous_variable_button.grid(row=row_count, column=1, padx=5, pady=5)
+
+            categorical_variable_button = tk.Radiobutton(self.independent_variable_handling_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            categorical_variable_button.grid(row=row_count, column=2, padx=5, pady=5)
 
 
 
 
-            radio1 = tk.Radiobutton(self.independent_variable_handling_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
-            radio1.grid(row=row_count, column=1, padx=5, pady=5)
-
-            radio3 = tk.Radiobutton(self.independent_variable_handling_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
-            radio3.grid(row=row_count, column=2, padx=5, pady=5)
-
-
-
-
-            input_combobox = ttk.Combobox(self.independent_variable_handling_frame, state="readonly", font=("Arial", 28))
+            reference_value_combobox = ttk.Combobox(self.independent_variable_handling_frame, state=tk.DISABLED, font=("Arial", 28))
             values = [str(val) for val in self.clean_df[value].unique()]
-            input_combobox['values'] = values
+            reference_value_combobox['values'] = values
+            reference_value_combobox.grid(row=row_count, column=3, padx=5, pady=5)
+            reference_value_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=reference_value_combobox, value=value: self.on_combobox_select(combobox, value))
 
+
+            # Bind the state of the reference_value_combobox to the selection of 'Categorical' radio button
+            continuous_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state=tk.DISABLED))
 
             if value in self.log_reg_reference_variable_dict:
-                input_combobox.set(self.log_reg_reference_variable_dict[value])
-
-            input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-
-
-
+                categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
+                reference_value_combobox.set(self.log_reg_reference_variable_dict[value])
+            else:
+                categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
 
 
+            if var.get() == 'Categorical':
+                reference_value_combobox.configure(state="readonly")
+                if value in self.log_reg_reference_variable_dict:
+                    reference_value_combobox.set(self.log_reg_reference_variable_dict[value])
 
-
-            input_combobox.grid(row=row_count, column=3, padx=5, pady=5)
-
-
-            # Bind the state of the input_combobox to the selection of 'Categorical' radio button
-            radio3.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state="readonly"))
-            radio1.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state=tk.DISABLED))
 
             separator_2 = ttk.Separator(self.independent_variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
             separator_2.grid(row=row_count+1, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
@@ -1520,28 +1515,26 @@ class RegressionAnalysisClass:
 
     def on_combobox_select(self, combobox, value):
         selected_value = combobox.get()
-        self.log_reg_reference_variable_dict[value] = input_var
+        self.log_reg_reference_variable_dict[value] = selected_value
+    
 
-        for value, input_var in self.log_reg_reference_variable_dict.items():
-            selected_value = input_var.get()
-            column_to_update = self.selected_column_map[value]
-            # Updated to handle string conversion to float
-            try:
-                converted_value = float(selected_value)
-            except ValueError:
-                converted_value = selected_value  # Keep as string if not a float
-            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = converted_value
+
 
 
 
     def apply_logistic_regression_selection(self):
+
+        target_val_df_1 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
+        target_val_df_2 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
+
         if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[0]}":
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 1
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 0
+            target_val_df_1[self.selected_dependent_variable] = 1
+            target_val_df_2[self.selected_dependent_variable] = 0
 
         if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[1]}":
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 0
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 1
+
+            target_val_df_1[self.selected_dependent_variable] = 0
+            target_val_df_2[self.selected_dependent_variable] = 1
 
         self.selected_options.clear()
         for value, var in self.log_reg_variable_type_dict.items():
@@ -1550,7 +1543,7 @@ class RegressionAnalysisClass:
 
 
             if option == 'Categorical':
-                input_value = self.log_reg_reference_variable_dict[value].get()
+                input_value = self.log_reg_reference_variable_dict[value]
                 column_data_type = self.df[value].dtype
                 if column_data_type == 'object':
                     self.log_reg_reference_variable_dict[value] = input_value  # Treat as string
