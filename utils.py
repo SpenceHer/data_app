@@ -18,7 +18,8 @@ def prompt_yes_no(text_prompt):
 
 
 
-
+class MyCustomError(Exception):
+    pass
 
 
 
@@ -151,31 +152,39 @@ def is_column_numeric(df, column_name):
 
 
 
+
+
 def create_summary_table(df):
-    summary = pd.DataFrame(columns=['Column', 'Mode', 'Non-Missing Count', 'Missing Count', 'Non-Missing Unique Count'] + list(df.describe().transpose().columns))
-    
+    # Preparing the columns for the summary dataframe
+    describe_cols = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
+    summary_cols = ['Column', 'Mode', 'Non-Missing Count', 'Missing Count', 'Non-Missing Unique Count'] + describe_cols
+    summary = pd.DataFrame(columns=summary_cols)
+
+    # Function to check if a column is numeric
+    def is_numeric(col):
+        return pd.api.types.is_numeric_dtype(df[col])
+
+    # Iterating through each column to compute the statistics
     for column in df.columns:
-        
-        mode = tuple(map(str, df[column].mode().values))
-        non_null_count = df[column].count()
-        null_count = df[column].isnull().sum()
-        non_null_unique_count = df[column].nunique()
-        describe_data = pd.Series(dtype='object')
-        
-        if is_column_numeric(df, column):
-            describe_data = df[column].describe()
-        
-        summary = pd.concat([summary, pd.DataFrame({
-            'Column': [column],
-            'Mode': [mode],
-            'Non-Missing Count': [non_null_count],
-            'Missing Count': [null_count],
-            'Non-Missing Unique Count': [non_null_unique_count],
-            **describe_data.to_dict()
-        })])
-    
-    summary = summary.drop(columns={"count"})
-    if "top" in summary.columns:
-        summary = summary.drop(columns={"freq", 'top', 'unique'})
+        data = {
+            'Column': column,
+            'Mode': tuple(map(str, df[column].mode().values)),
+            'Non-Missing Count': df[column].count(),
+            'Missing Count': df[column].isnull().sum(),
+            'Non-Missing Unique Count': df[column].nunique()
+        }
+
+        # Adding descriptive statistics for numeric columns
+        if is_numeric(column):
+            data.update(df[column].describe()[describe_cols].to_dict())
+
+        # Filtering out empty or all-NA columns from the data dictionary
+        data = {k: v for k, v in data.items() if v is not None and not pd.isna(v)}
+
+        # Adding the computed data to the summary dataframe
+        summary_row = pd.DataFrame([data])
+        summary = pd.concat([summary, summary_row], ignore_index=True)
+
     return summary
+
 
