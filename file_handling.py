@@ -169,7 +169,7 @@ class SetupFileTabClass():
                 self.df = pd.read_csv(self.file_path, keep_default_na=False, na_values=[''])
         except:
             utils.show_message('error loading', 'Error Reading File')
-            return
+            raise
 
         def fix_columns(df):
                 df.columns = df.columns.str.replace(' ', '_')
