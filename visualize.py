@@ -28,7 +28,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-
+from tkinter.font import Font
 
 def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
     df = data_manager.get_dataframe()
@@ -134,7 +134,7 @@ class ComparisonTableClass:
         self.selected_independent_variables = data_manager.get_comp_tab_ind_var_list()
         self.selected_percent_type = data_manager.get_comp_tab_percent_type()
         self.selected_data = data_manager.get_comp_tab_data_selection()
-        self.variable_type_radio_var = data_manager.get_comp_tab_ind_var_dict()
+        self.log_reg_variable_type_dict = data_manager.get_comp_tab_ind_var_dict()
 
 
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -280,10 +280,10 @@ class ComparisonTableClass:
         self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 36))
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, font=("Arial", 36))
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 36))
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="Clear Selection", command=self.transfer_all_left, font=("Arial", 36))
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -545,13 +545,13 @@ class ComparisonTableClass:
 
 
 
-            if value in self.variable_type_radio_var:
-                var = tk.StringVar(value=self.variable_type_radio_var[value].get())
-                self.variable_type_radio_var[value] = var
+            if value in self.log_reg_variable_type_dict:
+                var = tk.StringVar(value=self.log_reg_variable_type_dict[value].get())
+                self.log_reg_variable_type_dict[value] = var
 
             else:
                 var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-                self.variable_type_radio_var[value] = var
+                self.log_reg_variable_type_dict[value] = var
 
             radio1 = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
             radio1.pack(side=tk.RIGHT, padx=5, pady=5)
@@ -591,7 +591,7 @@ class ComparisonTableClass:
     def apply_comparison_table_variable_selection(self):
         self.selected_options.clear()
         
-        for value, var in self.variable_type_radio_var.items():
+        for value, var in self.log_reg_variable_type_dict.items():
             if value in self.selected_independent_variables:
 
                 option = var.get()
@@ -916,6 +916,7 @@ class ComparisonTableClass:
 class RegressionAnalysisClass:
     def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
+
         self.visualize_content_frame = visualize_content_frame
 
         self.style = style
@@ -930,10 +931,12 @@ class RegressionAnalysisClass:
         self.selected_dependent_variable = data_manager.get_reg_tab_dep_var()
         self.selected_independent_variables = data_manager.get_reg_tab_ind_var_list()
         self.selected_regression = data_manager.get_reg_tab_selected_regression()
-        self.selected_log_reg_dependent_variable_value = data_manager.get_reg_tab_log_reg_target_value()
 
-        self.lin_reg_input_var_dict = {}
-        self.log_reg_input_var_dict = {}
+        self.lin_reg_input_var_dict = data_manager.get_lin_reg_ind_dict()
+
+        self.log_reg_target_value_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
+        self.log_reg_variable_type_dict = data_manager.get_log_reg_var_type_dict()
+        self.log_reg_reference_variable_dict = data_manager.get_log_reg_ref_dict()
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
@@ -1077,10 +1080,10 @@ class RegressionAnalysisClass:
         self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="All Right", command=self.transfer_all_right, font=("Arial", 36))
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, font=("Arial", 36))
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="All Left", command=self.transfer_all_left, font=("Arial", 36))
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="Clear Selection", command=self.transfer_all_left, font=("Arial", 36))
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -1289,6 +1292,277 @@ class RegressionAnalysisClass:
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
+
+
+    # HANDLE VARIABLES FOR LINEAR REGRESSION
+    def handle_variables_linear_regression(self):
+
+        self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
+
+        utils.forget_frame_widgets(self.scrollable_frame)
+
+        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy().dropna()
+
+        # DETERMINE NON-NUMERIC VARIABLES
+        self.non_numeric_columns = []
+
+        self.selected_options = {}
+        self.selected_column_map = {}
+
+        for independent_variable in self.selected_independent_variables:
+            try:
+                self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+            except:
+                self.non_numeric_columns.append(independent_variable)
+
+        if len(self.non_numeric_columns) == 0:
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
+            proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+
+        # HANDLE NON-NUMERIC VARIABLES
+        for variable in self.non_numeric_columns:
+
+            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator.pack(fill="x", padx=5, pady=5)
+
+            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+            options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+
+            variable_label = tk.Label(options_frame, text=variable, font=("Arial", 28), bg='yellow', fg='black')
+            variable_label.pack(side=tk.TOP)
+
+
+            non_numeric_values = []
+
+            for value in self.clean_df[variable].unique():
+                if isinstance(value, str) and not value.isdigit():
+                    non_numeric_values.append(value)
+            
+            for value in non_numeric_values:
+                
+                self.selected_column_map[value] = variable
+
+                value_frame = tk.Frame(options_frame, bg='yellow')
+                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+                if value in self.lin_reg_input_var_dict:
+                    input_var = self.lin_reg_input_var_dict[value]
+                else:
+                    input_var = tk.StringVar()
+                    data_manager.add_variable_to_lin_reg_ind_dict(value, input_var)
+                    self.lin_reg_input_var_dict[value] = input_var
+
+
+                input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 28), width=10)
+                input_entry.pack(side=tk.LEFT)
+
+                value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+                value_label.pack(side=tk.LEFT)
+
+
+
+                
+
+                # Bind the entry widget to an event
+                input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
+
+    def on_key_release(self, event, value):
+        # Update the dictionary with the entry's current value
+        self.lin_reg_input_var_dict[value].set(event.widget.get())
+
+
+    def apply_linear_regression_selection(self):
+            try:
+                for value, input_var in self.lin_reg_input_var_dict.items():
+                    selected_value = (input_var.get())
+                    column_to_update = self.selected_column_map[value]
+                    self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
+                for column in self.non_numeric_columns:
+                    self.clean_df[column] = self.clean_df[column].astype(float)
+            except:
+                utils.show_message("error message", f"Make sure all values are NUMERICAL")
+                raise
+
+
+
+
+    # HANDLE VARIABLES FOR LOGISTIC REGRESSION
+
+    def handle_variables_logistic_regression(self):
+
+        self.variable_handling_label.configure(text="Logistic Regression Variable Settings")
+
+        utils.forget_frame_widgets(self.scrollable_frame)
+
+        
+        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+        self.clean_df.dropna(inplace=True)
+
+
+        if len(self.clean_df) < 1:
+            first_column_with_missing_data = self.df.columns[self.df.isnull().all()].tolist()[0]
+            utils.show_message("error message", f"The Variable, {first_column_with_missing_data.upper()}, has no data")
+            raise utils.MyCustomError("error")
+
+
+
+        # TARGET VALUE FRAME
+        self.dependent_variable_handling_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+        self.dependent_variable_handling_frame.grid(row=0, column=0, sticky="nsew")
+
+
+        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32))
+        self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
+
+        def on_dependent_variable_value_selected():
+            data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, self.log_reg_target_value)
+
+        if self.selected_dependent_variable in self.log_reg_target_value_dict:
+            self.log_reg_target_value = tk.StringVar(value=self.log_reg_target_value_dict[self.selected_dependent_variable].get())
+        else:
+            self.log_reg_target_value = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}")
+            self.log_reg_target_value_dict[self.selected_dependent_variable] = self.log_reg_target_value
+            
+
+        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.log_reg_target_value, value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.log_reg_target_value, value=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+
+
+
+        # VARIABLE TYPES AND REFERENCE VALUES FRAME
+        self.independent_variable_handling_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+        self.independent_variable_handling_frame.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+
+
+        self.independent_variable_handling_frame_label = tk.Label(self.independent_variable_handling_frame, text='Choose variable types and reference values', font=('Arial', 32), bg='yellow', fg='black')
+        self.independent_variable_handling_frame_label.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
+
+        self.variable_name_label = tk.Label(self.independent_variable_handling_frame, text='Variable', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.variable_name_label.grid(row=1, column=0, padx=5, pady=5)
+
+        self.variable_type_label = tk.Label(self.independent_variable_handling_frame, text='Variable Type', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.variable_type_label.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
+
+        self.reference_variable_label = tk.Label(self.independent_variable_handling_frame, text='Reference Value', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.reference_variable_label.grid(row=1, column=3, padx=5, pady=5)
+
+        separator = ttk.Separator(self.independent_variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.grid(row=2, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
+
+
+
+
+        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
+        self.selected_options = {}
+
+
+        row_count = 3
+
+        for value in self.unique_values:
+
+
+            value_label = tk.Label(self.independent_variable_handling_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+            value_label.grid(row=row_count, column=0, padx=5, pady=5)
+
+
+            if value in self.log_reg_variable_type_dict:
+                var = tk.StringVar(value=self.log_reg_variable_type_dict[value].get())
+                self.log_reg_variable_type_dict[value] = var
+
+            else:
+                var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
+                self.log_reg_variable_type_dict[value] = var
+
+
+
+
+
+            radio1 = tk.Radiobutton(self.independent_variable_handling_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            radio1.grid(row=row_count, column=1, padx=5, pady=5)
+
+            radio3 = tk.Radiobutton(self.independent_variable_handling_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            radio3.grid(row=row_count, column=2, padx=5, pady=5)
+
+
+
+
+            input_combobox = ttk.Combobox(self.independent_variable_handling_frame, state="readonly", font=("Arial", 28))
+            values = [str(val) for val in self.clean_df[value].unique()]
+            input_combobox['values'] = values
+
+
+            if value in self.log_reg_reference_variable_dict:
+                input_combobox.set(self.log_reg_reference_variable_dict[value])
+
+            input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
+
+
+
+
+
+
+
+            input_combobox.grid(row=row_count, column=3, padx=5, pady=5)
+
+
+            # Bind the state of the input_combobox to the selection of 'Categorical' radio button
+            radio3.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state="readonly"))
+            radio1.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state=tk.DISABLED))
+
+            separator_2 = ttk.Separator(self.independent_variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
+            separator_2.grid(row=row_count+1, column=0, columnspan=4, sticky="ew", padx=5, pady=5)
+
+            row_count += 2
+
+    def on_combobox_select(self, combobox, value):
+        selected_value = combobox.get()
+        self.log_reg_reference_variable_dict[value] = input_var
+
+        for value, input_var in self.log_reg_reference_variable_dict.items():
+            selected_value = input_var.get()
+            column_to_update = self.selected_column_map[value]
+            # Updated to handle string conversion to float
+            try:
+                converted_value = float(selected_value)
+            except ValueError:
+                converted_value = selected_value  # Keep as string if not a float
+            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = converted_value
+
+
+
+    def apply_logistic_regression_selection(self):
+        if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[0]}":
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 1
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 0
+
+        if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[1]}":
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 0
+            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 1
+
+        self.selected_options.clear()
+        for value, var in self.log_reg_variable_type_dict.items():
+            option = var.get()
+            self.selected_options[value] = option
+
+
+            if option == 'Categorical':
+                input_value = self.log_reg_reference_variable_dict[value].get()
+                column_data_type = self.df[value].dtype
+                if column_data_type == 'object':
+                    self.log_reg_reference_variable_dict[value] = input_value  # Treat as string
+                elif column_data_type == 'int64':
+                    input_value = int(input_value)  # Convert to int
+                    self.log_reg_reference_variable_dict[value] = input_value
+                elif column_data_type == 'float64':
+                    input_value = float(input_value)  # Convert to float
+                    self.log_reg_reference_variable_dict[value] = input_value
+
+
+
     #####################################################################
     #####################################################################
     #####################################################################
@@ -1396,239 +1670,12 @@ class RegressionAnalysisClass:
 ###################################################################################################################################################################################################
 
 
-    def handle_variables_linear_regression(self):
 
 
-        self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
 
-        utils.forget_frame_widgets(self.scrollable_frame)
 
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy().dropna()
 
-        # DETERMINE NON-NUMERIC VARIABLES
-        self.non_numeric_columns = []
 
-        self.selected_options = {}
-        self.selected_column_map = {}
-
-        for independent_variable in self.selected_independent_variables:
-            try:
-                self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
-            except:
-                self.non_numeric_columns.append(independent_variable)
-
-        if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
-            proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
-
-        # HANDLE NON-NUMERIC VARIABLES
-        for variable in self.non_numeric_columns:
-
-            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
-            separator.pack(fill="x", padx=5, pady=5)
-
-            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
-            options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
-
-            variable_label = tk.Label(options_frame, text=variable, font=("Arial", 28), bg='yellow', fg='black')
-            variable_label.pack(side=tk.TOP)
-
-
-            non_numeric_values = []
-
-            for value in self.clean_df[variable].unique():
-                if isinstance(value, str) and not value.isdigit():
-                    non_numeric_values.append(value)
-            
-            for value in non_numeric_values:
-                
-                self.selected_column_map[value] = variable
-
-                value_frame = tk.Frame(options_frame, bg='yellow')
-                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
-
-                if value in self.lin_reg_input_var_dict:
-                    input_var = self.lin_reg_input_var_dict[value]
-                else:
-                    input_var = tk.StringVar()
-                    self.lin_reg_input_var_dict[value] = input_var
-
-
-                input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 28))
-                input_entry.pack(side=tk.LEFT)
-
-                value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
-                value_label.pack(side=tk.LEFT)
-
-
-
-                
-
-                # Bind the entry widget to an event
-                input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
-
-    def on_key_release(self, event, value):
-        # Update the dictionary with the entry's current value
-        self.lin_reg_input_var_dict[value].set(event.widget.get())
-
-    def on_combobox_select(self, combobox, value):
-        selected_value = combobox.get()
-        self.input_var_dict[value].set(selected_value)
-
-        for value, input_var in self.lin_reg_input_var_dict.items():
-            selected_value = input_var.get()
-            column_to_update = self.selected_column_map[value]
-            # Updated to handle string conversion to float
-            try:
-                converted_value = float(selected_value)
-            except ValueError:
-                converted_value = selected_value  # Keep as string if not a float
-            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = converted_value
-
-    def apply_linear_regression_selection(self):
-            try:
-                for value, input_var in self.lin_reg_input_var_dict.items():
-                    selected_value = (input_var.get())
-                    column_to_update = self.selected_column_map[value]
-                    self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
-                for column in self.non_numeric_columns:
-                    self.clean_df[column] = self.clean_df[column].astype(float)
-            except:
-                utils.show_message("error message", f"Make sure all values are NUMERICAL")
-                raise
-
-
-
-
-
-
-    def handle_variables_logistic_regression(self):
-
-        self.variable_handling_label.configure(text="Logistic Regression Variable Settings")
-
-        utils.forget_frame_widgets(self.scrollable_frame)
-
-
-        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.clean_df.dropna(inplace=True)
-
-
-        self.dependent_variable_handling_frame = tk.Frame(self.variable_handling_options_frame, bg='beige')
-        self.dependent_variable_handling_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32))
-        self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
-
-        def on_dependent_variable_value_selected():
-            self.selected_dependent_variable_value = self.selected_dependent_variable_radio_value.get()
-
-
-        self.selected_dependent_variable_radio_value = tk.IntVar()
-
-        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.selected_dependent_variable_radio_value, value=1, command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40))
-        self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
-
-        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.selected_dependent_variable_radio_value, value=2, command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40))
-        self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
-
-
-
-
-
-
-
-
-    
-        self.independent_variable_handling_frame = tk.Frame(self.variable_handling_options_frame, bg='beige')
-        self.independent_variable_handling_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-
-        self.independent_variable_handling_frame_label = tk.Label(self.independent_variable_handling_frame, text='Choose variable types', font=('Arial', 32))
-        self.independent_variable_handling_frame_label.pack(side=tk.TOP)
-
-
-
-
-
-        self.unique_values = list(self.clean_df[self.selected_independent_variables].columns)
-        self.selected_options = {}
-        self.reference_value_dict = {}
-
-
-        self.variable_type_radio_var = {}
-        self.input_var_dict = {}
-
-
-        for value in self.unique_values:
-
-
-            options_frame = tk.Frame(self.independent_variable_handling_frame)
-            options_frame.pack(side=tk.TOP)
-
-
-            value_label = tk.Label(options_frame, text=value)
-            value_label.pack(side=tk.LEFT)
-
-
-            var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-            self.variable_type_radio_var[value] = var
-
-
-            input_var = tk.StringVar()
-            self.input_var_dict[value] = input_var
-
-
-            radio1 = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0)
-            radio1.pack(side=tk.LEFT, padx=5)
-
-            radio3 = tk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical", indicator=0)
-            radio3.pack(side=tk.LEFT, padx=5)
-
-
-            input_combobox = ttk.Combobox(options_frame, textvariable=input_var, state="readonly")
-            values = [str(val) for val in self.clean_df[value].unique()]
-            input_combobox['values'] = values
-            input_combobox.current(0)  # Set default selection to the first item
-            # input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox: self.on_combobox_select(combobox, value))
-            input_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=input_combobox, value=value: self.on_combobox_select(combobox, value))
-
-
-            input_combobox.pack(side=tk.LEFT)
-
-
-            # Bind the state of the input_combobox to the selection of 'Categorical' radio button
-            radio3.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state="readonly"))
-            radio1.bind("<Button-1>", lambda event, combobox=input_combobox: combobox.configure(state=tk.DISABLED))
-
-
-
-
-
-    def apply_logistic_regression_selection(self):
-        if self.selected_dependent_variable_value == 1:
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 1
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 0
-
-        if self.selected_dependent_variable_value == 2:
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[0], self.selected_dependent_variable] = 0
-            self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable].unique()[1], self.selected_dependent_variable] = 1
-
-        self.selected_options.clear()
-        for value, var in self.variable_type_radio_var.items():
-            option = var.get()
-            self.selected_options[value] = option
-
-
-            if option == 'Categorical':
-                input_value = self.input_var_dict[value].get()
-                column_data_type = self.df[value].dtype
-                if column_data_type == 'object':
-                    self.reference_value_dict[value] = input_value  # Treat as string
-                elif column_data_type == 'int64':
-                    input_value = int(input_value)  # Convert to int
-                    self.reference_value_dict[value] = input_value
-                elif column_data_type == 'float64':
-                    input_value = float(input_value)  # Convert to float
-                    self.reference_value_dict[value] = input_value
         
 
 
@@ -1660,9 +1707,9 @@ class RegressionAnalysisClass:
                 model_string = model_string + f"{value} + "
             elif option == 'Categorical':
                 if self.clean_df[value].dtype == 'object':
-                    model_string = model_string + f"C({value}, Treatment('{self.reference_value_dict[value]}')) + "
+                    model_string = model_string + f"C({value}, Treatment('{self.log_reg_reference_variable_dict[value]}')) + "
                 else:
-                    model_string = model_string + f"C({value}, Treatment({self.reference_value_dict[value]})) + "
+                    model_string = model_string + f"C({value}, Treatment({self.log_reg_reference_variable_dict[value]})) + "
 
         model_string = model_string.rstrip(" +")
 
