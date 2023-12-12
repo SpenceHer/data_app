@@ -116,7 +116,13 @@ reg_tab_ind_var_list = []
 reg_tab_ind_var_dict = {}
 
 reg_tab_selected_regression = ""
-reg_tab_log_reg_target_value = ""
+
+lin_reg_ind_dict = {}
+
+
+reg_tab_log_reg_target_value_dict = {}
+reg_tab_log_reg_ind_dict = {}
+reg_tab_log_reg_ref_dict = {}
 
 # REGRESSION DEPENDENT VARIABLE
 def set_reg_tab_dep_var(variable):
@@ -137,16 +143,6 @@ def get_reg_tab_ind_var_list():
     return reg_tab_ind_var_list
 
 
-# REGRESSION INDEPENDENT VARIABLES DICT
-def add_variable_to_reg_tab_ind_dict(tab_name, setting):
-    global reg_tab_ind_var_dict
-    reg_tab_ind_var_dict[tab_name] = setting
-
-def get_reg_tab_ind_var_dict():
-    return reg_tab_ind_var_dict
-
-
-
 # REGRESSION ANALYSIS TYPE
 def set_reg_tab_selected_regression(variable):
     global reg_tab_selected_regression
@@ -156,14 +152,52 @@ def get_reg_tab_selected_regression():
     return reg_tab_selected_regression
 
 
+# LINEAR REGRESSION INDEPENDENT VARIABLES DICT
+def add_variable_to_lin_reg_ind_dict(tab_name, setting):
+    global lin_reg_ind_dict
+    lin_reg_ind_dict[tab_name] = setting
+
+def get_lin_reg_ind_dict():
+    return lin_reg_ind_dict
+
+
+
+reg_tab_log_reg_target_value_dict = {}
+log_reg_var_type_dict = {}
+log_reg_ref_dict = {}
+
+
 
 # LOGISTIC REGRESSION TARGET VALUE
-def set_reg_tab_log_reg_target_value(variable):
-    global reg_tab_log_reg_target_value
-    reg_tab_log_reg_target_value = variable
+def add_variable_to_reg_tab_log_reg_target_value_dict(tab_name, setting):
+    global reg_tab_log_reg_target_value_dict
+    reg_tab_log_reg_target_value_dict[tab_name] = setting
 
-def get_reg_tab_log_reg_target_value():
-    return reg_tab_log_reg_target_value
+def get_reg_tab_log_reg_target_value_dict():
+    return reg_tab_log_reg_target_value_dict
+
+
+# LOGISTIC REGRESSION INDEPENDENT VARIABLES DICT
+def add_variable_to_log_reg_var_type_dict(tab_name, setting):
+    global log_reg_var_type_dict
+    log_reg_var_type_dict[tab_name] = setting
+
+def get_log_reg_var_type_dict():
+    return log_reg_var_type_dict
+
+
+# LOGISTIC REGRESSION REFERENCES VARIABLES DICT
+def add_variable_to_log_reg_ref_dict(tab_name, setting):
+    global log_reg_ref_dict
+    log_reg_ref_dict[tab_name] = setting
+
+def get_log_reg_ref_dict():
+    return log_reg_ref_dict
+
+
+
+
+
 
 
 #####################################################################
