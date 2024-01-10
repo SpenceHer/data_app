@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, simpledialog
+from tkinter import Variable, filedialog, messagebox, simpledialog
 from tkinter import ttk
 import utils
 import file_handling
@@ -28,18 +28,16 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     utils.remove_frame_widgets(sub_button_frame)
 
 
-
-
     # SUBHEADING BUTTONS
     style.configure("edit_clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     edit_clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_clean_button.TButton")
     edit_clean_button.pack(side="left", fill="x", expand=True)
-    edit_clean_button.config(command=lambda: EditData(editing_content_frame, dataframe_content_frame, df, style))
+    edit_clean_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, style))
 
     style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_new_var = ttk.Button(sub_button_frame, text="Create New Variable", style="create_new_var_button.TButton")
     create_new_var.pack(side="left", fill="x", expand=True)
-    create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, df, style))
+    create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, style))
 
 
 
@@ -55,6 +53,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
                     style.configure(f"{tab_dict['current_edit_tab']}_button.TButton", background="white")
                 else:
                     style.configure(f"{tab}_button.TButton", background="gray")
+
     except:
         pass
 
@@ -69,22 +68,73 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
 
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                               EDIT DATA                                                      #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
-################################################
-################################################
 
-                # EDIT DATA #
-
-################################################
-################################################
-
-class EditData():
-    def __init__(self, editing_content_frame, dataframe_content_frame, df, style):
+class EditDataClass():
+    def __init__(self, editing_content_frame, dataframe_content_frame, style):
         self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
 
@@ -96,25 +146,35 @@ class EditData():
         data_manager.add_tab_to_dict("current_edit_tab", "edit_clean")
 
         self.editing_content_frame = editing_content_frame
+
         utils.remove_frame_widgets(self.editing_content_frame)
 
-        self.column_options_frame = tk.Frame(self.editing_content_frame, bg='beige')
+        # AVAILABLE COLUMNS FRAME
+        self.column_options_frame = tk.Frame(self.editing_content_frame, bg='blue')
         self.column_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
- 
-        self.clean_settings_frame = tk.Frame(self.editing_content_frame, bg='beige')
-        self.clean_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.create_column_options_list()
-   
-    def update_column_listbox(self, *args):
-        search_term = self.column_search_var.get().lower()
-        self.column_choice_listbox.delete(0, tk.END)
-        for column in self.df.columns:
-            if search_term in column.lower():
-                self.column_choice_listbox.insert(tk.END, column)
+
+
+        # EDIT FRAME
+        self.edit_frame = tk.Frame(self.editing_content_frame, bg='beige')
+        self.edit_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.variable_type_choice_frame = tk.Frame(self.edit_frame, bg='beige')
+        self.value_handling_frame = tk.Frame(self.edit_frame, bg='beige')
+        self.data_display_frame = tk.Frame(self.edit_frame, bg='beige')
+
+        self.create_variable_type_choice_frame()
+        self.create_value_handling_frame()
+        self.create_data_display_frame()
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
 
     def create_column_options_list(self):
-        utils.remove_frame_widgets(self.column_options_frame)
  
         self.available_columns = self.df.columns
         self.selected_column = None
@@ -123,7 +183,7 @@ class EditData():
         self.choice_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.choice_frame_label = tk.Label(self.choice_frame, text="COLUMN SELECTION", font=("Arial", 30, "bold"))
+        self.choice_frame_label = tk.Label(self.choice_frame, text="Select A Column", font=("Arial", 30, "bold"), bg='beige')
         self.choice_frame_label.pack(side=tk.TOP)
 
         self.column_search_var = tk.StringVar()
@@ -133,10 +193,10 @@ class EditData():
         self.column_search_entry.focus_set()
 
         self.column_type_selection = tk.StringVar()
-        self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
+        self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24), exportselection=False)
         self.column_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
  
-        for column in sorted(self.available_columns):
+        for column in sorted(self.df.columns, key=str.lower):
             self.column_choice_listbox.insert(tk.END, column)
  
         self.column_choice_listbox.update_idletasks()
@@ -153,180 +213,462 @@ class EditData():
         self.column_options_button_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.column_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit Column", command=lambda: self.clean_column(), font=('Arial', 24))
+        self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit\nColumn", command=lambda: self.edit_column(), font=('Arial', 36))
         self.choose_column_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
  
-    def clean_column(self):
+    def update_column_listbox(self, *args):
+        search_term = self.column_search_var.get().lower()
+        self.column_choice_listbox.delete(0, tk.END)
+        for column in self.df.columns:
+            if search_term in column.lower():
+                self.column_choice_listbox.insert(tk.END, column)
+
+
+    def edit_column(self):
         selected_index = self.column_choice_listbox.curselection()
         if selected_index:
+            
+            utils.remove_frame_widgets(self.edit_frame)
+
+            self.variable_type_choice_frame = tk.Frame(self.edit_frame, bg='beige')
+            self.value_handling_frame = tk.Frame(self.edit_frame, bg='beige')
+            self.data_display_frame = tk.Frame(self.edit_frame, bg='beige')
+
+            self.create_variable_type_choice_frame()
+            self.create_value_handling_frame()
+            self.create_data_display_frame()
+
+
             self.selected_column = self.column_choice_listbox.get(selected_index[0])
-            self.choose_variable_type()
- 
-    def choose_variable_type(self):
-        utils.remove_frame_widgets(self.clean_settings_frame)
- 
-        self.variable_type_choice_frame = tk.Frame(self.clean_settings_frame, bg='beige')
-        self.variable_type_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
+
+            self.variable_type_choice_menu_frame_label.configure(text=f"Selected Column: {self.selected_column}")
+            self.value_handling_menu_frame_label.configure(text=f"Selected Column: {self.selected_column}")
+            self.data_display_menu_frame_label.configure(text=f"Selected Column: {self.selected_column}")
+
+
+            self.switch_to_variable_type_choice_frame()
+        else:
+            utils.show_message("Error", "Please select a column first")
+
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+    def create_variable_type_choice_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.variable_type_choice_button_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
+        self.variable_type_choice_button_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
+        # CATEGORICAL VARIABLE BUTTON
+        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg='beige')
         self.categorical_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
  
-        self.continuous_variable_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
-        self.continuous_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
-
-        self.categorical_variable_button = tk.Button(self.categorical_variable_frame, text='Categorical Variable', command=self.clean_categorical_variable, font=('Arial', 30))
+        self.categorical_variable_button = tk.Button(self.categorical_variable_frame, text='Categorical Variable', command=self.edit_categorical_variable, font=('Arial', 30))
         self.categorical_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20)
  
-        self.continuous_variable_button = tk.Button(self.continuous_variable_frame,text='Continuous Variable', command=self.clean_continuous_variable, font=('Arial', 30))
+
+        # CONTINUOUS VARIABLE BUTTON
+        self.continuous_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg='beige')
+        self.continuous_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.continuous_variable_button = tk.Button(self.continuous_variable_frame,text='Continuous Variable', command=self.edit_continuous_variable, font=('Arial', 30))
         self.continuous_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20)
 
 
-
-        self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
-        self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        # MENU
+        self.variable_type_choice_menu_frame = tk.Frame(self.variable_type_choice_frame, bg='lightgray')
+        self.variable_type_choice_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
  
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray", fg='black')
-        self.menu_column_choice.pack(side=tk.TOP, padx= 10, pady=10, fill=tk.BOTH, expand=True)
+        self.variable_type_choice_menu_frame_label = tk.Label(self.variable_type_choice_menu_frame, text=f"Selected Column: {self.selected_column}", font=("Arial", 36), bg="lightgray", fg='black')
+        self.variable_type_choice_menu_frame_label.pack(side=tk.TOP, padx= 10, pady=10, fill=tk.BOTH, expand=True)
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
+    def create_value_handling_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.options_frame = tk.Frame(self.value_handling_frame, bg='beige')
+        self.options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
+        # NAVIGATION MENU
+        self.value_handling_menu_frame = tk.Frame(self.value_handling_frame, bg='lightgray')
+        self.value_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_variable_type_choice_frame_button = tk.Button(self.value_handling_menu_frame, command=self.edit_column, text='Back', font=("Arial", 36))
+        self.return_to_variable_type_choice_frame_button.pack(side=tk.LEFT)
+
+        self.advance_to_display_frame_button = tk.Button(self.value_handling_menu_frame, text="Next", command=self.switch_to_data_display_frame, font=("Arial", 36), bg='blue', fg='black')
+        self.advance_to_display_frame_button.pack(side=tk.RIGHT)
+
+        self.value_handling_menu_frame_label = tk.Label(self.value_handling_menu_frame, text="Back", font=("Arial", 36), bg='lightgray', fg='black')
+        self.value_handling_menu_frame_label.pack(side=tk.RIGHT, expand=True)
 
 
+    ################################################################################################################
 
+    # EDIT CATEGORICAL VARIABLE 
 
+    def edit_categorical_variable(self):
+        self.selected_variable_type = "Categorical"
 
-
-
-
-
-
-
-
-
-
-    ################################################
-            # CLEAN CONTINUOUS VARIABLE #
-    ################################################
- 
-    def clean_continuous_variable(self):
         self.temp_df = self.df.copy()
-        self.handle_non_numeric_values()
- 
+        
+        self.handle_categorical_values()
 
-    def handle_non_numeric_values(self):
-        utils.remove_frame_widgets(self.clean_settings_frame)
+        self.switch_to_value_handling_frame()
+
+
+    def handle_categorical_values(self):
+
+        self.categorical_variable_handling_label = tk.Label(self.options_frame, text='Categorical Variable Options', bg='beige', font=("Arial", 36, "bold", "underline"))
+        self.categorical_variable_handling_label.pack(side=tk.TOP, fill=tk.X)
+
+        separator = ttk.Separator(self.options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        # TEMPORARY DATAFRAME
+        self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
+
+
+        self.handle_categorical_values_frame = tk.Frame(self.options_frame, bg='beige')
+        self.handle_categorical_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
+
+
+        # UNIQUE VALUE LISTBOX
+        self.value_choice_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
+        self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
+
+        self.unique_categorical_values = sorted(self.temp_df[self.selected_column].unique())
+        self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
+
+        # Listbox label
+        self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="Unique Values", font=("Arial", 30, "bold"), bg='beige')
+        self.value_choice_frame_label.pack(side=tk.TOP)
+ 
+        self.value_selection = tk.StringVar()
+        self.value_choice_listbox = tk.Listbox(self.value_choice_frame, font=("Arial", 36), exportselection=False)
+        self.value_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+ 
+        for value in self.unique_categorical_values:
+            self.value_choice_listbox.insert(tk.END, value)
+
+        # Default value is first value
+        self.value_choice_listbox.select_set(0)
+        self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
+ 
+        def on_value_choice_listbox_selection(event):
+            selected_index = self.value_choice_listbox.curselection()
+            if selected_index:
+                self.selected_value = self.value_choice_listbox.get(selected_index[0])
+ 
+        self.value_choice_listbox.bind("<<ListboxSelect>>", on_value_choice_listbox_selection)
+
+
+
+
+
+        # VALUE ACTIONS
+        self.value_action_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
+        self.value_action_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # REMOVE OR CHANGE VALUE
+        self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 36, "bold"), bg="beige")
+        self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        # Remove Value
+        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), font=("Arial", 36))
+        self.remove_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        # Change Value
+        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), font=("Arial", 36))
+        self.change_value_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 36))
+        self.new_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
+        
+
+        # RENAME COLUMN 
+        self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 36, "bold"), bg="beige")
+        self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        self.rename_column_var = tk.StringVar(value="No")
+
+        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 36))
+
+        self.rename_column_frame.columnconfigure(0, weight=1)
+        self.rename_column_frame.columnconfigure(1, weight=1)
+
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+    def remove_categorical_value(self):
+        if type(self.selected_value) == str:
+            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = np.nan
+            self.update_categorical_value_listbox()
+        else:
+            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = np.nan
+            self.update_categorical_value_listbox()
+
+
+    def change_categorical_value(self):
+        if type(self.selected_value) == str:
+            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = self.new_value_entry.get()
+ 
+        else:
+            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = self.new_value_entry.get()
+        self.update_categorical_value_listbox()
+ 
+    def update_categorical_value_listbox(self):
+        self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
+        self.unique_categorical_values = sorted(self.temp_df[self.selected_column].unique())
+        self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
        
+        # Clear the listbox and insert the updated values
+        self.value_choice_listbox.delete(0, tk.END)
+        for value in self.unique_categorical_values:
+            self.value_choice_listbox.insert(tk.END, value)
+ 
+        self.value_choice_listbox.update_idletasks()
+        self.value_choice_listbox.select_set(0)
+        try:
+            self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
+        except:
+            print('')
+
+
+    ################################################################################################################
+
+    # CLEAN CONTINUOUS VARIABLE
+
+    def edit_continuous_variable(self):
+        self.selected_variable_type = "Continuous"
+        
+        self.temp_df = self.df.copy()
+
+        self.handle_continuous_values()
+
+        self.switch_to_value_handling_frame()
+
+
+    def handle_continuous_values(self):
+        
         def is_float(value):
             try:
                 float(value)
                 return True
             except ValueError:
                 return False
-        
-        self.handle_non_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
-        self.handle_non_numerics_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-        self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
-        self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
- 
-        self.advance_buton = tk.Button(self.menu_button_frame, text="Next", command=self.check_for_other_numeric_values, font=("Arial", 36))
-        self.advance_buton.pack(side=tk.RIGHT, padx= 10, pady=10)
- 
-        self.return_button = tk.Button(self.menu_button_frame, text="Back", command=self.choose_variable_type, font=("Arial", 36))
-        self.return_button.pack(side=tk.LEFT, padx= 10, pady=10)
- 
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray")
-        self.menu_column_choice.pack(side=tk.LEFT, padx= 10, pady=10, fill=tk.BOTH, expand=True)
- 
-        try:
-            self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(float)
- 
-            no_non_numerics_label = tk.Label(self.handle_non_numerics_frame, text="No Non-Numeric Values. Click Next", font=("Arial", 36))
-            no_non_numerics_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
- 
-        except:
-            # self.non_numeric_values = self.temp_df[self.selected_column].loc[~self.temp_df[self.selected_column].apply(lambda x: isinstance(x, (int, float)))]
-            self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
-            self.unique_non_numeric_values = list(set(self.non_numeric_values))
 
-            self.value_choice_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
-            self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
- 
-            self.value_action_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
-            self.value_action_frame.pack(side=tk.LEFT)
- 
-            self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), font=("Arial", 36))
-            self.remove_button.grid(row=0, column=0, padx=5, pady=5)
- 
-            self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 36))
-            self.change_value_button.grid(row=1, column=0, padx=5, pady=5)
- 
+        self.continuous_variable_handling_label = tk.Label(self.options_frame, text='Continuous Variable Options', bg='beige', font=("Arial", 36, "bold", "underline"))
+        self.continuous_variable_handling_label.pack(side=tk.TOP, fill=tk.X)
 
+        separator = ttk.Separator(self.options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-            # RENAME COLUMN FRAME
-            self.rename_column_frame = tk.Frame(self.handle_non_numerics_frame, bg='beige')
-            self.rename_column_frame.pack(tk.TOP)
+        self.handle_continuous_values_frame = tk.Frame(self.options_frame, bg='beige')
+        self.handle_continuous_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
 
+        self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
+        self.unique_non_numeric_values = list(set(self.non_numeric_values))
 
-            # Create the Entry widget
-            self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 36))
-            self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
+        # NON NUMERIC LISTBOX
+        self.value_choice_frame = tk.Frame(self.handle_continuous_values_frame, bg='beige')
+        self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
+        self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="Non-Numeric Values", font=("Arial", 30, "bold"), bg='beige')
+        self.value_choice_frame_label.pack(side=tk.TOP)
 
+        self.value_selection = tk.StringVar()
+        self.value_choice_listbox = tk.Listbox(self.value_choice_frame, font=("Arial", 36), exportselection=False)
+        self.value_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-            self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="NON-NUMERIC VALUES", font=("Arial", 30, "bold"))
-            self.value_choice_frame_label.pack(side=tk.TOP)
- 
-            self.value_selection = tk.StringVar()
-            self.value_choice_listbox = tk.Listbox(self.value_choice_frame, font=("Arial", 18))
-            self.value_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-            for value in self.unique_non_numeric_values:
-                self.value_choice_listbox.insert(tk.END, value)
- 
+        for value in self.unique_non_numeric_values:
+            self.value_choice_listbox.insert(tk.END, value)
+
+        if len(self.non_numeric_values) > 0:
             self.value_choice_listbox.select_set(0)
-            self.value_choice_frame.update_idletasks()
- 
-            self.selected_value = tk.StringVar(value=self.unique_non_numeric_values[0])
- 
-            def on_value_choice_listbox_selection(event):
-                selected_index = self.value_choice_listbox.curselection()
-                if selected_index:
-                    self.selected_value = self.value_choice_listbox.get(selected_index[0])
- 
 
-            self.value_choice_listbox.bind("<<ListboxSelect>>", on_value_choice_listbox_selection)
+            self.selected_value = tk.StringVar(value=self.unique_non_numeric_values[0])
+
+        def on_value_choice_listbox_selection(event):
+            selected_index = self.value_choice_listbox.curselection()
+            if selected_index:
+                self.selected_value = self.value_choice_listbox.get(selected_index[0])
+
+        self.value_choice_listbox.bind("<<ListboxSelect>>", on_value_choice_listbox_selection)
+
+
+
+
+
+
+
+
+
+        # VALUE ACTIONS
+        self.value_action_frame = tk.Frame(self.handle_continuous_values_frame, bg='beige')
+        self.value_action_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # REMOVE OR CHANGE VALUE
+        self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 36, "bold"), bg="beige")
+        self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        # Remove Value
+        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), font=("Arial", 36))
+        self.remove_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        # Change Value
+        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 36))
+        self.change_value_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 36))
+        self.new_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
+        self.new_value_entry.focus_set()
+
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+
+        # REMOVE NEGATIVE VALUES
+        self.remove_negative_values_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.remove_negative_values_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.remove_negative_values_label = tk.Label(self.remove_negative_values_frame, text="Remove Negative Values", font=("Arial", 36, "bold"), bg="beige")
+        self.remove_negative_values_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        self.remove_negative_values_var = tk.StringVar(value="No")
+
+        self.remove_negative_values_yes_button = tk.Radiobutton(self.remove_negative_values_frame, text="Yes", variable=self.remove_negative_values_var, value="Yes", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_negative_values_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.remove_negative_values_no_button = tk.Radiobutton(self.remove_negative_values_frame, text="No", variable=self.remove_negative_values_var, value="No", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_negative_values_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        self.remove_negative_values_entry = tk.Entry(self.remove_negative_values_frame, font=("Arial", 36))
+
+        self.remove_negative_values_frame.columnconfigure(0, weight=1)
+        self.remove_negative_values_frame.columnconfigure(1, weight=1)
+
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+
+        # REMOVE ZERO VALUES
+        self.remove_values_of_zero_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.remove_values_of_zero_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.remove_values_of_zero_label = tk.Label(self.remove_values_of_zero_frame, text="Remove Values of Zero", font=("Arial", 36, "bold"), bg="beige")
+        self.remove_values_of_zero_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        self.remove_values_of_zero_var = tk.StringVar(value="No")
+
+        self.remove_values_of_zero_yes_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="Yes", variable=self.remove_values_of_zero_var, value="Yes", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_values_of_zero_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.remove_values_of_zero_no_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="No", variable=self.remove_values_of_zero_var, value="No", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_values_of_zero_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        self.remove_values_of_zero_entry = tk.Entry(self.remove_values_of_zero_frame, font=("Arial", 36))
+
+        self.remove_values_of_zero_frame.columnconfigure(0, weight=1)
+        self.remove_values_of_zero_frame.columnconfigure(1, weight=1)
+
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+
+
+        # RENAME COLUMN 
+        self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
+        self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
+
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 36, "bold"), bg="beige")
+        self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
+
+        self.rename_column_var = tk.StringVar(value="No")
+
+        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 36))
+
+        self.rename_column_frame.columnconfigure(0, weight=1)
+        self.rename_column_frame.columnconfigure(1, weight=1)
+
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+
  
 
    
+    def enable_rename_column(self):
+        self.rename_column_entry.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+        self.rename_column_entry.focus_set()
+
+    def disable_rename_column(self):
+        self.rename_column_entry.grid_remove()
+
+
     def remove_non_numeric_value(self):
-        if type(self.selected_value) == str:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = np.nan
-            self.update_non_numeric_listbox()
-        else:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = np.nan
-            self.update_non_numeric_listbox()
+        try:
+            if type(self.selected_value) == str:
+                self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = np.nan
+                self.update_non_numeric_listbox()
+            else:
+                self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = np.nan
+                self.update_non_numeric_listbox()
+        except:
+            return
  
     def change_non_numeric_value(self):
- 
-        if type(self.selected_value) == str:
-            try:
-                self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = float(self.new_value_entry.get())
-            except:
-                self.numberic_error_label = tk.Label(self.value_action_frame, text="Value must be a number", font=("Arial", 18), foreground='red')
-                self.numberic_error_label.grid(row=1, column=3, padx=5, pady=5)
-        else:
-            try:
-                self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = float(self.new_value_entry.get())
-            except:
-                self.numberic_error_label = tk.Label(self.value_action_frame, text="Value must be a number", font=("Arial", 18), foreground='red')
-                self.numberic_error_label.grid(row=1, column=3, padx=5, pady=5)
+        try:
+            if type(self.selected_value) == str:
+                try:
+                    self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = float(self.new_value_entry.get())
+                except:
+                    utils.show_message("Error", "New value must be numeric")
+
+            else:
+                try:
+                    self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = float(self.new_value_entry.get())
+                except:
+                    utils.show_message("Error", "New value must be numeric")
+        except:
+            return
 
 
 
@@ -358,288 +700,71 @@ class EditData():
             print('')
 
 
-    def check_for_other_numeric_values(self):
-        try:
-            self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(float)
-            utils.remove_frame_widgets(self.clean_settings_frame)
-            self.handle_other_numeric_values()
-        except:
-            return
- 
+    def is_valid_column_name(self, column_name):
+        # Define a regular expression pattern for a valid column name
+        pattern = r'^[a-zA-Z0-9_\-]+$'
+        
+        if re.match(pattern, column_name):
+            try:
+                df = pd.DataFrame(columns=[column_name])
+                return True
+            except ValueError:
+                return False
+        else:
+            return False
 
- 
-    def handle_other_numeric_values(self):
-        self.handle_other_numerics_frame = tk.Frame(self.clean_settings_frame, bg='beige')
-        self.handle_other_numerics_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-        self.histogram_frame = tk.Frame(self.handle_other_numerics_frame, bg='beige')
-        self.histogram_frame.pack(side=tk.TOP, fill=tk.X)
- 
-        self.options_frame = tk.Frame(self.handle_other_numerics_frame, bg='beige')
-        self.options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-
-        self.remove_negative_values_button = tk.Button(self.options_frame, text="Remove Negative Values", font=("Arial", 36), command=self.remove_negative_values)
-        self.remove_negative_values_button.pack(side=tk.TOP, padx=10, pady=10, fill=tk.X)
- 
-        self.remove_zero_values_button = tk.Button(self.options_frame, text="Remove Values of Zero", font=("Arial", 36), command=self.remove_zero_values)
-        self.remove_zero_values_button.pack(side=tk.TOP, padx=10, pady=10, fill=tk.X)
- 
-
-        self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
-        self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
- 
-        self.update_dataframe_button = tk.Button(self.menu_button_frame, text="Update Dataframe", command=self.update_dataframe, font=("Arial", 36))
-        self.update_dataframe_button.pack(side=tk.RIGHT, padx= 10, pady=10)
- 
-        self.return_button = tk.Button(self.menu_button_frame, text="Back", command=self.handle_non_numeric_values, font=("Arial", 36))
-        self.return_button.pack(side=tk.LEFT, padx= 10, pady=10)
- 
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray")
-        self.menu_column_choice.pack(side=tk.LEFT, padx= 10, pady=10, fill=tk.BOTH, expand=True)
- 
-
-        self.create_continuous_variable_histogram()
- 
     def remove_negative_values(self):
-        self.temp_df.loc[self.temp_df[self.selected_column] < 0, self.selected_column] = np.nan
+        self.new_df.loc[self.new_df[self.selected_column] < 0, self.selected_column] = np.nan
         self.create_continuous_variable_histogram()
-       
-    def remove_zero_values(self):
-        self.temp_df.loc[self.temp_df[self.selected_column] == 0, self.selected_column] = np.nan
+
+    def remove_values_of_zero(self):
+        self.new_df.loc[self.new_df[self.selected_column] == 0, self.selected_column] = np.nan
         self.create_continuous_variable_histogram()
-       
-
-    def create_continuous_variable_histogram(self):
-        self.figure = self.create_histogram_figure()
- 
-        utils.remove_frame_widgets(self.histogram_frame)
-        # Create a canvas to display the histogram in the frame
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.histogram_frame)
-        self.canvas.draw()
- 
-        # Remove expand=True and add height=histogram_frame_height
-        self.canvas.get_tk_widget().pack(pady=5, padx=5, ipadx=5, ipady=5, side=tk.TOP)
- 
-    def create_histogram_figure(self):
-        self.temp_df[self.selected_column] = pd.to_numeric(self.temp_df[self.selected_column], errors='coerce')
-
-        clean_df = self.temp_df.dropna(subset=[self.selected_column])
 
 
-        # Create scatter plot with seaborn
-        # sns.set(style="ticks")
-        fig, ax = plt.subplots()
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
-        # Create the histogram using Seaborn
-        # sns.histplot(clean_df[self.selected_column], kde=True, color='skyblue', ax=ax)
-        plt.hist(clean_df[self.selected_column], color='skyblue', edgecolor='black')
+    def create_data_display_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.display_frame = tk.Frame(self.data_display_frame, bg='beige')
+        self.display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # NAVIGATION MENU
+        self.data_display_menu_frame = tk.Frame(self.data_display_frame, bg='lightgray')
+        self.data_display_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_value_handling_frame_button = tk.Button(self.data_display_menu_frame, command=self.switch_to_value_handling_frame, text='Back', font=("Arial", 36))
+        self.return_to_value_handling_frame_button.pack(side=tk.LEFT)
+
+        self.update_dataframe_button = tk.Button(self.data_display_menu_frame, text="Update Dataframe", command=self.update_dataframe, font=("Arial", 36))
+        self.update_dataframe_button.pack(side=tk.RIGHT)
+
+        self.data_display_menu_frame_label = tk.Label(self.data_display_menu_frame, text="", font=("Arial", 36), bg='green', fg='black')
+        self.data_display_menu_frame_label.pack(side=tk.RIGHT, expand=True)
 
 
-        # Set the title and labels
-        plt.title('Histogram')
-        plt.xlabel('Value')
-        plt.ylabel('Frequency')
-        plt.tight_layout()
- 
-        return fig
+    ################################################################################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def update_dataframe(self):
-        self.df = self.temp_df.copy()
-        def fix_columns(df):
-            df.columns = df.columns.str.replace(' ', '_')
-            df.columns = df.columns.str.replace('__', '_')
-            df.columns = df.columns.str.replace('___', '_')
-            df.columns = df.columns.str.replace(r'\W+', '', regex=True)
-
-        fix_columns(self.df)
-
-
-        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
-        data_manager.set_dataframe(data_manager.get_dataframe_name())
-
-        utils.remove_frame_widgets(self.dataframe_content_frame)
- 
-        utils.create_table(self.dataframe_content_frame, self.df)
-        summary_df = utils.create_summary_table(self.df)
-        utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
-
-        utils.show_message("Dataframe Update Status", "Database Has Been Updated")
-
-
-
-
-
-
-
-
-    ################################################
-            # CLEAN CATEGORICAL VARIABLE #
-    ################################################
- 
-    def clean_categorical_variable(self):
-        self.temp_df = self.df.copy()
-        self.handle_categorical_values()
- 
-
-    def handle_categorical_values(self):
-        utils.remove_frame_widgets(self.clean_settings_frame)
- 
-        self.handle_categorical_values_frame = tk.Frame(self.clean_settings_frame, bg='beige')
-        self.handle_categorical_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-        self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
-        self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
- 
-        self.advance_buton = tk.Button(self.menu_button_frame, text="Next", command=self.view_categorical_value_counts, font=("Arial", 36))
-        self.advance_buton.pack(side=tk.RIGHT, padx= 10, pady=10)
- 
-        self.return_button = tk.Button(self.menu_button_frame, text="Back", command=self.choose_variable_type, font=("Arial", 36))
-        self.return_button.pack(side=tk.LEFT, padx= 10, pady=10)
- 
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray")
-        self.menu_column_choice.pack(side=tk.LEFT, padx= 10, pady=10, fill=tk.BOTH, expand=True)
- 
-
-       
-        self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
- 
-        self.unique_categorical_values = self.temp_df[self.selected_column].unique()
-        self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
- 
-
-        self.value_choice_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
-        self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
- 
-        self.value_action_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
-        self.value_action_frame.pack(side=tk.LEFT)
- 
-        self.remove_button = tk.Button(self.value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), font=("Arial", 36))
-        self.remove_button.grid(row=0, column=0, padx=5, pady=5)
- 
-        self.change_value_button = tk.Button(self.value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), font=("Arial", 36))
-        self.change_value_button.grid(row=1, column=0, padx=5, pady=5)
- 
-        # Create the Entry widget
-        self.new_value_entry = tk.Entry(self.value_action_frame, font=("Arial", 36))
-        self.new_value_entry.grid(row=1, column=1, padx=5, pady=5)
- 
-
-        self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="UNIQUE VALUES", font=("Arial", 30, "bold"))
-        self.value_choice_frame_label.pack(side=tk.TOP)
- 
-        self.value_selection = tk.StringVar()
-        self.value_choice_listbox = tk.Listbox(self.value_choice_frame, font=("Arial", 18))
-        self.value_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-        for value in self.unique_categorical_values:
-            self.value_choice_listbox.insert(tk.END, value)
- 
-        self.value_choice_listbox.select_set(0)
-        self.value_choice_frame.update_idletasks()
- 
-        self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
- 
-        def on_value_choice_listbox_selection(event):
-            selected_index = self.value_choice_listbox.curselection()
-            if selected_index:
-                self.selected_value = self.value_choice_listbox.get(selected_index[0])
- 
-
-        self.value_choice_listbox.bind("<<ListboxSelect>>", on_value_choice_listbox_selection)
- 
-
-    def remove_categorical_value(self):
-        if type(self.selected_value) == str:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = np.nan
-            self.update_categorical_value_listbox()
-        else:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = np.nan
-            self.update_categorical_value_listbox()
- 
-
-    def change_categorical_value(self):
-        if type(self.selected_value) == str:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = self.new_value_entry.get()
- 
-        else:
-            self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = self.new_value_entry.get()
-        self.update_categorical_value_listbox()
- 
-    def update_categorical_value_listbox(self):
-        self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
-        self.unique_categorical_values = self.temp_df[self.selected_column].unique()
-        self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
-       
-        # Clear the listbox and insert the updated values
-        self.value_choice_listbox.delete(0, tk.END)
-        for value in self.unique_categorical_values:
-            self.value_choice_listbox.insert(tk.END, value)
- 
-        self.value_choice_listbox.update_idletasks()
-        self.value_choice_listbox.select_set(0)
-        try:
-            self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
-        except:
-            print('')
-
-    def view_categorical_value_counts(self):
-        utils.remove_frame_widgets(self.clean_settings_frame)
-       
-        self.barplot_frame = tk.Frame(self.clean_settings_frame, bg='beige')
-        self.barplot_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
-
-        self.menu_button_frame = tk.Frame(self.clean_settings_frame, bg='lightgray')
-        self.menu_button_frame.pack(side=tk.BOTTOM, fill=tk.X)
- 
-        self.update_dataframe_button = tk.Button(self.menu_button_frame, text="Update Dataframe", command=self.update_dataframe, font=("Arial", 36))
-        self.update_dataframe_button.pack(side=tk.RIGHT, padx= 10, pady=10)
- 
-        self.return_button = tk.Button(self.menu_button_frame, text="Back", command=self.handle_categorical_values, font=("Arial", 36))
-        self.return_button.pack(side=tk.LEFT, padx= 10, pady=10)
- 
-        self.menu_column_choice = tk.Label(self.menu_button_frame, text=f"Cleaning Column: {self.selected_column}", font=("Arial", 36), bg="lightgray")
-        self.menu_column_choice.pack(side=tk.LEFT, padx= 10, pady=10, fill=tk.BOTH, expand=True)
- 
-
-        self.create_categorical_variable_barplot()
- 
-
+    # CATEGORICAL BAR PLOT
     def create_categorical_variable_barplot(self):
         self.figure = self.create_barplot_figure()
  
-        utils.remove_frame_widgets(self.barplot_frame)
+        utils.remove_frame_widgets(self.display_frame)
         # Create a canvas to display the histogram in the frame
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.barplot_frame)
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.display_frame)
         self.canvas.draw()
  
         self.canvas.get_tk_widget().pack(pady=5, padx=5, ipadx=5, ipady=5, side=tk.TOP, fill=tk.BOTH, expand=True)
  
     def create_barplot_figure(self):
-        self.temp_df[self.selected_column] = self.temp_df[self.selected_column].replace('nan', np.nan)
+        self.new_df[self.selected_column] = self.new_df[self.selected_column].replace('nan', np.nan)
  
         # Drop rows containing NaN values in the selected column
-        clean_df = self.temp_df.dropna(subset=[self.selected_column])
+        clean_df = self.new_df.dropna(subset=[self.selected_column])
  
         # Create scatter plot with seaborn
         sns.set(style="ticks")
@@ -665,34 +790,187 @@ class EditData():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-
-
-
-################################################
-################################################
+    def create_continuous_variable_histogram(self):
+        self.figure = self.create_histogram_figure()
  
-                # CREATE NEW VARIABLE #
+        utils.remove_frame_widgets(self.display_frame)
+        # Create a canvas to display the histogram in the frame
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.display_frame)
+        self.canvas.draw()
  
-################################################
-################################################
+        # Remove expand=True and add height=histogram_frame_height
+        self.canvas.get_tk_widget().pack(pady=5, padx=5, side=tk.TOP, fill=tk.BOTH, expand=True)
+ 
+    def create_histogram_figure(self):
+        self.new_df[self.selected_column] = pd.to_numeric(self.new_df[self.selected_column], errors='coerce')
+
+        clean_df = self.new_df.dropna(subset=[self.selected_column])
+
+
+        # Create scatter plot with seaborn
+        # sns.set(style="ticks")
+        fig, ax = plt.subplots()
+
+
+        # Create the histogram using Seaborn
+        # sns.histplot(clean_df[self.selected_column], kde=True, color='skyblue', ax=ax)
+        plt.hist(clean_df[self.selected_column], color='skyblue', edgecolor='black')
+
+
+        # Set the title and labels
+        plt.title('Histogram')
+        plt.xlabel('Value')
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+ 
+        return fig
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+    
+    # UPDATE DATAFRAME
+
+
+    def update_dataframe(self):
+        if self.rename_column_var.get() == "Yes":
+            print(1)
+            print(self.rename_column_entry.get())
+            self.new_df.rename(columns={self.selected_column:self.rename_column_entry.get()}, inplace=True)
+
+        self.df = self.new_df.copy()
+        def fix_columns(df):
+            df.columns = df.columns.str.replace(' ', '_')
+            df.columns = df.columns.str.replace('__', '_')
+            df.columns = df.columns.str.replace('___', '_')
+            df.columns = df.columns.str.replace(r'\W+', '', regex=True)
+
+        fix_columns(self.df)
+
+
+        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
+        data_manager.set_dataframe(data_manager.get_dataframe_name())
+
+        utils.remove_frame_widgets(self.dataframe_content_frame)
+ 
+        utils.create_table(self.dataframe_content_frame, self.df)
+        summary_df = utils.create_summary_table(self.df)
+        utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+
+        utils.show_message("Dataframe Update Status", "Database Has Been Updated")
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+    # NAVIGATION HANDLING FUNCTIONS
+
+    def switch_to_variable_type_choice_frame(self):
+        self.value_handling_frame.pack_forget()
+        self.data_display_frame.pack_forget()
+        self.variable_type_choice_frame.pack(fill=tk.BOTH, expand=True)
+
+    def switch_to_value_handling_frame(self):
+        self.variable_type_choice_frame.pack_forget()
+        self.data_display_frame.pack_forget()
+        self.value_handling_frame.pack(fill=tk.BOTH, expand=True)
+
+        if self.new_value_entry:
+            self.new_value_entry.focus_set()
+
+
+    def switch_to_data_display_frame(self):
+        if self.rename_column_var.get() == "Yes":
+            if not self.is_valid_column_name(self.rename_column_entry.get()):
+                print(60)
+                utils.show_message("Error", "Invalid Column Name")
+                return
+
+        self.new_df = self.temp_df.copy()
+        if self.selected_variable_type == "Continuous":
+            if self.remove_values_of_zero_var.get() == "Yes":
+                self.remove_values_of_zero()
+            if self.remove_negative_values_var.get() == "Yes":
+                self.remove_negative_values()
+            
+
+            self.create_continuous_variable_histogram()
+        elif self.selected_variable_type == "Categorical":
+            self.create_categorical_variable_barplot()
+
+        self.variable_type_choice_frame.pack_forget()
+        self.value_handling_frame.pack_forget()
+        self.data_display_frame.pack(fill=tk.BOTH, expand=True)
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                           CREATE NEW VARIABLE                                                #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
 
 class CreateNewVariableClass:
-    def __init__(self, editing_content_frame, dataframe_content_frame, df, style):
+    def __init__(self, editing_content_frame, dataframe_content_frame, style):
         self.df = data_manager.get_dataframe()
         self.editing_content_frame = editing_content_frame
         self.dataframe_content_frame = dataframe_content_frame
@@ -704,155 +982,199 @@ class CreateNewVariableClass:
 
         data_manager.add_tab_to_dict("current_edit_tab", "create_new_var")
 
+        self.selected_variables = data_manager.get_create_var_tab_var_list()
+
         utils.remove_frame_widgets(self.editing_content_frame)
 
-        self.column_selection_frame = tk.Frame(self.editing_content_frame, bg='beige')
+        self.variable_selection_frame = tk.Frame(self.editing_content_frame, bg='beige')
         self.conditions_frame = tk.Frame(self.editing_content_frame, bg='beige')
         self.finalize_frame = tk.Frame(self.editing_content_frame, bg='beige')
 
-        self.create_column_selection_frame()
+        self.create_variable_selection_frame()
         self.create_conditions_frame()
         self.create_finalize_frame()
 
 
-        self.switch_to_column_selection_frame()
+        self.switch_to_variable_selection_frame()
 
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     
-    def create_column_selection_frame(self):
+    # CREATE VARIABLE SELECTION FRAME
 
-        self.selected_columns = []
+    def create_variable_selection_frame(self):
 
-        self.column_choice_frame = tk.Frame(self.column_selection_frame, bg='beige')
-        self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # MAIN CONTENT FRAME
+        self.variable_options_frame = tk.Frame(self.variable_selection_frame, bg='beige')
+        self.variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.choose_columns_label = tk.Label(self.column_choice_frame, text="Choose columns to use", font=("Arial", 36))
-        self.choose_columns_label.pack(side=tk.TOP, fill=tk.X)
-
-        self.selection_frame = tk.Frame(self.column_choice_frame, bg='beige')
-        self.selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
-
-        self.available_columns_frame = tk.Frame(self.selection_frame, bg='beige')
-        self.available_columns_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    
-        self.transfer_buttons_frame = tk.Frame(self.selection_frame, bg='beige')
-        self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.selected_columns_frame = tk.Frame(self.selection_frame, bg='beige')
-        self.selected_columns_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        # TITLE LABEL
+        self.choose_variables_label = tk.Label(self.variable_options_frame, text="Choose Variables to Create New Variable", font=("Arial", 36))
+        self.choose_variables_label.pack(side=tk.TOP)
 
 
 
+        # AVAILABLE VARIABLES SELECTION FRAME
+        self.variables_selection_frame = tk.Frame(self.variable_options_frame, bg='beige')
+        self.variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # AVAILABLE COLUMNS FRAME
-        self.available_column_search_var = tk.StringVar()
-        self.available_column_search_var.trace("w", self.update_available_columns_listbox)
+        self.available_variables_frame = tk.Frame(self.variables_selection_frame, bg='beige')
+        self.available_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.column_search_entry = tk.Entry(self.available_columns_frame, textvariable=self.available_column_search_var, font=("Arial", 24))
-        self.column_search_entry.pack(side=tk.TOP, pady=5)
-        
+        self.available_variables_search_var = tk.StringVar()
+        self.available_variables_search_var.trace("w", self.update_available_variables_listbox)
+        self.variable_search_entry = tk.Entry(self.available_variables_frame, textvariable=self.available_variables_search_var, font=("Arial", 24))
+        self.variable_search_entry.pack(side=tk.TOP, pady=10)
 
-        self.available_columns_listbox = tk.Listbox(self.available_columns_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.available_columns_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
+        self.available_variable_listbox = tk.Listbox(self.available_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
+        self.available_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
         for column in sorted(self.df.columns, key=str.lower):
-            self.available_columns_listbox.insert(tk.END, column)
+            self.available_variable_listbox.insert(tk.END, column)
+
+
+        # TRANSFER BUTTONS
+        self.transfer_buttons_frame = tk.Frame(self.variables_selection_frame, bg='beige')
+        self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 48))
+        self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
+        self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, font=("Arial", 36))
+        self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="Clear Selection", command=self.transfer_all_left, font=("Arial", 36))
+        self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
 
-        # TRANSFER BUTTONS FRAME
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>", command=self.transfer_right, font=("Arial", 50))
-        self.transfer_right_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
+        # SELECTED VARIABLES FRAME
+        self.selected_variables_frame = tk.Frame(self.variables_selection_frame, bg='beige')
+        self.selected_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<", command=self.transfer_left, font=("Arial", 50))
-        self.transfer_left_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
+        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=("Arial", 24))
+        self.selected_variables_label.pack(side=tk.TOP, pady=10)
 
+        self.selected_variables_listbox = tk.Listbox(self.selected_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
+        self.selected_variables_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
-
-        # SELECTED COLUMNS FRAME
-        self.selected_columns_label = tk.Label(self.selected_columns_frame, text="Selected Variables", font=("Arial", 24))
-        self.selected_columns_label.pack(side=tk.TOP, pady=5)
-
-        self.selected_columns_listbox = tk.Listbox(self.selected_columns_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.selected_columns_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=5)
-
-
-
-
+        if len(self.selected_variables) > 0:
+            for var in self.selected_variables:
+                self.selected_variables_listbox.insert(tk.END, var)
+                self.available_variable_listbox.selection_set(sorted(self.df.columns, key=str.lower).index(var))
+            selections = self.available_variable_listbox.curselection()
+            for index in reversed(selections):
+                self.available_variable_listbox.delete(index)
 
 
 
+        # NAVIGATION MENU
+        self.variable_menu_frame = tk.Frame(self.variable_selection_frame, bg='lightgray')
+        self.variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-
-
-
-
-
-
-
-
-
-
-
-        self.column_selection_menu_frame = tk.Frame(self.column_selection_frame, bg='lightgray')
-        self.column_selection_menu_frame.pack(side=tk.TOP, fill=tk.X)
-
-        self.advance_to_conditions_button = tk.Button(self.column_selection_menu_frame, command=self.switch_to_conditions_frame, text="Next", font=("Arial", 36))
+        self.advance_to_conditions_button = tk.Button(self.variable_menu_frame, command=self.switch_to_conditions_frame, text="Next", font=("Arial", 36))
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
 
 
-
-
-
-    def update_available_columns_listbox(self, *args):
-        search_term = self.available_column_search_var.get().lower()
-        self.available_columns_listbox.delete(0, tk.END)
+    def update_available_variables_listbox(self, *args):
+        search_term = self.available_variables_search_var.get().lower()
+        self.available_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
             if search_term in column.lower():
-                self.available_columns_listbox.insert(tk.END, column)
+                self.available_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
-        selections = self.available_columns_listbox.curselection()
-        selected_items = [self.available_columns_listbox.get(index) for index in selections]
-
+        selections = self.available_variable_listbox.curselection()
+        selected_items = [self.available_variable_listbox.get(index) for index in selections]
 
         for item in selected_items:
-            if item not in self.selected_columns:
-                self.selected_columns_listbox.insert(tk.END, item)
-                self.selected_columns.append(item)
+            if item not in self.selected_variables:
+                self.selected_variables_listbox.insert(tk.END, item)
+                self.selected_variables.append(item)
 
 
         for index in reversed(selections):
-            self.available_columns_listbox.delete(index)
+            self.available_variable_listbox.delete(index)
+
+
+    def transfer_all_right(self):
+
+        for i in range(self.available_variable_listbox.size()):
+            self.available_variable_listbox.selection_set(i)
+
+        selections = self.available_variable_listbox.curselection()
+        selected_items = [self.available_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.selected_variables_listbox.insert(tk.END, item)
+            self.selected_variables.append(item)
+
+        for index in reversed(selections):
+            self.available_variable_listbox.delete(index)
 
 
     def transfer_left(self):
-        selections = self.selected_columns_listbox.curselection()
-        selected_items = [self.selected_columns_listbox.get(index) for index in selections]
-
+        selections = self.selected_variables_listbox.curselection()
+        selected_items = [self.selected_variables_listbox.get(index) for index in selections]
 
         for item in selected_items:
-            self.available_columns_listbox.insert(tk.END, item)
-            self.selected_columns.remove(item)
+            self.available_variable_listbox.insert(tk.END, item)
+            self.selected_variables.remove(item)
 
+        self.reorder_available_variables_listbox_alphabetically()
 
         for index in reversed(selections):
-            self.selected_columns_listbox.delete(index)
+            self.selected_variables_listbox.delete(index)
 
-        
+
+    def transfer_all_left(self):
+
+        for i in range(self.selected_variables_listbox.size()):
+            self.selected_variables_listbox.selection_set(i)
+
+        selections = self.selected_variables_listbox.curselection()
+        selected_items = [self.selected_variables_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.available_variable_listbox.insert(tk.END, item)
+            self.selected_variables.remove(item)
+
+        self.reorder_available_variables_listbox_alphabetically()
+
+        for index in reversed(selections):
+            self.selected_variables_listbox.delete(index)
+
+
+    def reorder_available_variables_listbox_alphabetically(self):
+        top_visible_index = self.available_variable_listbox.nearest(0)
+        top_visible_item = self.available_variable_listbox.get(top_visible_index)
+
+        items = list(self.available_variable_listbox.get(0, tk.END))
+        items = sorted(items, key=lambda x: x.lower())
+
+        self.available_variable_listbox.delete(0, tk.END)  # Clear the Listbox
+        for item in items:
+            self.available_variable_listbox.insert(tk.END, item)
+
+        if top_visible_index >= 0:
+            index = items.index(top_visible_item)
+            self.available_variable_listbox.yview(index)
+
+
 
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
 
+    # CREATE CONDITIONS SELECTION FRAME
 
     def create_conditions_frame(self):
 
@@ -922,36 +1244,18 @@ class CreateNewVariableClass:
         )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # MENU FRAME
+        # NAVIGATION MENU
 
         self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_column_selection_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_column_selection_frame, text="Back", font=("Arial", 36))
+        self.return_to_column_selection_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_variable_selection_frame, text="Back", font=("Arial", 36))
         self.return_to_column_selection_button.pack(side=tk.LEFT)
 
-        self.advance_to_conditions_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", font=("Arial", 36))
-        self.advance_to_conditions_button.pack(side=tk.RIGHT)
+        self.advance_to_finalize_frame_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", font=("Arial", 36))
+        self.advance_to_finalize_frame_button.pack(side=tk.RIGHT)
 
         self.conditions_frame.update_idletasks()
-
-
-
-
-
 
 
 
@@ -1003,16 +1307,16 @@ class CreateNewVariableClass:
             def on_combobox_select(event):
                 column_selected = column_dropdown.get()
 
-                clean_df = self.df.dropna(subset=[column_selected])
+                temp_df = self.df.copy().dropna(subset=[column_selected])
                 
-                is_numeric = pd.to_numeric(clean_df[column_selected], errors='coerce').notna().all()
+                is_numeric = pd.to_numeric(temp_df[column_selected], errors='coerce').notna().all()
 
                 if is_numeric:
 
-                    clean_df[column_selected] = clean_df[column_selected].astype(float)
-                    self.q1 = np.percentile(clean_df[column_selected], 25)
-                    self.q2 = np.percentile(clean_df[column_selected], 50)  # Median (Q2)
-                    self.q3 = np.percentile(clean_df[column_selected], 75)
+                    temp_df[column_selected] = temp_df[column_selected].astype(float)
+                    self.q1 = np.percentile(temp_df[column_selected], 25)
+                    self.q2 = np.percentile(temp_df[column_selected], 50)  # Median (Q2)
+                    self.q3 = np.percentile(temp_df[column_selected], 75)
 
                     self.q1_string = f"q1-{self.q1}"
                     self.q2_string = f"q2-{self.q2}"
@@ -1026,7 +1330,7 @@ class CreateNewVariableClass:
                 column_values_dropdown["values"] = value_list
 
             selected_column_option = tk.StringVar()
-            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_column_option, values=self.selected_columns, state="readonly")
+            column_dropdown = ttk.Combobox(condition_frame, textvariable=selected_column_option, values=self.selected_variables, state="readonly")
             column_dropdown.pack(side=tk.LEFT)
             column_dropdown.bind("<<ComboboxSelected>>", on_combobox_select)
 
@@ -1044,8 +1348,6 @@ class CreateNewVariableClass:
             # USER ENTRY VALUE
             user_entry_value = tk.Entry(condition_frame)
             user_entry_value.pack(side=tk.LEFT)
-
-
 
 
 
@@ -1087,18 +1389,8 @@ class CreateNewVariableClass:
 
         # FRAME WHERE THE USER EDITS THE CONDITIONS
         add_condition(label='Where')
-
-
-
         
         self.value_frames.append(new_value_frame)
-
-
-
-
-
-
-
 
 
     def remove_value_frame(self):
@@ -1107,12 +1399,16 @@ class CreateNewVariableClass:
             frame = self.value_frames.pop()
             frame.destroy()
 
+
     def get_values_from_frames(self):
+        self.new_df = self.df.copy()
+
         self.column_name = self.column_name_entry.get()
+
         for idx, frame in enumerate(self.value_frames, start=1):
             condition_list_total = []
             condition_strings = []
-            condition_syntax = {}
+
 
             for subframe_number, subframe in enumerate(frame.winfo_children(), start=1):
                 condition_list = []
@@ -1155,10 +1451,10 @@ class CreateNewVariableClass:
                 if condition[3] == 'USER CHOICE':
                     
                     try:
-                        self.df[condition[1]] = self.df[condition[1]].astype(float)
+                        self.new_df[condition[1]] = self.new_df[condition[1]].astype(float)
                         condition_string = condition_string + str(float(condition[4]))
                     except:
-                        self.df[condition[1]] = self.df[condition[1]].astype(object)
+                        self.new_df[condition[1]] = self.new_df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[4] + "'"
                 else:
                     
@@ -1171,12 +1467,12 @@ class CreateNewVariableClass:
                         elif condition[3] == self.q3_string:
                             condition_string = condition_string + str(float(self.q3))
                         else:
-                            self.df[condition[1]] = self.df[condition[1]].astype(float)
+                            self.new_df[condition[1]] = self.new_df[condition[1]].astype(float)
                             condition_string = condition_string + str(float(condition[3]))
 
                     except:
 
-                        self.df[condition[1]] = self.df[condition[1]].astype(object)
+                        self.new_df[condition[1]] = self.new_df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[3] + "'"
                 
                 condition_string = condition_string + ')'
@@ -1184,31 +1480,19 @@ class CreateNewVariableClass:
 
 
             final_condition_string = ''.join(condition_strings)
-            self.df.loc[self.df.eval(final_condition_string), self.column_name] = condition_value
-
-
-
-        
+            self.new_df.loc[self.new_df.eval(final_condition_string), self.column_name] = condition_value
 
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
 
+    # CREATE FINALIZE FRAME #
+            
     def create_finalize_frame(self):
         # GRAPH DISPLAY FRAME
         self.finalize_display_frame = tk.Frame(self.finalize_frame, bg='purple')
         self.finalize_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
-
-
-
-
-
-
-
-
 
 
         # MENU FRAME
@@ -1226,7 +1510,7 @@ class CreateNewVariableClass:
     def plot_new_column(self):
         for widget in self.finalize_display_frame.winfo_children():
             widget.destroy()
-        category_counts = self.df[self.column_name].value_counts()
+        category_counts = self.new_df[self.column_name].value_counts()
         fig, ax = plt.subplots(figsize=(8, 6))
         category_counts.plot(kind='bar', color='skyblue', ax=ax)
 
@@ -1241,51 +1525,10 @@ class CreateNewVariableClass:
         canvas_widget = canvas.get_tk_widget()
         canvas_widget.pack(fill=tk.BOTH, expand=True)
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    
-    def switch_to_column_selection_frame(self):
-        self.conditions_frame.pack_forget()
-        self.finalize_frame.pack_forget()
-        self.column_selection_frame.pack(fill=tk.BOTH, expand=True)
-        self.column_search_entry.focus_set()
-        
-
-
-    def switch_to_conditions_frame(self):
-        if not self.selected_columns:
-            return
-        self.finalize_frame.pack_forget()
-        self.column_selection_frame.pack_forget()
-        self.conditions_frame.pack(fill=tk.BOTH, expand=True)
-        self.column_name_entry.focus_set()
-
-
-    def switch_to_finalize_frame(self):
-        if not self.column_name_entry.get():
-            return
-        if self.column_name_entry.get().lower() in self.df.columns:
-            same_column_name = utils.prompt_yes_no(f"CAUTION: The column, '{self.column_name_entry.get().lower()}' is already in the dataframe. Do you want to replace the old column?")
-            if same_column_name:
-                self.df = self.df.drop(self.column_name_entry.get(), axis=1)
-            else:
-                return
-        try:
-            self.get_values_from_frames()
-            self.plot_new_column()
-
-        except:
-            utils.show_message("value error", "Error with conditions")
-            return
-        self.conditions_frame.pack_forget()
-        self.column_selection_frame.pack_forget()
-        self.finalize_frame.pack(fill=tk.BOTH, expand=True)
-
-
-
 
     def update_dataframe(self):
+        
+        self.df = self.new_df.copy()
 
         def fix_columns(df):
             df.columns = df.columns.str.replace(' ', '_')
@@ -1306,3 +1549,53 @@ class CreateNewVariableClass:
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
+
+
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+    
+    # NAVIGATION MENU HANDLING FUNCTIONS
+
+    def switch_to_variable_selection_frame(self):
+        self.conditions_frame.pack_forget()
+        self.finalize_frame.pack_forget()
+        self.variable_selection_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.variable_search_entry.focus_set()
+        
+
+    def switch_to_conditions_frame(self):
+        if not self.selected_variables:
+            return
+        self.finalize_frame.pack_forget()
+        self.variable_selection_frame.pack_forget()
+        self.conditions_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.column_name_entry.focus_set()
+
+
+    def switch_to_finalize_frame(self):
+        if not self.column_name_entry.get():
+            return
+        if self.column_name_entry.get().lower() in self.df.columns:
+            same_column_name = utils.prompt_yes_no(f"CAUTION: The column, '{self.column_name_entry.get().lower()}' is already in the dataframe. Do you want to replace the old column?")
+            if same_column_name:
+                self.df = self.df.drop(self.column_name_entry.get(), axis=1)
+            else:
+                return
+        try:
+            self.get_values_from_frames()
+            self.plot_new_column()
+
+        except:
+            utils.show_message("value error", "Error with conditions")
+            return
+        self.conditions_frame.pack_forget()
+        self.variable_selection_frame.pack_forget()
+        self.finalize_frame.pack(fill=tk.BOTH, expand=True)
+
+
+
+
+
