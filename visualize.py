@@ -86,35 +86,70 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
 
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+##############################################                    ##############################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-
-
-
-################################################
-################################################
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                               COMPARISON TABLE                                               #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
  
-        # CREATE COMPARISON TABLE #
- 
-################################################
-################################################
- 
+
 class ComparisonTableClass:
     def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
@@ -158,9 +193,9 @@ class ComparisonTableClass:
 
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
     # CREATE DEPENDENT VARIABLE SELECTION FRAME
@@ -232,9 +267,9 @@ class ComparisonTableClass:
 
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
     # CREATE INDEPENDENT VARIABLE SELECTION FRAME
@@ -330,10 +365,10 @@ class ComparisonTableClass:
 
         self.selected_percent_type = self.percentage_type_radio_var.get()
 
-        self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value="row", command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
+        self.row_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Row Percentages", variable=self.percentage_type_radio_var, value="row", command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40), borderwidth=10)
         self.row_percentage_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value="column", command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40))
+        self.column_percentage_radiobutton = tk.Radiobutton(self.percentage_type_selection_frame, text="Column Percentages", variable=self.percentage_type_radio_var, value="column", command=on_percentage_radio_button_selected, indicator=0, font=("Arial", 40), borderwidth=10)
         self.column_percentage_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
@@ -354,10 +389,10 @@ class ComparisonTableClass:
 
         self.selected_data = self.data_choice_radio_var.get()
 
-        self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value="all data", command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
+        self.independent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="All Data", variable=self.data_choice_radio_var, value="all data", command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40), borderwidth=10)
         self.independent_data_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value="data complete only", command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40))
+        self.dependent_data_radiobutton = tk.Radiobutton(self.data_choice_frame, text="Only Data-Complete Subjects", variable=self.data_choice_radio_var, value="data complete only", command=on_data_choice_radio_button_selected, indicator=0, font=("Arial", 40), borderwidth=10)
         self.dependent_data_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
@@ -443,6 +478,8 @@ class ComparisonTableClass:
             self.available_independent_variable_listbox.insert(tk.END, item)
             self.selected_independent_variables.remove(item)
 
+        self.reorder_available_independent_variable_listbox_alphabetically()
+
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
@@ -462,9 +499,9 @@ class ComparisonTableClass:
             index = items.index(top_visible_item)
             self.available_independent_variable_listbox.yview(index)
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
     # CREATE VARIABLE HANDLING FRAME
 
@@ -477,7 +514,6 @@ class ComparisonTableClass:
         # TITLE LABEL
         self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Choose your variable types", font=("Arial", 36))
         self.variable_handling_label.pack(side=tk.TOP)
-
 
 
         # VARIABLE HANDLING FRAME
@@ -525,6 +561,7 @@ class ComparisonTableClass:
 
 
     def handle_variables(self):
+
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
@@ -532,14 +569,19 @@ class ComparisonTableClass:
 
         utils.forget_frame_widgets(self.scrollable_frame)
 
-        self.selected_options = {}
+        self.selected_variable_types = {}
 
 
         for value in list(self.selected_independent_variables):
             options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
             options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=5, padx=20, anchor=tk.W)
 
-            value_label = tk.Label(options_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+            if len(value) >= 20:
+                value_string = value[0:19] + "..."
+            else:
+                value_string = value
+
+            value_label = tk.Label(options_frame, text=value_string, font=("Arial", 28), bg='yellow', fg='black')
             value_label.pack(side=tk.LEFT, padx=5, pady=5)
 
 
@@ -553,20 +595,24 @@ class ComparisonTableClass:
                 var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
                 self.log_reg_variable_type_dict[value] = var
 
-            radio1 = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
-            radio1.pack(side=tk.RIGHT, padx=5, pady=5)
+            continuous_variable_radiobutton = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            continuous_variable_radiobutton.pack(side=tk.RIGHT, padx=5, pady=5)
 
-            radio2 = tk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
-            radio2.pack(side=tk.RIGHT, padx=5, pady=5)
+            categorical_variable_radiobutton = tk.Radiobutton(options_frame, text="Categorical", variable=var, value="Categorical", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            categorical_variable_radiobutton.pack(side=tk.RIGHT, padx=5, pady=5)
+
+            both_variable_types_radiobutton = tk.Radiobutton(options_frame, text="Both", variable=var, value="Both", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
+            both_variable_types_radiobutton.pack(side=tk.RIGHT, padx=5, pady=5)
+
 
             separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(fill="x", padx=5, pady=5)
 
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
     # CREATE RESULTS FRAME
 
@@ -589,13 +635,13 @@ class ComparisonTableClass:
 
 
     def apply_comparison_table_variable_selection(self):
-        self.selected_options.clear()
+        self.selected_variable_types.clear()
         
         for value, var in self.log_reg_variable_type_dict.items():
             if value in self.selected_independent_variables:
 
                 option = var.get()
-                self.selected_options[value] = option
+                self.selected_variable_types[value] = option
 
 
     def create_comparison_table(self):
@@ -613,7 +659,7 @@ class ComparisonTableClass:
 
         self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
         self.summary_table = []
-        for independent_variable, option in self.selected_options.items():
+        for independent_variable, option in self.selected_variable_types.items():
             if option == 'Continuous':
 
                 self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
@@ -676,12 +722,162 @@ class ComparisonTableClass:
                     self.summary_table.append(row2)
                     self.summary_table.append(row3)
                     self.summary_table.append([np.nan] * len(row1))
+
                 except:
                     self.error = True
-                    utils.show_message("Continuous variable change error", f"Error with changing the variable:{independent_variable}, into a continuous variable")
+                    utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
                     return
 
             elif option == 'Categorical':
+
+                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
+
+                # Independent variable is categorical
+
+                try:
+
+                    observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+
+                    # Calculate the odds ratio
+                    odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
+
+                    a = observed.iloc[0, 0]
+                    b = observed.iloc[0, 1]
+                    c = observed.iloc[1, 0]
+                    d = observed.iloc[1, 1]
+
+                    # Calculate odds ratio
+                    odds_ratio = (a * d) / (b * c)
+
+                    # Calculate standard error of log odds ratio
+                    se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+
+                    # Calculate 95% confidence interval for log odds ratio
+                    ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+                    ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+
+                    # Convert confidence interval back to odds ratio scale
+                    ci_lower = np.exp(ci_lower_ln)
+                    ci_upper = np.exp(ci_upper_ln)
+
+                except:
+
+                    odds_ratio = np.nan
+                    ci_lower = np.nan
+                    ci_upper = np.nan
+
+                _, p_value, _, _ = stats.chi2_contingency(observed)
+
+                row1 = []
+                row1.append(f"{independent_variable}")
+                row1.extend([np.nan] * len(self.unique_dependent_variable_values))
+    
+                if p_value < 0.0001:
+                    p_value = '< 0.0001'
+                    row1.append(p_value)
+                else:
+                    row1.append(f"{p_value:.4f}")
+
+                if (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) == 2):
+                    row1.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
+
+                elif (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) != 2):
+                    row1.append(np.nan)
+
+                self.summary_table.append(row1)
+    
+                for index, row in observed.iterrows():
+
+                    new_row = [f"  {index}"]
+                    row_sum = row.sum()
+                    column_sums = observed.sum(axis=0)
+
+                    if self.selected_percent_type == "row":
+
+                        for value in row:
+                            new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
+
+                    if self.selected_percent_type == "column":
+
+                        for value, column_sum in zip(row, column_sums):
+                            new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
+
+                    new_row.append(np.nan)
+
+                    if len(self.unique_dependent_variable_values) == 2:
+                        new_row.append(np.nan)
+
+                    self.summary_table.append(new_row)
+
+                self.summary_table.append([np.nan] * len(row1))
+
+            elif option == 'Both':
+
+                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
+
+                try:
+                    self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+                    self.error = False
+
+                    row1 = []
+                    row2 = []
+                    row3 = []
+
+                    row1.append(f"{independent_variable}")
+                    row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
+
+
+                    # Run Stats for Continuous Variable
+                    f_values = []
+                    if len(self.unique_dependent_variable_values) > 2:
+                        # More than two unique values, perform ANOVA
+                        for value in self.unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.f_oneway(*f_values)
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+                    else:
+                        for value in self.unique_dependent_variable_values:
+                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                            f_values.append(group)
+                        _, p_value = stats.ttest_ind(*f_values)
+
+                        if p_value < 0.0001:
+                            p_value = '< 0.0001'
+                            row1.append(p_value)
+                            row1.append(np.nan)
+                        else:
+                            row1.append(f"{p_value:.4f}")
+                            row1.append(np.nan)
+
+                    row2.append("  Mean (SD)")
+                    for value in self.unique_dependent_variable_values:
+                        row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
+                    row2.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row2.append(np.nan)
+
+                    row3.append("  Range")
+                    for value in self.unique_dependent_variable_values:
+                        row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
+
+                    row3.append(np.nan)
+                    if len(self.unique_dependent_variable_values) == 2:
+                        row3.append(np.nan)
+
+                    self.summary_table.append(row1)
+                    self.summary_table.append(row2)
+                    self.summary_table.append(row3)
+                    self.summary_table.append([np.nan] * len(row1))
+
+                except:
+                    self.error = True
+                    utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
+                    return
 
                 self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
 
@@ -786,9 +982,9 @@ class ComparisonTableClass:
 
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
     # NAVIGATION MENU HANDLING FUNCTIONS
@@ -806,7 +1002,7 @@ class ComparisonTableClass:
 
 
     def switch_to_independent_variables_frame(self):
-        if self.selected_dependent_variable == "":
+        if self.selected_dependent_variable == None:
             return
    
         self.variable_handling_frame.pack_forget()
@@ -842,78 +1038,72 @@ class ComparisonTableClass:
         self.results_frame.pack(fill=tk.BOTH, expand=True)
 
 
-        
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                    ########################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
-###################################################################################################################################################################################################
-###################################################################################################################################################################################################
-###################################################################################################################################################################################################
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                           MULTIVARIABLE REGRESSION                                           #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
-
-
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-                                            #########################
-
-
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-
-
-
-
-################################################
-################################################
- 
-        # MULTIVARIABLE REGRESSION #
- 
-################################################
-################################################
 
 class RegressionAnalysisClass:
+
     def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
 
@@ -932,7 +1122,7 @@ class RegressionAnalysisClass:
         self.selected_independent_variables = data_manager.get_reg_tab_ind_var_list()
         self.selected_regression = data_manager.get_reg_tab_selected_regression()
 
-        self.lin_reg_input_var_dict = data_manager.get_lin_reg_ind_dict()
+        self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
 
         self.log_reg_target_value_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
         self.log_reg_variable_type_dict = data_manager.get_log_reg_var_type_dict()
@@ -958,9 +1148,10 @@ class RegressionAnalysisClass:
         self.switch_to_dependent_variable_frame()
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
 
     # CREATE DEPENDENT VARIABLE SELECTION FRAME
 
@@ -1029,13 +1220,10 @@ class RegressionAnalysisClass:
                 self.dependent_variable_listbox.insert(tk.END, column)
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
-
-
-
-    #####################################################################
-    #####################################################################
-    #####################################################################
 
     # CREATE INDEPENDENT VARIABLE SELECTION FRAME
 
@@ -1128,10 +1316,10 @@ class RegressionAnalysisClass:
 
         self.selected_regression = self.regression_type_radio_var.get()
 
-        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value="logistic", command=on_selected_regression_radio_button_selected, indicator = 0,font=("Arial", 40))
+        self.logistic_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Logistic Regression", variable=self.regression_type_radio_var, value="logistic", command=on_selected_regression_radio_button_selected, indicator = 0,font=("Arial", 40), borderwidth=10)
         self.logistic_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value="linear", command=on_selected_regression_radio_button_selected, indicator = 0, font=("Arial", 40))
+        self.linear_regression_radiobutton = tk.Radiobutton(self.regression_type_selection_frame, text="Linear Regression", variable=self.regression_type_radio_var, value="linear", command=on_selected_regression_radio_button_selected, indicator = 0, font=("Arial", 40), borderwidth=10)
         self.linear_regression_radiobutton.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
@@ -1215,6 +1403,8 @@ class RegressionAnalysisClass:
             self.available_independent_variable_listbox.insert(tk.END, item)
             self.selected_independent_variables.remove(item)
 
+        self.reorder_available_independent_variable_listbox_alphabetically()
+
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
@@ -1234,9 +1424,11 @@ class RegressionAnalysisClass:
             index = items.index(top_visible_item)
             self.available_independent_variable_listbox.yview(index)
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
 
     # CREATE VARIABLE HANDLING FRAME
 
@@ -1292,14 +1484,14 @@ class RegressionAnalysisClass:
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
-
+    ################################################################################################################
 
     # HANDLE VARIABLES FOR LINEAR REGRESSION
     def handle_variables_linear_regression(self):
 
         self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
 
-        utils.forget_frame_widgets(self.scrollable_frame)
+        utils.remove_frame_widgets(self.scrollable_frame)
 
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy().dropna()
 
@@ -1307,7 +1499,6 @@ class RegressionAnalysisClass:
         self.non_numeric_columns = []
 
         self.selected_options = {}
-        self.selected_column_map = {}
 
         for independent_variable in self.selected_independent_variables:
             try:
@@ -1323,12 +1514,18 @@ class RegressionAnalysisClass:
         for variable in self.non_numeric_columns:
 
             separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
-            separator.pack(fill="x", padx=5, pady=5)
+            separator.pack(fill=tk.X, padx=5, pady=5)
 
             options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
             options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
-            variable_label = tk.Label(options_frame, text=variable, font=("Arial", 28), bg='yellow', fg='black')
+
+            if len(variable) > 20:
+                variable_string = variable[0:19] + "..."
+            else:
+                variable_string = variable
+
+            variable_label = tk.Label(options_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
             variable_label.pack(side=tk.TOP)
 
 
@@ -1339,52 +1536,68 @@ class RegressionAnalysisClass:
                     non_numeric_values.append(value)
             
             for value in non_numeric_values:
-                
-                self.selected_column_map[value] = variable
 
                 value_frame = tk.Frame(options_frame, bg='yellow')
                 value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
 
-                if value in self.lin_reg_input_var_dict:
-                    input_var = self.lin_reg_input_var_dict[value]
+                if variable in self.non_numeric_input_var_dict:
+                    if value in self.non_numeric_input_var_dict[variable]:
+                        input_var = self.non_numeric_input_var_dict[variable][value]
+                            
+                        user_input_var = tk.StringVar(value=input_var)
+                        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
+                    else:
+                        input_var = ""
+                        user_input_var = tk.StringVar(value=input_var)
+                        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
                 else:
-                    input_var = tk.StringVar()
-                    data_manager.add_variable_to_lin_reg_ind_dict(value, input_var)
-                    self.lin_reg_input_var_dict[value] = input_var
+                    input_var = ""
+                    user_input_var = tk.StringVar()
+                    data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
 
 
-                input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 28), width=10)
+
+                input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=("Arial", 28), width=10)
                 input_entry.pack(side=tk.LEFT)
 
                 value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
                 value_label.pack(side=tk.LEFT)
 
-
-
-                
-
                 # Bind the entry widget to an event
-                input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
+                input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
 
-    def on_key_release(self, event, value):
+
+    def on_key_release(self, event, variable, value):
         # Update the dictionary with the entry's current value
-        self.lin_reg_input_var_dict[value].set(event.widget.get())
+        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, event.widget.get())
 
 
-    def apply_linear_regression_selection(self):
-            try:
-                for value, input_var in self.lin_reg_input_var_dict.items():
-                    selected_value = (input_var.get())
-                    column_to_update = self.selected_column_map[value]
-                    self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
-                for column in self.non_numeric_columns:
-                    self.clean_df[column] = self.clean_df[column].astype(float)
-            except:
-                utils.show_message("error message", f"Make sure all values are NUMERICAL")
-                raise
+    def apply_linear_regression_variable_selection(self):
+        for variable in self.selected_independent_variables:
+
+            if variable in self.non_numeric_columns:
+
+                non_numeric_values = [] 
+
+                for value in self.clean_df[variable].unique():
+                    if isinstance(value, str) and not value.isdigit():
+                        non_numeric_values.append(value)
+
+                for value in non_numeric_values:
+
+                    input_var = self.non_numeric_input_var_dict[variable][value]
+
+                    try:
+                        self.clean_df.loc[self.clean_df[variable] == value, variable] = int(input_var)
+
+                    except:
+                        utils.show_message("error message", f"Make sure all values are NUMERICAL")
+                        raise
+
+                self.clean_df[variable] = self.clean_df[variable].astype(float)
 
 
-
+    ################################################################################################################
 
     # HANDLE VARIABLES FOR LOGISTIC REGRESSION
 
@@ -1392,7 +1605,7 @@ class RegressionAnalysisClass:
 
         self.variable_handling_label.configure(text="Logistic Regression Variable Settings")
 
-        utils.forget_frame_widgets(self.scrollable_frame)
+        utils.remove_frame_widgets(self.scrollable_frame)
 
         
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
@@ -1461,20 +1674,24 @@ class RegressionAnalysisClass:
 
 
         row_count = 3
-        self.var_dict = {}
         
-        for value in self.unique_values:
+        for variable in self.selected_independent_variables:
 
-            value_label = tk.Label(self.independent_variable_handling_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
-            value_label.grid(row=row_count, column=0, padx=5, pady=5)
+            if len(variable) > 20:
+                variable_string = variable[0:19] + "..."
+            else:
+                variable_string = variable
 
-            if value in self.log_reg_variable_type_dict:
-                var = tk.StringVar(value=self.log_reg_variable_type_dict[value].get())
-                self.log_reg_variable_type_dict[value] = var
+            variable_label = tk.Label(self.independent_variable_handling_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
+            variable_label.grid(row=row_count, column=0, padx=5, pady=5)
+
+            if variable in self.log_reg_variable_type_dict:
+                var = tk.StringVar(value=self.log_reg_variable_type_dict[variable].get())
+                self.log_reg_variable_type_dict[variable] = var
 
             else:
                 var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-                self.log_reg_variable_type_dict[value] = var
+                self.log_reg_variable_type_dict[variable] = var
 
             continuous_variable_button = tk.Radiobutton(self.independent_variable_handling_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
             continuous_variable_button.grid(row=row_count, column=1, padx=5, pady=5)
@@ -1486,26 +1703,26 @@ class RegressionAnalysisClass:
 
 
             reference_value_combobox = ttk.Combobox(self.independent_variable_handling_frame, state=tk.DISABLED, font=("Arial", 28))
-            values = [str(val) for val in self.clean_df[value].unique()]
+            values = [str(val) for val in self.clean_df[variable].unique()]
             reference_value_combobox['values'] = values
             reference_value_combobox.grid(row=row_count, column=3, padx=5, pady=5)
-            reference_value_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=reference_value_combobox, value=value: self.on_combobox_select(combobox, value))
+            reference_value_combobox.bind("<<ComboboxSelected>>", lambda event, combobox=reference_value_combobox, variable=variable: self.on_combobox_select(combobox, variable))
 
 
             # Bind the state of the reference_value_combobox to the selection of 'Categorical' radio button
             continuous_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state=tk.DISABLED))
 
-            if value in self.log_reg_reference_variable_dict:
+            if variable in self.log_reg_reference_variable_dict:
                 categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
-                reference_value_combobox.set(self.log_reg_reference_variable_dict[value])
+                reference_value_combobox.set(self.log_reg_reference_variable_dict[variable])
             else:
                 categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
 
 
-            if var.get() == 'Categorical':
+            if var.get() == "Categorical":
                 reference_value_combobox.configure(state="readonly")
-                if value in self.log_reg_reference_variable_dict:
-                    reference_value_combobox.set(self.log_reg_reference_variable_dict[value])
+                if variable in self.log_reg_reference_variable_dict:
+                    reference_value_combobox.set(self.log_reg_reference_variable_dict[variable])
 
 
             separator_2 = ttk.Separator(self.independent_variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
@@ -1513,16 +1730,13 @@ class RegressionAnalysisClass:
 
             row_count += 2
 
-    def on_combobox_select(self, combobox, value):
+
+    def on_combobox_select(self, combobox, variable):
         selected_value = combobox.get()
-        self.log_reg_reference_variable_dict[value] = selected_value
+        data_manager.add_variable_to_log_reg_ref_dict(variable, selected_value)
+
     
-
-
-
-
-
-    def apply_logistic_regression_selection(self):
+    def apply_logistic_regression_variable_selection(self):
 
         target_val_df_1 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
         target_val_df_2 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
@@ -1532,33 +1746,46 @@ class RegressionAnalysisClass:
             target_val_df_2[self.selected_dependent_variable] = 0
 
         if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[1]}":
-
             target_val_df_1[self.selected_dependent_variable] = 0
             target_val_df_2[self.selected_dependent_variable] = 1
 
         self.selected_options.clear()
-        for value, var in self.log_reg_variable_type_dict.items():
-            option = var.get()
-            self.selected_options[value] = option
 
+        for variable in self.selected_independent_variables:
 
-            if option == 'Categorical':
-                input_value = self.log_reg_reference_variable_dict[value]
-                column_data_type = self.df[value].dtype
+            # Get variable type of the current independent variable
+            variable_type = self.log_reg_variable_type_dict[variable].get()
+            
+            if variable_type == "Continuous":
+                try:
+                    self.clean_df[variable] = self.clean_df[variable].astype(float)
+                except:
+                    utils.show_message("Error", f"Cannot convert to continuous variable for: {variable}")
+                    raise
+            # Add the variable type to the current variable type dict
+            self.selected_options[variable] = variable_type
+
+            if variable_type == "Categorical":
+                try:
+                    input_value = self.log_reg_reference_variable_dict[variable]
+                except:
+                    utils.show_message("Error", f"No reference value for: {variable}")
+            
+                column_data_type = self.df[variable].dtype
                 if column_data_type == 'object':
-                    self.log_reg_reference_variable_dict[value] = input_value  # Treat as string
+                    self.log_reg_reference_variable_dict[variable] = input_value  # Treat as string
                 elif column_data_type == 'int64':
                     input_value = int(input_value)  # Convert to int
-                    self.log_reg_reference_variable_dict[value] = input_value
+                    self.log_reg_reference_variable_dict[variable] = input_value
                 elif column_data_type == 'float64':
                     input_value = float(input_value)  # Convert to float
-                    self.log_reg_reference_variable_dict[value] = input_value
+                    self.log_reg_reference_variable_dict[variable] = input_value
+            
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
-
-    #####################################################################
-    #####################################################################
-    #####################################################################
 
     # CREATE RESULTS FRAME
 
@@ -1580,105 +1807,6 @@ class RegressionAnalysisClass:
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
-    #####################################################################
-    #####################################################################
-    #####################################################################
-
-    # NAVIGATION MENU HANDLING FUNCTIONS
-
-    def switch_to_dependent_variable_frame(self):
-
-        self.variable_handling_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
-
-        self.dependent_var_search_entry.focus_set()
-
-
-
-
-    def switch_to_independent_variables_frame(self):
-        if self.selected_dependent_variable == "":
-            return
-
-        self.variable_handling_frame.pack_forget()
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
-
-        self.independent_var_search_entry.focus_set()
-
-        self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
-
-    def switch_to_variable_handling_frame(self):
-
-        if (self.selected_regression not in ["logistic", "linear"]) | (len(self.selected_independent_variables) < 1):
-            return
-    
-        
-        if self.selected_regression == "logistic":
-            # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
-            if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
-                utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
-                return
-            
-            self.handle_variables_logistic_regression()
-
-
-        if self.selected_regression == "linear":
-            # CHECK FOR CONTINUOUS VARIABLE BEFORE LINEAR REGRESSION
-            try:
-                self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
-            except:
-                utils.show_message('dependent variable error', 'Dependent Variable not numeric for linear regression')
-                return
-            
-            self.handle_variables_linear_regression()
-
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
-
-
-    def switch_to_results_frame(self):
-
-        self.run_analysis()
-    
-        self.indedependent_variables_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.variable_handling_frame.pack_forget()
-        self.results_frame.pack(fill=tk.BOTH, expand=True)
-
-
-
-
-
-###################################################################################################################################################################################################
-###################################################################################################################################################################################################
-###################################################################################################################################################################################################
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
     def run_analysis(self):
         utils.remove_frame_widgets(self.results_display_frame)
 
@@ -1688,21 +1816,21 @@ class RegressionAnalysisClass:
         elif self.selected_regression == "linear":
             self.linear_regression()
 
-        
 
     def logistic_regression(self):
-        self.apply_logistic_regression_selection()
+        self.apply_logistic_regression_variable_selection()
         model_string = f"{self.selected_dependent_variable} ~ "
         self.clean_df[self.selected_dependent_variable] = self.clean_df[self.selected_dependent_variable].astype(int)
 
-        for value, option in self.selected_options.items():
-            if option == 'Continuous':
-                model_string = model_string + f"{value} + "
-            elif option == 'Categorical':
-                if self.clean_df[value].dtype == 'object':
-                    model_string = model_string + f"C({value}, Treatment('{self.log_reg_reference_variable_dict[value]}')) + "
-                else:
-                    model_string = model_string + f"C({value}, Treatment({self.log_reg_reference_variable_dict[value]})) + "
+        for variable, data_type in self.selected_options.items():
+
+            if variable in self.selected_independent_variables:
+                if data_type == 'Continuous':
+                    model_string = model_string + f"{variable} + "
+                elif data_type == 'Categorical':
+                    self.clean_df[variable] = self.clean_df[variable].astype(str)
+                    model_string = model_string + f"C({variable}, Treatment('{self.log_reg_reference_variable_dict[variable]}')) + "
+
 
         model_string = model_string.rstrip(" +")
 
@@ -1710,11 +1838,14 @@ class RegressionAnalysisClass:
         results = model.fit(method='bfgs', maxiter=1000)
    
         p_values = results.pvalues[1:]
+        p_values = p_values.astype(str)
+
         for i in range(len(p_values)):
-            if p_values[i] < 0.0001:
-                p_values[i] = "< 0.0001"
+
+            if float(p_values.iloc[i]) < 0.0001:
+                p_values.iloc[i] = "< 0.0001"
             else:
-                p_values[i] = round(p_values[i], 4)
+                p_values.iloc[i] = str(round(float(p_values.iloc[i]), 4))
    
 
 
@@ -1726,7 +1857,10 @@ class RegressionAnalysisClass:
             'CI_low': round(np.exp(results.conf_int()[0])[1:],2),
             'CI_high': round(np.exp(results.conf_int()[1])[1:],2)
         })
-   
+
+        coefs['CI_high'] = coefs['CI_high'].astype(str)
+        coefs['CI_low'] = coefs['CI_high'].astype(str)
+
         coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
         for i in range(len(coefs['Characteristic'])):
             variable_string = coefs['Characteristic'].iloc[i]
@@ -1735,9 +1869,9 @@ class RegressionAnalysisClass:
                 reference_value = re.search(r"\[T\.(.*?)\]", variable_string).group(1)
                 new_value = column_string + f" ({reference_value})"
                 coefs.loc[i, 'Characteristic'] = new_value
-            if coefs.loc[i, 'CI_high'] > 50000:
+            if float(coefs.loc[i, 'CI_high']) > 50000:
                 coefs.loc[i, 'CI_high'] = 'inf'
-            if coefs.loc[i, 'CI_low'] < -50000:
+            if float(coefs.loc[i, 'CI_low']) < -50000:
                 coefs.loc[i, 'CI_low'] = '-inf'
 
 
@@ -1754,7 +1888,7 @@ class RegressionAnalysisClass:
 
 
     def linear_regression(self):
-        self.apply_linear_regression_selection()
+        self.apply_linear_regression_variable_selection()
 
         x = self.clean_df[self.selected_independent_variables]
         y = self.clean_df[self.selected_dependent_variable]
@@ -1818,34 +1952,148 @@ class RegressionAnalysisClass:
 
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+    # NAVIGATION MENU HANDLING FUNCTIONS
+
+    def switch_to_dependent_variable_frame(self):
+
+        self.variable_handling_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.dependent_var_search_entry.focus_set()
 
 
+    def switch_to_independent_variables_frame(self):
+        if self.selected_dependent_variable == None:
+            return
+
+        self.variable_handling_frame.pack_forget()
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.independent_var_search_entry.focus_set()
+
+        self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
+    def switch_to_variable_handling_frame(self):
+
+        if self.selected_regression not in ["logistic", "linear"]:
+            utils.show_message('Error', 'Please select either Logistic Regression or Linear Regression')
+            return
+        
+        if len(self.selected_independent_variables) < 1:
+            utils.show_message('Error', 'No Independent Variables Selected')
+            return
+
+    
+        
+        if self.selected_regression == "logistic":
+            # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
+            if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
+                utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
+                return
+            
+            self.handle_variables_logistic_regression()
 
 
+        if self.selected_regression == "linear":
+            # CHECK FOR CONTINUOUS VARIABLE BEFORE LINEAR REGRESSION
+            try:
+                self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
+            except:
+                utils.show_message('dependent variable error', 'Dependent Variable not numeric for linear regression')
+                return
+            
+            self.handle_variables_linear_regression()
+
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
 
+    def switch_to_results_frame(self):
+
+        self.run_analysis()
+    
+        self.indedependent_variables_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.variable_handling_frame.pack_forget()
+        self.results_frame.pack(fill=tk.BOTH, expand=True)
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
-
-
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-
-
-
-################################################
-################################################
- 
-                # CREATE PLOT #
- 
-################################################
-################################################
-
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                                 CREATE PLOT                                                  #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
 
 class CreatePlotClass():
@@ -2176,19 +2424,70 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 
 
 
-################################################################################################################################################################################################
-################################################################################################################################################################################################
-################################################################################################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                    ################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                               MACHINE LEARNING                                               #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
-################################################
-################################################
- 
-        # MACHINE LEARNING #
- 
-################################################
-################################################
 
 class MachineLearningClass:
     def __init__(self, visualize_content_frame, style):
@@ -2204,13 +2503,18 @@ class MachineLearningClass:
 
         data_manager.add_tab_to_dict("current_visualize_tab", "machine_learning")
 
-        self.selected_dependent_variable = data_manager.get_mach_learn_dep_var()
-        self.selected_independent_variables = data_manager.get_mach_learn_dep_var_list()
-        self.selected_model = ""
-        self.selected_dependent_variable_value = ""
+        self.selected_dependent_variable = data_manager.get_mach_learn_tab_dep_var()
+        self.selected_independent_variables = data_manager.get_mach_learn_tab_ind_var_list()
+
+        self.selected_model = data_manager.get_mach_learn_tab_selected_model()
+
+        self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
+
+
+
         self.machine_learning_model_options = ['cat_rf', 'cat_xgb', 'cat_logreg', 'cont_linreg']
         self.model_dict = {'cat_rf':'Random Forest', 'cat_xgb':'XGBoost', 'cat_logreg':'Logistic Regression', 'cont_linreg':'Linear Regression'}
-        self.model_function_dict = {'cat_rf':self.create_random_forest_classifier_model()}
+        # self.model_function_dict = {'cat_rf':self.create_random_forest_classifier_model()}
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
@@ -2256,7 +2560,7 @@ class MachineLearningClass:
         self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=("Arial", 24))
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
-        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24))
+        self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=("Arial", 24), exportselection=False)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
         for column in sorted(self.df.columns, key=str.lower):
@@ -2276,27 +2580,21 @@ class MachineLearningClass:
         self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+
         if self.selected_dependent_variable:
             self.dependent_variable_listbox.selection_clear(0, tk.END)
             items = list(self.dependent_variable_listbox.get(0, tk.END))
             index = items.index(self.selected_dependent_variable)
             self.dependent_variable_listbox.selection_set(index)
+            self.dependent_variable_listbox.yview(index)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
-
+            
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
-            data_manager.set_comp_tab_dep_var(self.selected_dependent_variable)
+            data_manager.set_mach_learn_tab_dep_var(self.selected_dependent_variable)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
-        else:
-            if self.selected_dependent_variable:
-                items = list(self.dependent_variable_listbox.get(0, tk.END))
-                index = items.index(self.selected_dependent_variable)
-                self.dependent_variable_listbox.selection_set(index)
-                pass
-            else:
-                self.dependent_frame_dependent_label.config(text="")
 
 
     def update_dependent_variable_listbox(self, *args):
@@ -2307,39 +2605,28 @@ class MachineLearningClass:
                 self.dependent_variable_listbox.insert(tk.END, column)
 
 
-
-
-
-
-
     #####################################################################
     #####################################################################
     #####################################################################
 
+    # CREATE INDEPENDENT VARIABLE SELECTION FRAME
 
     def create_independent_variables_frame(self):
 
-
+        # MAIN CONTENT FRAME
         self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        # TITLE LABEL
         self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
+
+
+        # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
         self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
-
-
-
-
-
-
-
-
-
-        # AVAILABLE INDEPENDENT VARIABLES FRAME
         self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.available_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -2349,28 +2636,27 @@ class MachineLearningClass:
         self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.available_independent_variable_listbox.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
-
+        self.available_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
         for column in sorted(self.df.columns, key=str.lower):
             self.available_independent_variable_listbox.insert(tk.END, column)
 
 
-        self.available_independent_variable_listbox.update_idletasks()
-
-
-
-
-
-        # TRANSFER BUTTONS FRAME
+        # TRANSFER BUTTONS
         self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 60))
+        self.transfer_right_button = tk.Button(self.transfer_buttons_frame, text=">>>", command=self.transfer_right, font=("Arial", 48))
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 60))
+        self.transfer_left_button = tk.Button(self.transfer_buttons_frame, text="<<<", command=self.transfer_left, font=("Arial", 48))
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        self.transfer_all_right_button = tk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, font=("Arial", 36))
+        self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.transfer_all_left_button = tk.Button(self.transfer_buttons_frame, text="Clear Selection", command=self.transfer_all_left, font=("Arial", 36))
+        self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
 
@@ -2382,7 +2668,22 @@ class MachineLearningClass:
         self.selected_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
-        self.selected_independent_variable_listbox.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
+        self.selected_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+
+        if len(self.selected_independent_variables) > 0:
+            for var in self.selected_independent_variables:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.available_independent_variable_listbox.selection_set(sorted(self.df.columns, key=str.lower).index(var))
+            selections = self.available_independent_variable_listbox.curselection()
+            for index in reversed(selections):
+                self.available_independent_variable_listbox.delete(index)
+
+
+        # MODEL OPTIONS
+        self.regression_type_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
+        self.regression_type_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
 
 
 
@@ -2394,8 +2695,14 @@ class MachineLearningClass:
 
         def on_radio_button_selected():
             self.selected_model = self.maching_learning_model_choice.get()
+            data_manager.set_mach_learn_tab_selected_model(self.selected_model)
 
-        self.maching_learning_model_choice = tk.StringVar(value='cat_rf')
+        if self.selected_model:
+            self.maching_learning_model_choice = tk.StringVar(value=self.selected_model)
+        else:
+            self.maching_learning_model_choice = tk.StringVar(value="cat_rf")
+
+
         self.selected_model = self.maching_learning_model_choice.get()
 
 
@@ -2438,20 +2745,18 @@ class MachineLearningClass:
 
 
 
-
         # NAVIGATION MENU
         self.independent_variable_menu_frame = tk.Frame(self.indedependent_variables_frame, bg='lightgray')
         self.independent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
-        
+
         self.return_to_dependent_variable_frame_button = tk.Button(self.independent_variable_menu_frame, command=self.switch_to_dependent_variable_frame, text='Back', font=("Arial", 36))
         self.return_to_dependent_variable_frame_button.pack(side=tk.LEFT)
 
-        self.advance_to_variable_handling_frame_button = tk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text='Next -->', font=("Arial", 36))
+        self.advance_to_variable_handling_frame_button = tk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text="Next", font=("Arial", 36))
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
         self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
-
 
 
     def update_available_independent_variable_listbox(self, *args):
@@ -2470,6 +2775,23 @@ class MachineLearningClass:
             if item not in self.selected_independent_variables:
                 self.selected_independent_variable_listbox.insert(tk.END, item)
                 self.selected_independent_variables.append(item)
+                data_manager.add_variable_to_mach_learn_tab_ind_var_list(item)
+
+        for index in reversed(selections):
+            self.available_independent_variable_listbox.delete(index)
+
+
+    def transfer_all_right(self):
+
+        for i in range(self.available_independent_variable_listbox.size()):
+            self.available_independent_variable_listbox.selection_set(i)
+
+        selections = self.available_independent_variable_listbox.curselection()
+        selected_items = [self.available_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.selected_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.append(item)
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
@@ -2483,61 +2805,86 @@ class MachineLearningClass:
             self.available_independent_variable_listbox.insert(tk.END, item)
             self.selected_independent_variables.remove(item)
 
+        self.reorder_available_independent_variable_listbox_alphabetically()
+
         for index in reversed(selections):
             self.selected_independent_variable_listbox.delete(index)
 
 
+    def transfer_all_left(self):
+
+        for i in range(self.selected_independent_variable_listbox.size()):
+            self.selected_independent_variable_listbox.selection_set(i)
+
+        selections = self.selected_independent_variable_listbox.curselection()
+        selected_items = [self.selected_independent_variable_listbox.get(index) for index in selections]
+
+        for item in selected_items:
+            self.available_independent_variable_listbox.insert(tk.END, item)
+            self.selected_independent_variables.remove(item)
+
+        self.reorder_available_independent_variable_listbox_alphabetically()
+
+        for index in reversed(selections):
+            self.selected_independent_variable_listbox.delete(index)
 
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
+    def reorder_available_independent_variable_listbox_alphabetically(self):
+        top_visible_index = self.available_independent_variable_listbox.nearest(0)
+        top_visible_item = self.available_independent_variable_listbox.get(top_visible_index)
 
+        items = list(self.available_independent_variable_listbox.get(0, tk.END))
+        items = sorted(items, key=lambda x: x.lower())
+
+        self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
+        for item in items:
+            self.available_independent_variable_listbox.insert(tk.END, item)
+
+        if top_visible_index >= 0:
+            index = items.index(top_visible_item)
+            self.available_independent_variable_listbox.yview(index)
+
+    #####################################################################
+    #####################################################################
+    #####################################################################
+
+    # CREATE VARIABLE HANDLING FRAME
 
     def create_variable_handling_frame(self):
-
-        # HEADER LABEL AND FRAME
+        # MAIN CONTENT FRAME
         self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text='', font=("Arial", 48))
+        # TITLE LABEL
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="", font=("Arial", 36))
         self.variable_handling_label.pack(side=tk.TOP)
 
 
         # VARIABLE HANDLING FRAME
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='beige')
-        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.variable_handling_options_frame_label = tk.Label(self.variable_handling_options_frame, text="Assign values to categorical variables", font=("Arial", 36), bg='blue')
-        self.variable_handling_options_frame_label.pack(side=tk.TOP, fill=tk.X)
-
+        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
+        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=200, pady=50)
 
         def on_canvas_configure(event):
-            self.value_assign_canvas.configure(scrollregion=self.value_assign_canvas.bbox("all"))
+            self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all"))
 
-        self.value_assign_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
-        self.value_assign_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.variable_type_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
+        self.variable_type_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.value_assign_canvas.yview)
+        self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.variable_type_canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        self.value_assign_canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.variable_type_canvas.configure(yscrollcommand=self.scrollbar.set)
 
 
-        self.variable_handling_scrollable_frame = tk.Frame(self.value_assign_canvas, bg='yellow')
-        self.value_assign_canvas.create_window((0, 0), window=self.variable_handling_scrollable_frame, anchor=tk.NW)
+        self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
+        self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
 
-        self.variable_handling_scrollable_frame.bind("<Configure>", on_canvas_configure)
+        self.scrollable_frame.bind("<Configure>", on_canvas_configure)
 
+        def on_mousewheel(event):
+            self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-
-        self.input_var_dict = {}
-        self.selected_column_map = {}
-
-
-
-
-
+        self.variable_type_canvas.bind("<MouseWheel>", on_mousewheel)
 
 
 
@@ -2545,91 +2892,114 @@ class MachineLearningClass:
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-
-
-        self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='<-- Back', font=("Arial", 36))
+        self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', font=("Arial", 36))
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
-        self.advance_to_settings_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_settings_frame, text="Next", font=("Arial", 36))
+        self.advance_to_settings_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_settings_frame, text="Next ->", font=("Arial", 36))
         self.advance_to_settings_frame_button.pack(side=tk.RIGHT)
 
-        self.variable_handling_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
-        self.variable_handling_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
+        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
 
+
+    # HANDLE VARIABLES FOR MACHINE LEARNING
+        
     def handle_variables_machine_learning(self):
 
-        self.variable_handling_label.configure(text=f"Variable Settings for {self.model_dict[self.selected_model]} Model")
-        self.settings_frame_label.configure(text=f"Model and Plot Settings for {self.model_dict[self.selected_model]} Model")
+        self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
 
-        utils.forget_frame_widgets(self.variable_handling_scrollable_frame)
+        utils.forget_frame_widgets(self.scrollable_frame)
 
+        self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy().dropna()
 
-        self.variable_handling_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-        self.variable_handling_df.dropna(inplace=True)
-
-        self.unique_values = list(self.variable_handling_df[self.selected_independent_variables].columns)
+        # DETERMINE NON-NUMERIC VARIABLES
         self.non_numeric_columns = []
 
+        self.selected_options = {}
+        self.selected_column_map = {}
 
-
-
-
-        for column in self.unique_values:
+        for independent_variable in self.selected_independent_variables:
             try:
-                self.variable_handling_df[column] = self.variable_handling_df[column].astype(float)
-
+                self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
             except:
-                self.non_numeric_columns.append(column)
+                self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            no_variables_to_handle_label = tk.Label(self.variable_handling_scrollable_frame, text="No variables to change. Please click NEXT", font=("Arial", 36))
-            no_variables_to_handle_label.pack(side=tk.TOP, padx=50, pady=100)
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
+            proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
+        # HANDLE NON-NUMERIC VARIABLES
+        for variable in self.non_numeric_columns:
+
+            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator.pack(fill="x", padx=5, pady=5)
+
+            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+            options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+
+            variable_label = tk.Label(options_frame, text=variable, font=("Arial", 28), bg='yellow', fg='black')
+            variable_label.pack(side=tk.TOP)
+
+
+            non_numeric_values = []
+
+            for value in self.clean_df[variable].unique():
+                if isinstance(value, str) and not value.isdigit():
+                    non_numeric_values.append(value)
+            
+            for value in non_numeric_values:
+                
+                self.selected_column_map[value] = variable
+
+                value_frame = tk.Frame(options_frame, bg='yellow')
+                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+                if value in self.non_numeric_input_var_dict:
+                    input_var = self.non_numeric_input_var_dict[value]
+                else:
+                    input_var = tk.StringVar()
+                    data_manager.add_variable_to_non_numeric_ind_dict(value, input_var)
+                    self.non_numeric_input_var_dict[value] = input_var
+
+
+                input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 28), width=10)
+                input_entry.pack(side=tk.LEFT)
+
+                value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+                value_label.pack(side=tk.LEFT)
+
+
+
+                
+
+                # Bind the entry widget to an event
+                input_entry.bind("<KeyRelease>", lambda event, value=value: self.on_key_release(event, value))
+
+    def on_key_release(self, event, value):
+        # Update the dictionary with the entry's current value
+        self.non_numeric_input_var_dict[value].set(event.widget.get())
+
+
+    def apply_machine_learning_variable_selection(self):
+        for value, input_var in self.non_numeric_input_var_dict.items():
+            selected_value = (input_var.get())
+            column_to_update = self.selected_column_map[value]
+            self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
+        for column in self.non_numeric_columns:
+            self.clean_df[column] = self.clean_df[column].astype(float)
+
+
+
+
+
+    #####################################################################
+    #####################################################################
+    #####################################################################
+            
+    # CREATE SETTINGS FRAME
     
-
-        else:
-            for variable in self.non_numeric_columns:
-                options_frame = tk.Frame(self.variable_handling_scrollable_frame, bg='yellow')
-                options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-                variable_label_frame = tk.Frame(options_frame, bg='yellow')
-                variable_label_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-                variable_label = tk.Label(variable_label_frame, text=f"Variable: {variable}", font=("Arial", 36), bg='yellow', fg='black')
-                variable_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-                for value in self.variable_handling_df[variable].unique():
-                    self.selected_column_map[value] = variable
-                    value_frame = tk.Frame(options_frame, bg='yellow')
-                    value_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-                    if value in self.input_var_dict:
-                        input_var = self.input_var_dict[value]
-                    else:
-                        input_var = tk.StringVar()
-                        self.input_var_dict[value] = input_var
-
-                    input_entry = tk.Entry(value_frame, textvariable=input_var, font=("Arial", 36))
-                    input_entry.pack(side=tk.LEFT, padx=5, pady=5)
-
-
-                    value_label = tk.Label(value_frame, text=value, font=("Arial", 36), bg='yellow', fg='black')
-                    value_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-                separator = ttk.Separator(self.variable_handling_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
-                separator.pack(fill="x", padx=5, pady=5)
-
-        
-
-
-
-
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-
     def create_settings_frame(self):
 
         self.settings_frame_label = tk.Label(self.settings_frame, text=f"Settings for {self.model_dict[self.selected_model]} Model", font=("Arial", 48))
@@ -2773,19 +3143,21 @@ class MachineLearningClass:
         self.return_to_variable_handling_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', font=("Arial", 36))
         self.return_to_variable_handling_frame_button.pack(side=tk.LEFT)
 
-        self.advance_to_results_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_results_frame, text='Next ->', font=("Arial", 36))
+        self.advance_to_results_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_results_frame, text='View Results', font=("Arial", 36))
         self.advance_to_results_frame_button.pack(side=tk.RIGHT)
 
-        self.model_settings_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
-        self.model_settings_dependent_label.pack(side=tk.RIGHT, expand=True)
+        self.model_settings_frame_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.model_settings_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
 
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-
+    #####################################################################
+    #####################################################################
+    #####################################################################
+        
+    # CREATE RESULTS FRAME
+    
     def create_results_frame(self):
 
         self.results_display_frame = tk.Frame(self.results_frame, bg='beige')
@@ -2837,7 +3209,7 @@ class MachineLearningClass:
 
 
     def switch_to_independent_variables_frame(self):
-        if self.selected_dependent_variable == "":
+        if self.selected_dependent_variable == None:
             return
 
         self.settings_frame.pack_forget()
@@ -2848,21 +3220,11 @@ class MachineLearningClass:
 
         self.independent_var_search_entry.focus_set()
 
-
-    def switch_to_settings_frame(self):
-        
-
-        try:
-            self.apply_variable_handling()
-        except:
-            utils.show_message("error message", "Error. All inputs must be numbers.")
-            return
-        
-        self.variable_handling_frame.pack_forget()
-        self.results_frame.pack_forget()
-        self.dependent_variable_frame.pack_forget()
-        self.indedependent_variables_frame.pack_forget()
-        self.settings_frame.pack(fill=tk.BOTH, expand=True)
+        self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.model_settings_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+        self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
 
     def switch_to_variable_handling_frame(self):
@@ -2889,6 +3251,19 @@ class MachineLearningClass:
         self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
 
+    def switch_to_settings_frame(self):
+        
+        try:
+            self.apply_machine_learning_variable_selection()
+        except:
+            utils.show_message("error message", "Make sure all values are NUMERICAL")
+            return
+        
+        self.variable_handling_frame.pack_forget()
+        self.results_frame.pack_forget()
+        self.dependent_variable_frame.pack_forget()
+        self.indedependent_variables_frame.pack_forget()
+        self.settings_frame.pack(fill=tk.BOTH, expand=True)
 
 
     def switch_to_results_frame(self):
@@ -2900,10 +3275,10 @@ class MachineLearningClass:
             except:
                 utils.show_message("error message", "User choice must be a number")
                 return
+            
+        self.run_analysis()
 
-        self.apply_settings()
-        self.create_model()
-        self.execute_model()
+
 
         self.settings_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
@@ -2935,44 +3310,45 @@ class MachineLearningClass:
     def run_analysis(self):
         utils.remove_frame_widgets(self.results_display_frame)
 
-        self.execute_model()
+        # self.apply_settings()
+        # self.create_model()
+        # self.execute_model()
 
 
     def apply_variable_handling(self):
-
-        self.model_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-
-        if len(self.non_numeric_columns) == 0:
-            return
-        for value, input_var in self.input_var_dict.items():
-            entry_content = (input_var.get())
-            column_to_update = self.selected_column_map[value]
-            self.model_df.loc[self.model_df[column_to_update] == value, column_to_update] = float(entry_content)
-        for column in self.non_numeric_columns:
-            self.model_df[column] = self.model_df[column].astype(float)
-
+        try:
+            for value, input_var in self.non_numeric_input_var_dict.items():
+                selected_value = (input_var.get())
+                column_to_update = self.selected_column_map[value]
+                self.clean_df.loc[self.clean_df[column_to_update] == value, column_to_update] = int(selected_value)
+            for column in self.non_numeric_columns:
+                self.clean_df[column] = self.clean_df[column].astype(float)
+        except:
+            utils.show_message("error message", f"Make sure all values are NUMERICAL")
+            raise
 
 
 
-    def apply_settings(self):
-        self.model_df[self.selected_independent_variables] = self.model_df[self.selected_independent_variables].astype(float)
 
-        for column in self.selected_independent_variables:
+    # def apply_settings(self):
+    #     self.model_df[self.selected_independent_variables] = self.model_df[self.selected_independent_variables].astype(float)
 
-            if self.null_value_option_selection.get() == 'REMOVE null values':
-                self.model_df.dropna(inplace=True)
+    #     for column in self.selected_independent_variables:
 
-            if self.null_value_option_selection.get() == 'REPLACE with mean':
-                self.model_df[column] = self.model_df[column].fillna(self.model_df[column].mean())
+    #         if self.null_value_option_selection.get() == 'REMOVE null values':
+    #             self.model_df.dropna(inplace=True)
 
-            if self.null_value_option_selection.get() == 'REPLACE with median':
-                self.model_df[column] = self.model_df[column].fillna(self.model_df[column].median())
+    #         if self.null_value_option_selection.get() == 'REPLACE with mean':
+    #             self.model_df[column] = self.model_df[column].fillna(self.model_df[column].mean())
 
-            if self.null_value_option_selection.get() == 'REPLACE with mode':
-                self.model_df[column] = self.model_df[column].fillna(self.model_df[column].mode())
+    #         if self.null_value_option_selection.get() == 'REPLACE with median':
+    #             self.model_df[column] = self.model_df[column].fillna(self.model_df[column].median())
 
-            if self.null_value_option_selection.get() == 'REPLACE with user choice':
-                self.model_df[column] = self.model_df[column].fillna(float(self.null_value_user_choice_entry.get()))
+    #         if self.null_value_option_selection.get() == 'REPLACE with mode':
+    #             self.model_df[column] = self.model_df[column].fillna(self.model_df[column].mode())
+
+    #         if self.null_value_option_selection.get() == 'REPLACE with user choice':
+    #             self.model_df[column] = self.model_df[column].fillna(float(self.null_value_user_choice_entry.get()))
 
 
 
@@ -3015,9 +3391,9 @@ class MachineLearningClass:
     #     )
 
 
-    def create_model(self):
-        if self.selected_model == 'cat_rf':
-            self.create_random_forest_classifier_model()
+    # def create_model(self):
+    #     if self.selected_model == 'cat_rf':
+    #         self.create_random_forest_classifier_model()
 
 
 
@@ -3025,35 +3401,35 @@ class MachineLearningClass:
 
 
 
-    def execute_model(self):
+    # def execute_model(self):
         
         
-        # SETTINGS
-        number_of_folds = int(self.number_of_folds_selection.get())
-        hyper_tune_parameters = self.hypertune_checkbox_var.get()
+    #     # SETTINGS
+    #     number_of_folds = int(self.number_of_folds_selection.get())
+    #     hyper_tune_parameters = self.hypertune_checkbox_var.get()
 
-        # PREPROCESS DATA
-        X = self.model_df[self.selected_independent_variables]
-        y = self.model_df[self.selected_dependent_variable]
+    #     # PREPROCESS DATA
+    #     X = self.model_df[self.selected_independent_variables]
+    #     y = self.model_df[self.selected_dependent_variable]
 
-        scaler = StandardScaler()
-        scaler.fit(X)
+    #     scaler = StandardScaler()
+    #     scaler.fit(X)
 
-        X_scaled = scaler.transform(X.values)
-
-
-        # CREATE MODEL
+    #     X_scaled = scaler.transform(X.values)
 
 
-
-        model = self.model_function_dict[self.selected_model]
+    #     # CREATE MODEL
 
 
 
+    #     model = self.model_function_dict[self.selected_model]
 
-        if number_of_folds == '2':
-            train_proportion = (100-float(self.train_fold_percent_entry))/100
-            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, train_size==train_proportion, random_state=42)
 
-        else:
-            print('eep')
+
+
+    #     if number_of_folds == '2':
+    #         train_proportion = (100-float(self.train_fold_percent_entry))/100
+    #         X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, train_size==train_proportion, random_state=42)
+
+    #     else:
+    #         print('eep')
