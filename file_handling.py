@@ -27,6 +27,11 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
     def switch_to_file_tab():
         utils.remove_frame_widgets(sub_button_frame)
+
+        if data_manager.get_dataframe_name():
+            sub_button_frame_label = tk.Label(sub_button_frame, text=f"Current Dataframe: {data_manager.get_dataframe_name()}", font=("Arial", 48))
+            sub_button_frame_label.pack(fill=tk.BOTH, expand=True)
+
         dataframe_content_frame.pack_forget()
         editing_content_frame.pack_forget()
         visualize_content_frame.pack_forget()
@@ -178,12 +183,15 @@ class SetupFileTabClass():
                 df.columns = df.columns.str.replace(r'\W+', '', regex=True)
 
         fix_columns(self.df)
-
-        data_manager.set_dataframe_name(os.path.basename(self.file_path))
-        data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
-        data_manager.set_dataframe(data_manager.get_dataframe_name())  # Set the df variable
-
         
+        dataframe_name = os.path.basename(self.file_path)
+
+        data_manager.set_dataframe_name(dataframe_name)
+        data_manager.add_dataframe_to_dict(self.df, dataframe_name)
+        data_manager.set_dataframe(dataframe_name)  # Set the df variable
+
+
+
 
         self.update_dataframe_listbox()
         
@@ -328,7 +336,7 @@ class SetupFileTabClass():
         self.advance_to_dataframe_settings_button = tk.Button(self.column_selection_menu_frame, command=self.switch_to_dataframe_settings_frame, text="Next", font=("Arial", 36))
         self.advance_to_dataframe_settings_button.pack(side=tk.RIGHT)
 
-        self.df_in_use_column_selection_menu_label = tk.Label(self.column_selection_menu_frame, text="", font=("Arial", 36))
+        self.df_in_use_column_selection_menu_label = tk.Label(self.column_selection_menu_frame, text="", font=("Arial", 36), bg='lightgray')
         self.df_in_use_column_selection_menu_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -446,7 +454,7 @@ class SetupFileTabClass():
         self.return_to_column_selection_button = tk.Button(self.dataframe_settings_menu, command=self.switch_to_column_selection_frame, text="Back", font=("Arial", 36))
         self.return_to_column_selection_button.pack(side=tk.LEFT)
 
-        self.df_in_use_dataframe_settings_menu_label = tk.Label(self.dataframe_settings_menu, text="", font=("Arial", 36))
+        self.df_in_use_dataframe_settings_menu_label = tk.Label(self.dataframe_settings_menu, text="", font=("Arial", 36), bg='lightgray')
         self.df_in_use_dataframe_settings_menu_label.pack(side=tk.RIGHT, expand=True)
 
 
