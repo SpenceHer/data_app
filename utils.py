@@ -153,12 +153,11 @@ def is_column_numeric(df, column_name):
 
 
 
-
 def create_summary_table(df):
     # Preparing the columns for the summary dataframe
     describe_cols = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
     summary_cols = ['Column', 'Mode', 'Non-Missing Count', 'Missing Count', 'Non-Missing Unique Count'] + describe_cols
-    summary = pd.DataFrame(columns=summary_cols)
+    summary_list = []  # Initialize a list to store DataFrames
 
     # Function to check if a column is numeric
     def is_numeric(col):
@@ -181,9 +180,11 @@ def create_summary_table(df):
         # Filtering out empty or all-NA columns from the data dictionary
         data = {k: v for k, v in data.items() if v is not None and not pd.isna(v)}
 
-        # Adding the computed data to the summary dataframe
-        summary_row = pd.DataFrame([data])
-        summary = pd.concat([summary, summary_row], ignore_index=True)
+        # Adding the computed data to the summary_list
+        summary_list.append(pd.DataFrame([data]))
+
+    # Concatenate all DataFrames in the summary_list
+    summary = pd.concat(summary_list, ignore_index=True)
 
     return summary
 
