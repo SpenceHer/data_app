@@ -29,10 +29,10 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
     # SUBHEADING BUTTONS
-    style.configure("edit_clean_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    edit_clean_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_clean_button.TButton")
-    edit_clean_button.pack(side="left", fill="x", expand=True)
-    edit_clean_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, style))
+    style.configure("edit_data_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    edit_data_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_data_button.TButton")
+    edit_data_button.pack(side="left", fill="x", expand=True)
+    edit_data_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, style))
 
     style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
     create_new_var = ttk.Button(sub_button_frame, text="Create New Variable", style="create_new_var_button.TButton")
@@ -338,6 +338,7 @@ class EditDataClass():
         separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
         # TEMPORARY DATAFRAME
+        self.temp_df.loc[self.temp_df[self.selected_column].isnull(), self.selected_column] = "[MISSING VALUES]"
         self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
 
 
@@ -350,6 +351,9 @@ class EditDataClass():
         # UNIQUE VALUE LISTBOX
         self.value_choice_frame = tk.Frame(self.handle_categorical_values_frame, bg='beige')
         self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
+
+
+        
 
         self.unique_categorical_values = sorted(self.temp_df[self.selected_column].unique())
         self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
@@ -493,7 +497,7 @@ class EditDataClass():
         self.handle_continuous_values_frame = tk.Frame(self.options_frame, bg='beige')
         self.handle_continuous_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-
+        self.temp_df.loc[self.temp_df[self.selected_column].isnull(), self.selected_column] = "[MISSING VALUES]"
 
         self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
         self.unique_non_numeric_values = list(set(self.non_numeric_values))
@@ -743,7 +747,7 @@ class EditDataClass():
         self.update_dataframe_button = tk.Button(self.data_display_menu_frame, text="Update Dataframe", command=self.update_dataframe, font=("Arial", 36))
         self.update_dataframe_button.pack(side=tk.RIGHT)
 
-        self.data_display_menu_frame_label = tk.Label(self.data_display_menu_frame, text="", font=("Arial", 36), bg='green', fg='black')
+        self.data_display_menu_frame_label = tk.Label(self.data_display_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
         self.data_display_menu_frame_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -832,7 +836,6 @@ class EditDataClass():
     
     # UPDATE DATAFRAME
 
-
     def update_dataframe(self):
         if self.rename_column_var.get() == "Yes":
             print(1)
@@ -871,6 +874,8 @@ class EditDataClass():
         self.data_display_frame.pack_forget()
         self.variable_type_choice_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.editing_content_frame.update_idletasks()
+
     def switch_to_value_handling_frame(self):
         self.variable_type_choice_frame.pack_forget()
         self.data_display_frame.pack_forget()
@@ -879,13 +884,14 @@ class EditDataClass():
         if self.new_value_entry:
             self.new_value_entry.focus_set()
 
+        self.editing_content_frame.update_idletasks()
 
     def switch_to_data_display_frame(self):
         if self.rename_column_var.get() == "Yes":
             if not self.is_valid_column_name(self.rename_column_entry.get()):
-                print(60)
                 utils.show_message("Error", "Invalid Column Name")
                 return
+            self.data_display_menu_frame_label.configure(text=f"New Column Name:{self.rename_column_entry.get()}")
 
         self.new_df = self.temp_df.copy()
         if self.selected_variable_type == "Continuous":
@@ -903,6 +909,9 @@ class EditDataClass():
         self.value_handling_frame.pack_forget()
         self.data_display_frame.pack(fill=tk.BOTH, expand=True)
 
+        
+        self.editing_content_frame.update_idletasks()
+    
 
 
 ################################################################################################################
@@ -1011,9 +1020,11 @@ class CreateNewVariableClass:
         self.variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # TITLE LABEL
-        self.choose_variables_label = tk.Label(self.variable_options_frame, text="Choose Variables to Create New Variable", font=("Arial", 36))
+        self.choose_variables_label = tk.Label(self.variable_options_frame, text="Choose Variables to Create New Variable", font=("Arial", 36), bg='beige')
         self.choose_variables_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
 
         # AVAILABLE VARIABLES SELECTION FRAME
@@ -1057,7 +1068,7 @@ class CreateNewVariableClass:
         self.selected_variables_frame = tk.Frame(self.variables_selection_frame, bg='beige')
         self.selected_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=("Arial", 24))
+        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=("Arial", 24), bg='beige')
         self.selected_variables_label.pack(side=tk.TOP, pady=10)
 
         self.selected_variables_listbox = tk.Listbox(self.selected_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
@@ -1185,9 +1196,12 @@ class CreateNewVariableClass:
         self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='beige', foreground='black')
         self.column_name_frame_label.pack(side=tk.TOP, fill=tk.X)
 
+
         self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
         self.column_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
         
+        separator = ttk.Separator(self.variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
 
         # ADD/REMOVE CONDITIONS BUTTONS FRAME
@@ -1221,17 +1235,18 @@ class CreateNewVariableClass:
         def on_mousewheel(event):
             self.condition_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-        self.condition_canvas = tk.Canvas(self.condition_options_frame)
-        self.scrollbar = ttk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.condition_canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.condition_canvas)
+        self.condition_canvas = tk.Canvas(self.condition_options_frame, bg='yellow')
+        self.scrollbar = tk.Scrollbar(self.condition_options_frame, orient="vertical", command=self.condition_canvas.yview)
+        self.scrollable_frame = tk.Frame(self.condition_canvas, bg='yellow')
 
 
 
         self.condition_canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.condition_canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        self.condition_canvas.pack(side=tk.LEFT, fill="both", expand=True)
+        self.condition_canvas.pack(side=tk.LEFT, fill="both", expand=True, padx=200, pady=50)
         self.scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.scrollable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
 
         # Bind mouse wheel event to the canvas
         self.condition_canvas.bind("<MouseWheel>", on_mousewheel)
@@ -1246,7 +1261,7 @@ class CreateNewVariableClass:
 
         # NAVIGATION MENU
 
-        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='beige')
+        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg='lightgray')
         self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.return_to_column_selection_button = tk.Button(self.conditions_menu_frame, command=self.switch_to_variable_selection_frame, text="Back", font=("Arial", 36))
@@ -1510,6 +1525,8 @@ class CreateNewVariableClass:
     def plot_new_column(self):
         for widget in self.finalize_display_frame.winfo_children():
             widget.destroy()
+        
+        self.new_df.loc[self.new_df[self.column_name]=='n'] = np.nan
         category_counts = self.new_df[self.column_name].value_counts()
         fig, ax = plt.subplots(figsize=(8, 6))
         category_counts.plot(kind='bar', color='skyblue', ax=ax)
@@ -1563,6 +1580,7 @@ class CreateNewVariableClass:
         self.variable_selection_frame.pack(fill=tk.BOTH, expand=True)
 
         self.variable_search_entry.focus_set()
+
         
 
     def switch_to_conditions_frame(self):
@@ -1577,6 +1595,7 @@ class CreateNewVariableClass:
 
     def switch_to_finalize_frame(self):
         if not self.column_name_entry.get():
+            utils.show_message("Error", "Invalid Variable Name")
             return
         if self.column_name_entry.get().lower() in self.df.columns:
             same_column_name = utils.prompt_yes_no(f"CAUTION: The column, '{self.column_name_entry.get().lower()}' is already in the dataframe. Do you want to replace the old column?")
@@ -1590,10 +1609,13 @@ class CreateNewVariableClass:
 
         except:
             utils.show_message("value error", "Error with conditions")
-            return
+            raise
+
         self.conditions_frame.pack_forget()
         self.variable_selection_frame.pack_forget()
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.editing_content_frame.update_idletasks()
 
 
 
