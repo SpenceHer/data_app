@@ -169,11 +169,13 @@ class ComparisonTableClass:
         self.selected_independent_variables = data_manager.get_comp_tab_ind_var_list()
         self.selected_percent_type = data_manager.get_comp_tab_percent_type()
         self.selected_data = data_manager.get_comp_tab_data_selection()
-        self.log_reg_variable_type_dict = data_manager.get_comp_tab_ind_var_dict()
+        self.variable_type_dict = data_manager.get_comp_tab_variable_type_dict()
 
+        self.verify_saved_columns()
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
+        self.error = False
 
         self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
@@ -191,7 +193,13 @@ class ComparisonTableClass:
         self.switch_to_dependent_variable_frame()
 
 
+    def verify_saved_columns(self):
+        if self.selected_dependent_variable not in self.df.columns:
+            self.selected_dependent_variable = ""
 
+        for var in self.selected_independent_variables:
+            if var not in self.df.columns:
+                self.selected_independent_variables.remove(var)
 
 ################################################################################################################
 ################################################################################################################
@@ -207,9 +215,11 @@ class ComparisonTableClass:
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # CONTENT TITLE LABEL
-        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
+        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36), bg='beige')
         self.choose_dependent_variable_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.dependent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # DEPENDENT VARIABLE SELECTION FRAME
         self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
@@ -281,9 +291,11 @@ class ComparisonTableClass:
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # TITLE LABEL
-        self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
+        self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36), bg='beige')
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.independent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
 
         # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
@@ -508,13 +520,15 @@ class ComparisonTableClass:
     def create_variable_handling_frame(self):
 
         # MAIN CONTENT FRAME
-        self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
+        self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame)
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
         # TITLE LABEL
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Choose your variable types", font=("Arial", 36))
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="Choose your variable types", font=("Arial", 36), bg='beige')
         self.variable_handling_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # VARIABLE HANDLING FRAME
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
@@ -534,7 +548,7 @@ class ComparisonTableClass:
 
         self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
         self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
-
+        
         self.scrollable_frame.bind("<Configure>", on_canvas_configure)
 
         def on_mousewheel(event):
@@ -587,13 +601,13 @@ class ComparisonTableClass:
 
 
 
-            if value in self.log_reg_variable_type_dict:
-                var = tk.StringVar(value=self.log_reg_variable_type_dict[value].get())
-                self.log_reg_variable_type_dict[value] = var
+            if value in self.variable_type_dict:
+                var = tk.StringVar(value=self.variable_type_dict[value].get())
+                self.variable_type_dict[value] = var
 
             else:
                 var = tk.StringVar(value="Continuous")  # Set default value to "Continuous"
-                self.log_reg_variable_type_dict[value] = var
+                self.variable_type_dict[value] = var
 
             continuous_variable_radiobutton = tk.Radiobutton(options_frame, text="Continuous", variable=var, value="Continuous", indicator=0, font=("Arial", 28), selectcolor="hotpink", borderwidth=10)
             continuous_variable_radiobutton.pack(side=tk.RIGHT, padx=5, pady=5)
@@ -618,8 +632,12 @@ class ComparisonTableClass:
 
     def create_results_frame(self):
 
+
         # MAIN CONTENT FRAME
-        self.results_display_frame = tk.Frame(self.results_frame, bg='beige')
+        self.results_display_frame_container_frame = tk.Frame(self.results_frame, bg='beige')
+        self.results_display_frame_container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=150)
+
+        self.results_display_frame = tk.Frame(self.results_display_frame_container_frame, bg='beige')
         self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -637,7 +655,7 @@ class ComparisonTableClass:
     def apply_comparison_table_variable_selection(self):
         self.selected_variable_types.clear()
         
-        for value, var in self.log_reg_variable_type_dict.items():
+        for value, var in self.variable_type_dict.items():
             if value in self.selected_independent_variables:
 
                 option = var.get()
@@ -996,7 +1014,7 @@ class ComparisonTableClass:
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.dependent_var_search_entry.focus_set()
+        self.visualize_content_frame.update_idletasks()
 
 
 
@@ -1010,12 +1028,14 @@ class ComparisonTableClass:
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.independent_var_search_entry.focus_set()
-
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
+        self.visualize_content_frame.update_idletasks()
+
+        
 
 
 
@@ -1024,6 +1044,7 @@ class ComparisonTableClass:
             return
         else:
             self.handle_variables()
+            self.visualize_content_frame.update_idletasks()
 
 
     def switch_to_results_frame(self):
@@ -1036,6 +1057,7 @@ class ComparisonTableClass:
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack(fill=tk.BOTH, expand=True)
+        self.visualize_content_frame.update_idletasks()
 
 
 ################################################################################################################
@@ -1122,6 +1144,8 @@ class RegressionAnalysisClass:
         self.selected_independent_variables = data_manager.get_reg_tab_ind_var_list()
         self.selected_regression = data_manager.get_reg_tab_selected_regression()
 
+        self.verify_saved_columns()
+
         self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
 
         self.log_reg_target_value_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
@@ -1148,6 +1172,14 @@ class RegressionAnalysisClass:
         self.switch_to_dependent_variable_frame()
 
 
+    def verify_saved_columns(self):
+        if self.selected_dependent_variable not in self.df.columns:
+            self.selected_dependent_variable = ""
+
+        for var in self.selected_independent_variables:
+            if var not in self.df.columns:
+                self.selected_independent_variables.remove(var)
+
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
@@ -1162,9 +1194,11 @@ class RegressionAnalysisClass:
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # CONTENT TITLE LABEL
-        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
+        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36), bg='beige')
         self.choose_dependent_variable_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.dependent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # DEPENDENT VARIABLE SELECTION FRAME
         self.dependent_column_choice_frame = tk.Frame(self.dependent_variable_options_frame, bg='beige')
@@ -1234,9 +1268,11 @@ class RegressionAnalysisClass:
         self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # TITLE LABEL
-        self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
+        self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36), bg='beige')
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.independent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
 
         # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
@@ -1434,13 +1470,15 @@ class RegressionAnalysisClass:
 
     def create_variable_handling_frame(self):
         # MAIN CONTENT FRAME
-        self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame, bg='purple')
+        self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame)
         self.variable_handling_label_frame.pack(side=tk.TOP)
 
         # TITLE LABEL
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="", font=("Arial", 36))
+        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="", font=("Arial", 36), bg='beige')
         self.variable_handling_label.pack(side=tk.TOP)
 
+        separator = ttk.Separator(self.variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # VARIABLE HANDLING FRAME
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
@@ -1507,7 +1545,7 @@ class RegressionAnalysisClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28, "bold"), bg='yellow')
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
         # HANDLE NON-NUMERIC VARIABLES
@@ -1624,7 +1662,7 @@ class RegressionAnalysisClass:
         self.dependent_variable_handling_frame.grid(row=0, column=0, sticky="nsew")
 
 
-        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32))
+        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32), bg='yellow')
         self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
 
         def on_dependent_variable_value_selected():
@@ -1792,7 +1830,10 @@ class RegressionAnalysisClass:
     def create_results_frame(self):
 
         # MAIN CONTENT FRAME
-        self.results_display_frame = tk.Frame(self.results_frame, bg='beige')
+        self.results_display_frame_container_frame = tk.Frame(self.results_frame, bg='beige')
+        self.results_display_frame_container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=150)
+
+        self.results_display_frame = tk.Frame(self.results_display_frame_container_frame, bg='beige')
         self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
@@ -1967,6 +2008,7 @@ class RegressionAnalysisClass:
 
         self.dependent_var_search_entry.focus_set()
 
+        self.visualize_content_frame.update_idletasks()
 
     def switch_to_independent_variables_frame(self):
         if self.selected_dependent_variable == None:
@@ -1983,6 +2025,8 @@ class RegressionAnalysisClass:
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.variable_handling_menu_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
+
+        self.visualize_content_frame.update_idletasks()
 
 
     def switch_to_variable_handling_frame(self):
@@ -2021,6 +2065,7 @@ class RegressionAnalysisClass:
         self.indedependent_variables_frame.pack_forget()
         self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.visualize_content_frame.update_idletasks()
 
     def switch_to_results_frame(self):
 
@@ -2031,6 +2076,7 @@ class RegressionAnalysisClass:
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack(fill=tk.BOTH, expand=True)
 
+        self.visualize_content_frame.update_idletasks()
 
 ################################################################################################################
 ################################################################################################################
@@ -2510,7 +2556,7 @@ class MachineLearningClass:
 
         self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
 
-
+        self.verify_saved_columns()
 
         self.machine_learning_model_options = ['cat_rf', 'cat_xgb', 'cat_logreg', 'cont_linreg']
         self.model_dict = {'cat_rf':'Random Forest', 'cat_xgb':'XGBoost', 'cat_logreg':'Logistic Regression', 'cont_linreg':'Linear Regression'}
@@ -2533,6 +2579,13 @@ class MachineLearningClass:
 
         self.switch_to_dependent_variable_frame()
 
+    def verify_saved_columns(self):
+        if self.selected_dependent_variable not in self.df.columns:
+            self.selected_dependent_variable = ""
+
+        for var in self.selected_independent_variables:
+            if var not in self.df.columns:
+                self.selected_independent_variables.remove(var)
 
     #####################################################################
     #####################################################################
@@ -2547,8 +2600,11 @@ class MachineLearningClass:
         self.dependent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # CONTENT TITLE LABEL
-        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36))
+        self.choose_dependent_variable_label = tk.Label(self.dependent_variable_options_frame, text="Choose your DEPENDENT variable", font=("Arial", 36), bg='beige')
         self.choose_dependent_variable_label.pack(side=tk.TOP)
+
+        separator = ttk.Separator(self.dependent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
 
         # DEPENDENT VARIABLE SELECTION FRAME
@@ -2621,7 +2677,8 @@ class MachineLearningClass:
         self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36))
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
-
+        separator = ttk.Separator(self.independent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
         self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
@@ -2873,6 +2930,7 @@ class MachineLearningClass:
         self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.variable_type_canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+
         self.variable_type_canvas.configure(yscrollcommand=self.scrollbar.set)
 
 
@@ -2927,7 +2985,7 @@ class MachineLearningClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28))
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28, "bold"), bg='yellow')
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
         # HANDLE NON-NUMERIC VARIABLES
