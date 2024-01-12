@@ -57,7 +57,7 @@ def get_tab_dict():
 
 comp_tab_dep_var = None
 comp_tab_ind_var_list = []
-comp_tab_ind_var_dict = {}
+comp_tab_variable_type_dict = {}
 comp_tab_percent_type = ""
 comp_tab_data_type = ""
 
@@ -81,12 +81,12 @@ def get_comp_tab_ind_var_list():
 
 
 # COMPARISON TABLE INDEPENDENT VARIABLES DICT
-def add_variable_to_comp_tab_ind_dict(tab_name, setting):
-    global comp_tab_ind_var_dict
-    comp_tab_ind_var_dict[tab_name] = setting
+def add_variable_to_comp_tab_variable_type_dict(tab_name, setting):
+    global comp_tab_variable_type_dict
+    comp_tab_variable_type_dict[tab_name] = setting
 
-def get_comp_tab_ind_var_dict():
-    return comp_tab_ind_var_dict
+def get_comp_tab_variable_type_dict():
+    return comp_tab_variable_type_dict
 
 
 # COMPARISON TABLE PERCENT TYPE
