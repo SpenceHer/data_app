@@ -1,3 +1,4 @@
+from email import message
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from tkinter import ttk
@@ -16,10 +17,6 @@ def prompt_yes_no(text_prompt):
     answer = messagebox.askyesno("Yes No Choice", text_prompt)
     return answer
 
-
-
-class MyCustomError(Exception):
-    pass
 
 
 
@@ -57,11 +54,11 @@ def forget_frame_widgets(frame):
 
 def create_table(parent, df, show_index=True, table_name="", graph_name="", title=""):
  
-    table_frame = tk.Frame(parent)
+    table_frame = tk.Frame(parent, bg='beige')
     table_frame.pack(fill=tk.Y, expand=True)
  
     if title != "":
-        label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'))
+        label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'), bg='beige')
         label.pack(pady=10)
  
     treeview_frame = tk.Frame(table_frame)
