@@ -3,7 +3,7 @@
 df = None
 df_dict = {}
 df_name = None
-
+df_update_status_dict = {}
 
 
 # SET MAIN DATAFRAME
@@ -32,6 +32,13 @@ def get_df_dict():
     return df_dict
 
 
+# DATAFRAME HAS BEEN UPDATED OR NOT
+def add_df_update_status_to_dict(tab, update_status):
+    global df_update_status_dict
+    df_update_status_dict[tab] = update_status
+
+def get_df_update_status_dict():
+    return df_update_status_dict
 #####################################################################
 #####################################################################
 #####################################################################
@@ -41,7 +48,7 @@ def get_df_dict():
 tab_dict = {}
 
 # ADD CURRENT SUB-TAB TO DICTIONARY
-def add_tab_to_dict(tab_name, setting):
+def add_tab_to_tab_dict(tab_name, setting):
     global tab_dict
     tab_dict[tab_name] = setting
 
@@ -213,10 +220,18 @@ def get_non_numeric_ind_dict():
 #####################################################################
 #####################################################################
 
-mach_learn_tab_dep_var = None
-mach_learn_tab_ind_var_list = []
+mach_learn_tab_dep_var = "major_complication"
+mach_learn_tab_ind_var_list = ['albumin', 'age']
 
-mach_learn_tab_selected_model = None
+mach_learn_tab_selected_model_type = None
+mach_learn_tab_selected_cat_model = None
+mach_learn_tab_selected_cont_model = None
+
+mach_learn_tab_hyper_param_choice = None
+mach_learn_tab_null_values_choice = None
+mach_learn_tab_null_value_entry_value = None
+mach_learn_tab_num_folds = None
+mach_learn_tab_train_percent = None
 
 # REGRESSION DEPENDENT VARIABLE
 def set_mach_learn_tab_dep_var(variable):
@@ -237,17 +252,77 @@ def get_mach_learn_tab_ind_var_list():
     return mach_learn_tab_ind_var_list
 
 
-# REGRESSION ANALYSIS TYPE
-def set_mach_learn_tab_selected_model(variable):
-    global mach_learn_tab_selected_model
-    mach_learn_tab_selected_model = variable
+# MODEL TYPE
+def set_mach_learn_tab_selected_model_type(variable):
+    global mach_learn_tab_selected_model_type
+    mach_learn_tab_selected_model_type = variable
 
-def get_mach_learn_tab_selected_model():
-    return mach_learn_tab_selected_model
-
-
+def get_mach_learn_tab_selected_model_type():
+    return mach_learn_tab_selected_model_type
 
 
+# CATEGORICAL MODEL
+def set_mach_learn_tab_selected_cat_model(variable):
+    global mach_learn_tab_selected_cat_model
+    mach_learn_tab_selected_cat_model = variable
+
+def get_mach_learn_tab_selected_cat_model():
+    return mach_learn_tab_selected_cat_model
+
+
+# CATEGORICAL MODEL
+def set_mach_learn_tab_selected_cont_model(variable):
+    global mach_learn_tab_selected_cont_model
+    mach_learn_tab_selected_cont_model = variable
+
+def get_mach_learn_tab_selected_cont_model():
+    return mach_learn_tab_selected_cont_model
+
+
+# HYPERTUNE PARAMETERS SETTING
+def set_mach_learn_tab_hyper_param_choice(variable):
+    global mach_learn_tab_hyper_param_choice
+    mach_learn_tab_hyper_param_choice = variable
+
+def get_mach_learn_tab_hyper_param_choice():
+    return mach_learn_tab_hyper_param_choice
+
+
+# NUMBER OF FOLDS SETTING
+def set_mach_learn_tab_num_folds(variable):
+    global mach_learn_tab_num_folds
+    mach_learn_tab_num_folds = variable
+
+def get_mach_learn_tab_num_folds():
+    return mach_learn_tab_num_folds
+
+
+# NULL VALUES SETTING
+def set_mach_learn_tab_null_values_choice(variable):
+    global mach_learn_tab_null_values_choice
+    mach_learn_tab_null_values_choice = variable
+
+def get_mach_learn_tab_null_values_choice():
+    return mach_learn_tab_null_values_choice
+
+
+# NULL VALUES SETTING
+def set_mach_learn_tab_train_percent(variable):
+    global mach_learn_tab_train_percent
+    mach_learn_tab_train_percent = variable
+
+def get_mach_learn_tab_train_percent():
+    return mach_learn_tab_train_percent
+
+
+
+# NULL VALUES ENTRY VALUE 
+def set_mach_learn_tab_null_value_entry_value(variable):
+    global mach_learn_tab_null_value_entry_value
+    mach_learn_tab_null_value_entry_value = variable
+
+def get_mach_learn_tab_null_value_entry_value():
+    return mach_learn_tab_null_value_entry_value
 
 
 
