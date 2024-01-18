@@ -29,15 +29,15 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
     # SUBHEADING BUTTONS
-    style.configure("edit_data_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    style.configure("edit_data_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     edit_data_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_data_button.TButton")
     edit_data_button.pack(side="left", fill="x", expand=True)
-    edit_data_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, style))
+    edit_data_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style))
 
-    style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+    style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     create_new_var = ttk.Button(sub_button_frame, text="Create New Variable", style="create_new_var_button.TButton")
     create_new_var.pack(side="left", fill="x", expand=True)
-    create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, style))
+    create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style))
 
 
 
@@ -46,9 +46,11 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     # SHOW CURRENT TAB
     tab_dict = data_manager.get_tab_dict()
 
+    
+
     try:
         if tab_dict['current_edit_tab']:
-            for tab in ['edit_clean', 'create_new_var']:
+            for tab in ['edit_data', 'create_new_var']:
                 if tab_dict['current_edit_tab'] == tab:
                     style.configure(f"{tab_dict['current_edit_tab']}_button.TButton", background="white")
                 else:
@@ -58,12 +60,34 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
         pass
 
 
+
+
+
     # LOAD EDIT FRAME
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack_forget()
     dataframe_content_frame.pack_forget()
     editing_content_frame.pack(fill=tk.BOTH, expand=True)
 
+
+
+
+    # UPDATE TAB IF DATAFRAME HAS BEEN CHANGED
+    tab_update_status = data_manager.get_df_update_status_dict()
+
+    if tab_update_status:
+        if tab_update_status["edit_tab"] == True:
+            if "current_edit_tab" in tab_dict:
+                if tab_dict['current_edit_tab']:
+                    if tab_dict['current_edit_tab'] == 'edit_data':
+                        EditDataClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style)
+                    elif tab_dict['current_edit_tab'] == 'create_new_var':
+                        CreateNewVariableClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style)
+
+                data_manager.add_df_update_status_to_dict("edit_tab", False)
+
+
+    editing_content_frame.update_idletasks()
 
 
 
@@ -134,16 +158,16 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
 
 class EditDataClass():
-    def __init__(self, editing_content_frame, dataframe_content_frame, style):
+    def __init__(self, editing_content_frame, dataframe_content_frame, sub_button_frame, style):
         self.df = data_manager.get_dataframe()
         self.dataframe_content_frame = dataframe_content_frame
-
+        self.sub_button_frame = sub_button_frame
         self.style = style
 
-        self.style.configure("edit_clean_button.TButton", background="white")
+        self.style.configure("edit_data_button.TButton", background="white")
         self.style.configure("create_new_var_button.TButton", background="gray")
 
-        data_manager.add_tab_to_dict("current_edit_tab", "edit_clean")
+        data_manager.add_tab_to_tab_dict("current_edit_tab", "edit_data")
 
         self.editing_content_frame = editing_content_frame
 
@@ -169,6 +193,7 @@ class EditDataClass():
         self.create_data_display_frame()
 
 
+
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
@@ -185,6 +210,9 @@ class EditDataClass():
  
         self.choice_frame_label = tk.Label(self.choice_frame, text="Select A Column", font=("Arial", 30, "bold"), bg='beige')
         self.choice_frame_label.pack(side=tk.TOP)
+
+        separator = ttk.Separator(self.choice_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         self.column_search_var = tk.StringVar()
         self.column_search_var.trace("w", self.update_column_listbox)
@@ -260,6 +288,13 @@ class EditDataClass():
 
     def create_variable_type_choice_frame(self):
 
+        self.variable_type_choice_label = tk.Label(self.variable_type_choice_frame, text="Choose Variable Type", font=("Arial", 36, "bold"),  bg='beige')
+        self.variable_type_choice_label.pack(side=tk.TOP, fill=tk.X)
+
+        separator = ttk.Separator(self.variable_type_choice_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+
+
         # MAIN CONTENT FRAME
         self.variable_type_choice_button_frame = tk.Frame(self.variable_type_choice_frame, bg='beige')
         self.variable_type_choice_button_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -331,11 +366,11 @@ class EditDataClass():
 
     def handle_categorical_values(self):
 
-        self.categorical_variable_handling_label = tk.Label(self.options_frame, text='Categorical Variable Options', bg='beige', font=("Arial", 36, "bold", "underline"))
+        self.categorical_variable_handling_label = tk.Label(self.options_frame, text='Categorical Variable Options', bg='beige', font=("Arial", 36, "bold"))
         self.categorical_variable_handling_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.options_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # TEMPORARY DATAFRAME
         self.temp_df.loc[self.temp_df[self.selected_column].isnull(), self.selected_column] = "[MISSING VALUES]"
@@ -392,37 +427,43 @@ class EditDataClass():
         self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 36, "bold"), bg="beige")
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 24, "bold"), bg="beige")
         self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         # Remove Value
-        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), font=("Arial", 36))
+        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), font=("Arial", 24))
         self.remove_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
         # Change Value
-        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), font=("Arial", 36))
+        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), font=("Arial", 24))
         self.change_value_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 36))
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
         self.new_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
         
+        separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+        self.remove_change_value_action_frame.columnconfigure(0, weight=1)
+        self.remove_change_value_action_frame.columnconfigure(1, weight=1)
+
 
         # RENAME COLUMN 
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 36, "bold"), bg="beige")
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 24, "bold"), bg="beige")
         self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         self.rename_column_var = tk.StringVar(value="No")
 
-        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 24), borderwidth=10)
         self.rename_column_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 24), borderwidth=10)
         self.rename_column_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 36))
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 24))
 
         self.rename_column_frame.columnconfigure(0, weight=1)
         self.rename_column_frame.columnconfigure(1, weight=1)
@@ -462,7 +503,7 @@ class EditDataClass():
         try:
             self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
         except:
-            print('')
+            pass
 
 
     ################################################################################################################
@@ -488,11 +529,11 @@ class EditDataClass():
             except ValueError:
                 return False
 
-        self.continuous_variable_handling_label = tk.Label(self.options_frame, text='Continuous Variable Options', bg='beige', font=("Arial", 36, "bold", "underline"))
+        self.continuous_variable_handling_label = tk.Label(self.options_frame, text='Continuous Variable Options', bg='beige', font=("Arial", 36, "bold"))
         self.continuous_variable_handling_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.options_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         self.handle_continuous_values_frame = tk.Frame(self.options_frame, bg='beige')
         self.handle_continuous_values_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -539,46 +580,50 @@ class EditDataClass():
         # VALUE ACTIONS
         self.value_action_frame = tk.Frame(self.handle_continuous_values_frame, bg='beige')
         self.value_action_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
 
         # REMOVE OR CHANGE VALUE
         self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 36, "bold"), bg="beige")
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=("Arial", 24, "bold"), bg="beige")
         self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         # Remove Value
-        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), font=("Arial", 36))
+        self.remove_button = tk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), font=("Arial", 24))
         self.remove_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
         # Change Value
-        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 36))
+        self.change_value_button = tk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), font=("Arial", 24))
         self.change_value_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 36))
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
         self.new_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
         self.new_value_entry.focus_set()
 
         separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
 
+        self.remove_change_value_action_frame.columnconfigure(0, weight=1)
+        self.remove_change_value_action_frame.columnconfigure(1, weight=1)
+
 
         # REMOVE NEGATIVE VALUES
         self.remove_negative_values_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.remove_negative_values_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.remove_negative_values_label = tk.Label(self.remove_negative_values_frame, text="Remove Negative Values", font=("Arial", 36, "bold"), bg="beige")
+        self.remove_negative_values_label = tk.Label(self.remove_negative_values_frame, text="Remove Negative Values", font=("Arial", 24, "bold"), bg="beige")
         self.remove_negative_values_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         self.remove_negative_values_var = tk.StringVar(value="No")
 
-        self.remove_negative_values_yes_button = tk.Radiobutton(self.remove_negative_values_frame, text="Yes", variable=self.remove_negative_values_var, value="Yes", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_negative_values_yes_button = tk.Radiobutton(self.remove_negative_values_frame, text="Yes", variable=self.remove_negative_values_var, value="Yes", indicator=0, font=("Arial", 24), borderwidth=10)
         self.remove_negative_values_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.remove_negative_values_no_button = tk.Radiobutton(self.remove_negative_values_frame, text="No", variable=self.remove_negative_values_var, value="No", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_negative_values_no_button = tk.Radiobutton(self.remove_negative_values_frame, text="No", variable=self.remove_negative_values_var, value="No", indicator=0, font=("Arial", 24), borderwidth=10)
         self.remove_negative_values_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.remove_negative_values_entry = tk.Entry(self.remove_negative_values_frame, font=("Arial", 36))
+        self.remove_negative_values_entry = tk.Entry(self.remove_negative_values_frame, font=("Arial", 24))
 
         self.remove_negative_values_frame.columnconfigure(0, weight=1)
         self.remove_negative_values_frame.columnconfigure(1, weight=1)
@@ -591,18 +636,18 @@ class EditDataClass():
         self.remove_values_of_zero_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.remove_values_of_zero_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.remove_values_of_zero_label = tk.Label(self.remove_values_of_zero_frame, text="Remove Values of Zero", font=("Arial", 36, "bold"), bg="beige")
+        self.remove_values_of_zero_label = tk.Label(self.remove_values_of_zero_frame, text="Remove Values of Zero", font=("Arial", 24, "bold"), bg="beige")
         self.remove_values_of_zero_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         self.remove_values_of_zero_var = tk.StringVar(value="No")
 
-        self.remove_values_of_zero_yes_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="Yes", variable=self.remove_values_of_zero_var, value="Yes", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_values_of_zero_yes_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="Yes", variable=self.remove_values_of_zero_var, value="Yes", indicator=0, font=("Arial", 24), borderwidth=10)
         self.remove_values_of_zero_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.remove_values_of_zero_no_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="No", variable=self.remove_values_of_zero_var, value="No", indicator=0, font=("Arial", 36), borderwidth=10)
+        self.remove_values_of_zero_no_button = tk.Radiobutton(self.remove_values_of_zero_frame, text="No", variable=self.remove_values_of_zero_var, value="No", indicator=0, font=("Arial", 24), borderwidth=10)
         self.remove_values_of_zero_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.remove_values_of_zero_entry = tk.Entry(self.remove_values_of_zero_frame, font=("Arial", 36))
+        self.remove_values_of_zero_entry = tk.Entry(self.remove_values_of_zero_frame, font=("Arial", 24))
 
         self.remove_values_of_zero_frame.columnconfigure(0, weight=1)
         self.remove_values_of_zero_frame.columnconfigure(1, weight=1)
@@ -616,18 +661,18 @@ class EditDataClass():
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 36, "bold"), bg="beige")
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=("Arial", 24, "bold"), bg="beige")
         self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         self.rename_column_var = tk.StringVar(value="No")
 
-        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_yes_button = tk.Radiobutton(self.rename_column_frame, text="Yes", variable=self.rename_column_var, value="Yes", command=lambda: self.enable_rename_column(), indicator=0, font=("Arial", 24), borderwidth=10)
         self.rename_column_yes_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 36), borderwidth=10)
+        self.rename_column_no_button = tk.Radiobutton(self.rename_column_frame, text="No", variable=self.rename_column_var, value="No", command=lambda: self.disable_rename_column(), indicator=0, font=("Arial", 24), borderwidth=10)
         self.rename_column_no_button.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 36))
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 24))
 
         self.rename_column_frame.columnconfigure(0, weight=1)
         self.rename_column_frame.columnconfigure(1, weight=1)
@@ -701,7 +746,7 @@ class EditDataClass():
         try:
             self.selected_value = tk.StringVar(value=self.unique_non_numeric_values[0])
         except:
-            print('')
+            pass
 
 
     def is_valid_column_name(self, column_name):
@@ -838,8 +883,7 @@ class EditDataClass():
 
     def update_dataframe(self):
         if self.rename_column_var.get() == "Yes":
-            print(1)
-            print(self.rename_column_entry.get())
+
             self.new_df.rename(columns={self.selected_column:self.rename_column_entry.get()}, inplace=True)
 
         self.df = self.new_df.copy()
@@ -854,6 +898,8 @@ class EditDataClass():
 
         data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
         data_manager.set_dataframe(data_manager.get_dataframe_name())
+        data_manager.add_df_update_status_to_dict("edit_tab", True)
+        data_manager.add_df_update_status_to_dict("visualize_tab", True)
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
  
@@ -862,6 +908,52 @@ class EditDataClass():
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
+
+        self.setup_dataframe_view_tab()
+
+
+
+    def setup_dataframe_view_tab(self, initialize=True):
+        df = data_manager.get_dataframe()
+        if df is None:
+            utils.show_message("Error", "Please open a file first.")
+            return
+        self.style.configure("file_button.TButton", background="gray")
+        self.style.configure("dataframe_view_button.TButton", background="white")
+        self.style.configure("edit_button.TButton", background="gray")
+        self.style.configure("visualize_button.TButton", background="gray")
+
+        utils.remove_frame_widgets(self.sub_button_frame)
+
+        self.style.configure("save_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+        save_file_button = ttk.Button(self.sub_button_frame, text="Save File", style="save_file_button.TButton")
+        save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
+        save_file_button.config(command=lambda: file_handling.save_file(df))
+    
+        def initialize_dataframe_view_tab():
+            utils.remove_frame_widgets(self.dataframe_content_frame)
+    
+            utils.create_table(self.dataframe_content_frame, df)
+            summary_df = utils.create_summary_table(df)
+            utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+    
+            self.editing_content_frame.pack_forget()
+            self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
+    
+        def switch_to_dataframe_view_tab():
+            self.editing_content_frame.pack_forget()
+            self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
+    
+
+        if initialize == True:
+            initialize_dataframe_view_tab()
+        if initialize == False:
+            switch_to_dataframe_view_tab()
+        
+        self.dataframe_content_frame.update_idletasks()
+
+        
+
 
 ################################################################################################################
 ################################################################################################################
@@ -979,17 +1071,17 @@ class EditDataClass():
 
 
 class CreateNewVariableClass:
-    def __init__(self, editing_content_frame, dataframe_content_frame, style):
+    def __init__(self, editing_content_frame, dataframe_content_frame, sub_button_frame, style):
         self.df = data_manager.get_dataframe()
         self.editing_content_frame = editing_content_frame
         self.dataframe_content_frame = dataframe_content_frame
-
+        self.sub_button_frame = sub_button_frame
         self.style = style
 
-        self.style.configure("edit_clean_button.TButton", background="gray")
+        self.style.configure("edit_data_button.TButton", background="gray")
         self.style.configure("create_new_var_button.TButton", background="white")
 
-        data_manager.add_tab_to_dict("current_edit_tab", "create_new_var")
+        data_manager.add_tab_to_tab_dict("current_edit_tab", "create_new_var")
 
         self.selected_variables = data_manager.get_create_var_tab_var_list()
 
@@ -1020,11 +1112,11 @@ class CreateNewVariableClass:
         self.variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # TITLE LABEL
-        self.choose_variables_label = tk.Label(self.variable_options_frame, text="Choose Variables to Create New Variable", font=("Arial", 36), bg='beige')
+        self.choose_variables_label = tk.Label(self.variable_options_frame, text="Choose Variables to Create New Variable", font=("Arial", 36, "bold"), bg='beige')
         self.choose_variables_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.variable_options_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
 
         # AVAILABLE VARIABLES SELECTION FRAME
@@ -1193,7 +1285,7 @@ class CreateNewVariableClass:
         self.column_name_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.column_name_frame.pack(side=tk.TOP, fill=tk.X)
 
-        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42), background='beige', foreground='black')
+        self.column_name_frame_label = tk.Label(self.column_name_frame, text="Name of new variable:", font=('Arial', 42, "bold"), background='beige', foreground='black')
         self.column_name_frame_label.pack(side=tk.TOP, fill=tk.X)
 
 
@@ -1498,6 +1590,27 @@ class CreateNewVariableClass:
             self.new_df.loc[self.new_df.eval(final_condition_string), self.column_name] = condition_value
 
 
+    def is_valid_column_name(self, column_name):
+        def fix_columns(column_name):
+            column_name = column_name.replace(' ', '_')
+            column_name = column_name.replace('__', '_')
+            column_name = column_name.replace('___', '_')
+            return column_name
+        
+        column_name = fix_columns(column_name)
+
+        # Define a regular expression pattern for a valid column name
+        pattern = r'^[a-zA-Z0-9_\-]+$'
+        
+        if re.match(pattern, column_name):
+            try:
+                df = pd.DataFrame(columns=[column_name])
+                return True
+            except ValueError:
+                return False
+        else:
+            return False
+
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -1525,8 +1638,8 @@ class CreateNewVariableClass:
     def plot_new_column(self):
         for widget in self.finalize_display_frame.winfo_children():
             widget.destroy()
-        
-        self.new_df.loc[self.new_df[self.column_name]=='n'] = np.nan
+
+        self.new_df.loc[self.new_df[self.column_name]=='n', self.column_name] = np.nan
         category_counts = self.new_df[self.column_name].value_counts()
         fig, ax = plt.subplots(figsize=(8, 6))
         category_counts.plot(kind='bar', color='skyblue', ax=ax)
@@ -1544,7 +1657,6 @@ class CreateNewVariableClass:
 
 
     def update_dataframe(self):
-        
         self.df = self.new_df.copy()
 
         def fix_columns(df):
@@ -1557,7 +1669,8 @@ class CreateNewVariableClass:
 
         data_manager.add_dataframe_to_dict(self.df, data_manager.get_dataframe_name())
         data_manager.set_dataframe(data_manager.get_dataframe_name())
-
+        data_manager.add_df_update_status_to_dict("edit_tab", True)
+        data_manager.add_df_update_status_to_dict("visualize_tab", True)
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
  
@@ -1567,6 +1680,47 @@ class CreateNewVariableClass:
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
 
+        self.setup_dataframe_view_tab()
+
+
+    def setup_dataframe_view_tab(self, initialize=True):
+        df = data_manager.get_dataframe()
+        if df is None:
+            utils.show_message("Error", "Please open a file first.")
+            return
+        self.style.configure("file_button.TButton", background="gray")
+        self.style.configure("dataframe_view_button.TButton", background="white")
+        self.style.configure("edit_button.TButton", background="gray")
+        self.style.configure("visualize_button.TButton", background="gray")
+
+        utils.remove_frame_widgets(self.sub_button_frame)
+
+        self.style.configure("save_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
+        save_file_button = ttk.Button(self.sub_button_frame, text="Save File", style="save_file_button.TButton")
+        save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
+        save_file_button.config(command=lambda: file_handling.save_file(df))
+    
+        def initialize_dataframe_view_tab():
+            utils.remove_frame_widgets(self.dataframe_content_frame)
+    
+            utils.create_table(self.dataframe_content_frame, df)
+            summary_df = utils.create_summary_table(df)
+            utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+    
+            self.editing_content_frame.pack_forget()
+            self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
+    
+        def switch_to_dataframe_view_tab():
+            self.editing_content_frame.pack_forget()
+            self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
+    
+
+        if initialize == True:
+            initialize_dataframe_view_tab()
+        if initialize == False:
+            switch_to_dataframe_view_tab()
+        
+        self.dataframe_content_frame.update_idletasks()
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -1603,6 +1757,9 @@ class CreateNewVariableClass:
                 self.df = self.df.drop(self.column_name_entry.get(), axis=1)
             else:
                 return
+        if not self.is_valid_column_name(self.column_name_entry.get()):
+            utils.show_message("Error", "Invalid Column Name")
+            return
         try:
             self.get_values_from_frames()
             self.plot_new_column()
@@ -1616,6 +1773,8 @@ class CreateNewVariableClass:
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
 
         self.editing_content_frame.update_idletasks()
+
+
 
 
 
