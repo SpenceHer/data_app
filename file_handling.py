@@ -29,7 +29,7 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
         utils.remove_frame_widgets(sub_button_frame)
 
         if data_manager.get_dataframe_name():
-            sub_button_frame_label = tk.Label(sub_button_frame, text=f"Current Dataframe: {data_manager.get_dataframe_name()}", font=("Arial", 48))
+            sub_button_frame_label = tk.Label(sub_button_frame, text=f"Current Dataframe: {data_manager.get_dataframe_name()}", font=("Arial", 36), bg="white")
             sub_button_frame_label.pack(fill=tk.BOTH, expand=True)
 
         dataframe_content_frame.pack_forget()
@@ -85,8 +85,14 @@ class SetupFileTabClass():
         self.open_file_button.pack(side=tk.TOP, padx=10, pady=10)  # Set expand=True to fill the horizontal space
         self.open_file_button.config(command=self.open_file)
 
-        self.dataframe_list_label = tk.Label(self.left_file_menu_frame, text="List of Dataframes", font=("Arial", 36))
+        separator = ttk.Separator(self.left_file_menu_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
+
+        self.dataframe_list_label = tk.Label(self.left_file_menu_frame, text="List of Dataframes", font=("Arial", 36, "bold"), bg="beige")
         self.dataframe_list_label.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
+        separator = ttk.Separator(self.left_file_menu_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
 
         self.dataframe_choice_submit_button = tk.Button(self.left_file_menu_frame, text="Change Dataframe", font=("Arial", 28), command=self.update_dataframe)
         self.dataframe_choice_submit_button.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
@@ -692,6 +698,8 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
         initialize_dataframe_view_tab()
     if initialize == False:
         switch_to_dataframe_view_tab()
+    
+    dataframe_content_frame.update_idletasks()
 
 
 
