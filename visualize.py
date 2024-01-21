@@ -250,7 +250,7 @@ class ComparisonTableClass:
 
     def verify_saved_columns(self):
         if self.selected_dependent_variable not in self.df.columns:
-            self.selected_dependent_variable = ""
+            self.selected_dependent_variable = None
 
         for var in self.selected_independent_variables:
             if var not in self.df.columns:
@@ -729,7 +729,7 @@ class ComparisonTableClass:
             self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
             self.table_df = self.table_df.dropna()
 
-
+        print(self.table_df[self.selected_dependent_variable].unique())
         self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
         self.summary_table = []
         for independent_variable, option in self.selected_variable_types.items():
@@ -1205,7 +1205,7 @@ class RegressionAnalysisClass:
 
         self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
 
-        self.log_reg_target_value_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
+        self.log_reg_target_value_var_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
         self.log_reg_variable_type_dict = data_manager.get_log_reg_var_type_dict()
         self.log_reg_reference_variable_dict = data_manager.get_log_reg_ref_dict()
 
@@ -1229,7 +1229,7 @@ class RegressionAnalysisClass:
 
     def verify_saved_columns(self):
         if self.selected_dependent_variable not in self.df.columns:
-            self.selected_dependent_variable = ""
+            self.selected_dependent_variable = None
 
         for var in self.selected_independent_variables:
             if var not in self.df.columns:
@@ -1721,19 +1721,19 @@ class RegressionAnalysisClass:
         self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
 
         def on_dependent_variable_value_selected():
-            data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, self.log_reg_target_value)
+            data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, self.log_reg_target_value_var)
 
-        if self.selected_dependent_variable in self.log_reg_target_value_dict:
-            self.log_reg_target_value = tk.StringVar(value=self.log_reg_target_value_dict[self.selected_dependent_variable].get())
+        if self.selected_dependent_variable in self.log_reg_target_value_var_dict:
+            self.log_reg_target_value_var = tk.StringVar(value=self.log_reg_target_value_var_dict[self.selected_dependent_variable].get())
         else:
-            self.log_reg_target_value = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}")
-            self.log_reg_target_value_dict[self.selected_dependent_variable] = self.log_reg_target_value
+            self.log_reg_target_value_var = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}")
+            self.log_reg_target_value_var_dict[self.selected_dependent_variable] = self.log_reg_target_value_var
             
 
-        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.log_reg_target_value, value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.log_reg_target_value, value=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df[self.selected_dependent_variable].unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
 
@@ -1828,19 +1828,14 @@ class RegressionAnalysisClass:
         selected_value = combobox.get()
         data_manager.add_variable_to_log_reg_ref_dict(variable, selected_value)
 
-    
+
     def apply_logistic_regression_variable_selection(self):
 
-        target_val_df_1 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
-        target_val_df_2 = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == self.clean_df[self.selected_dependent_variable]]
-
-        if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[0]}":
-            target_val_df_1[self.selected_dependent_variable] = 1
-            target_val_df_2[self.selected_dependent_variable] = 0
-
-        if self.log_reg_target_value.get() == f"{self.clean_df[self.selected_dependent_variable].unique()[1]}":
-            target_val_df_1[self.selected_dependent_variable] = 0
-            target_val_df_2[self.selected_dependent_variable] = 1
+        # MAKE VALUES OF DEPENDENT VARIABLE BINARY
+        selected_target_var = self.log_reg_target_value_var.get()
+        self.clean_df.loc[self.clean_df[self.selected_dependent_variable] != selected_target_var, self.selected_dependent_variable] = 0
+        self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == selected_target_var, self.selected_dependent_variable] = 1
+        
 
         self.selected_options.clear()
 
@@ -1917,6 +1912,7 @@ class RegressionAnalysisClass:
         self.apply_logistic_regression_variable_selection()
         model_string = f"{self.selected_dependent_variable} ~ "
         self.clean_df[self.selected_dependent_variable] = self.clean_df[self.selected_dependent_variable].astype(int)
+        print(self.clean_df)
 
         for variable, data_type in self.selected_options.items():
 
@@ -2610,6 +2606,8 @@ class MachineLearningClass:
         self.selected_dependent_variable = data_manager.get_mach_learn_tab_dep_var()
         self.selected_independent_variables = data_manager.get_mach_learn_tab_ind_var_list()
 
+        self.log_reg_target_value_var_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
+        
         self.selected_model_type = data_manager.get_mach_learn_tab_selected_model_type()
         self.selected_categorical_model = data_manager.get_mach_learn_tab_selected_cat_model()
         self.selected_continuous_model = data_manager.get_mach_learn_tab_selected_cont_model()
@@ -2664,7 +2662,7 @@ class MachineLearningClass:
 
     def verify_saved_columns(self):
         if self.selected_dependent_variable not in self.df.columns:
-            self.selected_dependent_variable = ""
+            self.selected_dependent_variable = None
 
         for var in self.selected_independent_variables:
             if var not in self.df.columns:
@@ -3064,33 +3062,31 @@ class MachineLearningClass:
         separator = ttk.Separator(self.variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
-        # VARIABLE HANDLING FRAME
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame, bg='green')
-        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=200, pady=50)
+        ########################################################################################################
 
-        def on_canvas_configure(event):
-            self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all"))
+        # SCROLLABLE FRAME 
+        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame)
+        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        # Canvas for scrollable content
         self.variable_type_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
         self.variable_type_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        # Scrollbar for the canvas
         self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.variable_type_canvas.yview)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
         self.variable_type_canvas.configure(yscrollcommand=self.scrollbar.set)
 
-
+        # Scrollable frame inside the canvas
         self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
-        self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
+        self.scrollable_frame_window = self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
 
-        self.scrollable_frame.bind("<Configure>", on_canvas_configure)
+        # Bind events
+        self.variable_type_canvas.bind("<Configure>", self.on_variable_handling_canvas_configure)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all")))
+        self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
 
-        def on_mousewheel(event):
-            self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
-
-        self.variable_type_canvas.bind("<MouseWheel>", on_mousewheel)
-
-
+        ########################################################################################################
 
         # NAVIGATION MENU FRAME
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
@@ -3106,17 +3102,56 @@ class MachineLearningClass:
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
+    def on_variable_handling_canvas_configure(self, event):
+        # Update the width of the scrollable frame to match the canvas
+        canvas_width = event.width
+        self.variable_type_canvas.itemconfig(self.scrollable_frame_window, width=canvas_width)
+
+
+    def on_variable_handling_mousewheel(self, event):
+        if self.variable_type_canvas.winfo_exists():
+            self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
     ################################################################################################################
 
     # HANDLE VARIABLES FOR MACHINE LEARNING
         
     def handle_variables_machine_learning(self):
 
-        self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
+        self.variable_handling_label.configure(text=f"{self.selected_model} Model Variable Settings")
 
         utils.remove_frame_widgets(self.scrollable_frame)
 
         self.temp_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+
+        self.clean_df = self.temp_df[self.selected_dependent_variable].copy().dropna()
+
+
+        # TARGET VALUE FRAME
+        self.dependent_variable_handling_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+        self.dependent_variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
+
+        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32, "bold"), bg='yellow')
+        self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
+
+        def on_dependent_variable_value_selected():
+            data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, self.log_reg_target_value_var)
+
+        if self.selected_dependent_variable in self.log_reg_target_value_var_dict:
+            self.log_reg_target_value_var = tk.StringVar(value=self.log_reg_target_value_var_dict[self.selected_dependent_variable].get())
+        else:
+            self.log_reg_target_value_var = tk.StringVar(value=f"{self.clean_df.unique()[0]}")
+            self.log_reg_target_value_var_dict[self.selected_dependent_variable] = self.log_reg_target_value_var
+            
+
+        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[0]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[1]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
+        self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
+        
 
         # DETERMINE NON-NUMERIC VARIABLES
         self.non_numeric_columns = []
@@ -3130,72 +3165,98 @@ class MachineLearningClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=("Arial", 28, "bold"), bg='yellow')
+            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click NEXT", font=("Arial", 28, "bold"), bg='yellow')
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
-        # HANDLE NON-NUMERIC VARIABLES
-        for variable in self.non_numeric_columns:
+        else:
+            # Scrollable frame label
+            self.scrollable_frame_label = tk.Label(self.scrollable_frame, text="Change Non-Numeric Values in The Following Independent Variables", font=("Arial", 36,"bold"), bg='yellow')
+            self.scrollable_frame_label.pack(side=tk.TOP)
 
             separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(fill=tk.X, padx=5, pady=5)
 
-            options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
-            options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+
+            # HANDLE NON-NUMERIC VARIABLES
+            for variable in self.non_numeric_columns:
 
 
-            if len(variable) > 20:
-                variable_string = variable[0:19] + "..."
-            else:
-                variable_string = variable
 
-            variable_label = tk.Label(options_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
-            variable_label.pack(side=tk.TOP)
+                options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
+                options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
 
-            non_numeric_values = []
+                if len(variable) > 20:
+                    variable_string = variable[0:19] + "..."
+                else:
+                    variable_string = variable
 
-            for value in self.temp_df[variable].unique():
-                if isinstance(value, str) and not value.isdigit():
-                    non_numeric_values.append(value)
-            
-            for value in non_numeric_values:
+                variable_label = tk.Label(options_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
+                variable_label.pack(side=tk.TOP)
 
-                value_frame = tk.Frame(options_frame, bg='yellow')
-                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+                separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+                separator.pack(fill=tk.X, padx=5, pady=5)
 
-                if variable in self.non_numeric_input_var_dict:
-                    if value in self.non_numeric_input_var_dict[variable]:
-                        input_var = self.non_numeric_input_var_dict[variable][value]
-                            
-                        user_input_var = tk.StringVar(value=input_var)
-                        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
+                non_numeric_values = []
+
+                for value in self.temp_df[variable].unique():
+                    if isinstance(value, str) and not value.isdigit():
+                        non_numeric_values.append(value)
+                
+                for value in non_numeric_values:
+
+                    value_frame = tk.Frame(options_frame, bg='yellow')
+                    value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+                    if variable in self.non_numeric_input_var_dict:
+                        if value in self.non_numeric_input_var_dict[variable]:
+                            input_var = self.non_numeric_input_var_dict[variable][value]
+                                
+                            user_input_var = tk.StringVar(value=input_var)
+                            data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
+                        else:
+                            input_var = ""
+                            user_input_var = tk.StringVar(value=input_var)
+                            data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
                     else:
                         input_var = ""
-                        user_input_var = tk.StringVar(value=input_var)
+                        user_input_var = tk.StringVar()
                         data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
-                else:
-                    input_var = ""
-                    user_input_var = tk.StringVar()
-                    data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
 
 
 
-                input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=("Arial", 28), width=10)
-                input_entry.pack(side=tk.LEFT)
+                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=("Arial", 28), width=10)
+                    input_entry.pack(side=tk.LEFT)
 
-                value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
-                value_label.pack(side=tk.LEFT)
+                    value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+                    value_label.pack(side=tk.LEFT)
 
-                # Bind the entry widget to an event
-                input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
+                    # Bind the entry widget to an event
+                    input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
 
 
     def on_key_release(self, event, variable, value):
-        # Update the dictionary with the entry's current value
         data_manager.add_variable_to_non_numeric_ind_dict(variable, value, event.widget.get())
 
 
     def apply_variable_handling(self):
+
+        def check_column_only_0_and_1(df, column_name):
+            unique_values = df[column_name].unique()
+            return set(unique_values) == {0, 1}
+
+        if not check_column_only_0_and_1(self.temp_df, self.selected_dependent_variable):
+            # MAKE VALUES OF DEPENDENT VARIABLE BINARY
+            selected_target_var = self.log_reg_target_value_var.get()
+            self.temp_df.loc[(self.temp_df[self.selected_dependent_variable].notna()) & (self.temp_df[self.selected_dependent_variable] != selected_target_var), self.selected_dependent_variable] = 0
+            self.temp_df.loc[self.temp_df[self.selected_dependent_variable] == selected_target_var, self.selected_dependent_variable] = 1
+        
+
+
+        self.temp_df[self.selected_dependent_variable] = self.temp_df[self.selected_dependent_variable].astype(int)
+
+
+
         for variable in self.selected_independent_variables:
 
             if variable in self.non_numeric_columns:
@@ -3325,7 +3386,7 @@ class MachineLearningClass:
         if self.number_of_folds_choice:
             self.number_of_folds_var = tk.IntVar(value=self.number_of_folds_choice)
         else:
-            self.number_of_folds_var = tk.IntVar(value=2)
+            self.number_of_folds_var = tk.IntVar(value=10)
             
 
         self.number_of_folds_combobox = ttk.Combobox(self.number_of_folds_combobox_selection_frame, textvariable=self.number_of_folds_var, state="readonly", font=("Arial", 24), width=3)
@@ -3625,7 +3686,7 @@ class MachineLearningClass:
 ################################################################################################################
 
 # SINGLE TRAINING SET MACHINE LEARNING
-            
+
 
     def ML_single_fold(self):
 
@@ -3644,9 +3705,12 @@ class MachineLearningClass:
         ############################################################
 
         # MODEL ASSESSMENT #
+        try:
+            y_pred_prob = model.predict_proba(X_test)[:,1]
+        except:
+            y_pred_prob = model.predict_proba(X_test)[:, 0]
 
-        y_pred_prob = model.predict_proba(X_test)[:,1]
-
+        
         fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
         auc_score = auc(fpr, tpr)
 
@@ -3878,6 +3942,7 @@ class MachineLearningClass:
         features_ax = features_fig.add_subplot(111)
         features_ax.barh(mean_importances.index, mean_importances.values)
         features_ax.set_xlabel("Feature Importance")
+        features_ax.tick_params(axis='x', labelsize=24)
 
         return auc_fig, features_fig
 
@@ -3934,7 +3999,8 @@ class MachineLearningClass:
     def save_figure(self):
 
         # Prompt the user to choose the save location
-        save_path = filedialog.asksaveasfilename(defaultextension=".tiff")
+        filetypes = [("JPEG files", "*.jpg"), ("PNG files", "*.png"), ("TIFF files", "*.tiff")]
+        save_path = filedialog.asksaveasfilename(filetypes=filetypes)
 
         # Check if the user canceled the dialog
         if not save_path:
@@ -4052,7 +4118,7 @@ class MachineLearningClass:
             input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
             input_entry.pack(side=tk.LEFT)
 
-            variable_label = tk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
+            variable_label = tk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg='beige', fg='black')
             variable_label.pack(side=tk.LEFT)
 
             separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4141,11 +4207,10 @@ class MachineLearningClass:
         if self.selected_model == "Linear Regression":
             utils.show_message('error message', "LINEAR REGRESSION NOT READY YET!!!!!")
             return
-
-        if not self.df[self.selected_dependent_variable].dropna().isin([0, 1]).all():
-            utils.show_message("Error", "Dependent variable must be numberical and only contain the values: 1 and 0")
-            return
-
+        if self.selected_model_type == "Categorical":
+            if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
+                utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
+                return
 
         if len(self.selected_independent_variables) < 1:
             utils.show_message('error message', "Please add independent variables")
