@@ -1639,7 +1639,7 @@ class CreateNewVariableClass:
         for widget in self.finalize_display_frame.winfo_children():
             widget.destroy()
 
-        self.new_df.loc[self.new_df[self.column_name]=='n', self.column_name] = np.nan
+        self.new_df.loc[(self.new_df[self.column_name]=='n') | (self.new_df[self.column_name]=='nan'), self.column_name] = np.nan
         category_counts = self.new_df[self.column_name].value_counts()
         fig, ax = plt.subplots(figsize=(8, 6))
         category_counts.plot(kind='bar', color='skyblue', ax=ax)
