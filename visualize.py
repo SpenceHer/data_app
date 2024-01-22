@@ -2749,8 +2749,12 @@ class MachineLearningClass:
     def create_independent_variables_frame(self):
 
         # MAIN CONTENT FRAME
-        self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
-        self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        # self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
+        # self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # MAIN CONTENT FRAME
+        self.independent_variable_options_frame = utils.create_scrollable_frame(self.indedependent_variables_frame)
+        # self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # TITLE LABEL
         self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36, "bold"), bg='beige')
@@ -3313,9 +3317,10 @@ class MachineLearningClass:
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         # MODEL SETTINGS
-        self.model_settings_frame = tk.Frame(self.settings_frame, bg='beige')
-        self.model_settings_frame.pack(side=tk.TOP, padx=5, pady=50, fill=tk.BOTH)
+        # self.model_settings_frame = tk.Frame(self.settings_frame, bg='beige')
+        # self.model_settings_frame.pack(side=tk.TOP, padx=5, pady=50, fill=tk.BOTH)
 
+        self.model_settings_frame = utils.create_scrollable_frame(self.settings_frame)
 
         #NULL VALUE HANDLING
         self.null_value_handling_frame = tk.Frame(self.model_settings_frame, bg='beige')
@@ -3686,11 +3691,11 @@ class MachineLearningClass:
 
         auc_canvas = FigureCanvasTkAgg(self.auc_graph, master=self.auc_graph_display_frame)
         auc_canvas_widget = auc_canvas.get_tk_widget()
-        auc_canvas_widget.pack(fill=tk.BOTH, expand=True)
+        auc_canvas_widget.pack(fill=tk.Y, expand=True)
 
         features_canvas = FigureCanvasTkAgg(self.features_graph, master=self.feature_importance_display_frame)
         features_canvas_widget = features_canvas.get_tk_widget()
-        features_canvas_widget.pack(fill=tk.BOTH, expand=True)
+        features_canvas_widget.pack(fill=tk.Y, expand=True)
 
 
 
@@ -3810,7 +3815,10 @@ class MachineLearningClass:
         features_ax = features_fig.add_subplot(111)
         features_ax.barh(feature_importances.index, feature_importances)
         features_ax.set_xlabel("Feature Importance")
-        # ax2.set_ylabel('',fontsize=15)
+        features_ax.tick_params(axis='y', labelsize=24)
+
+        features_fig.tight_layout()
+        auc_fig.tight_layout()
 
         return auc_fig, features_fig
 
@@ -3955,7 +3963,10 @@ class MachineLearningClass:
         features_ax = features_fig.add_subplot(111)
         features_ax.barh(mean_importances.index, mean_importances.values)
         features_ax.set_xlabel("Feature Importance")
-        features_ax.tick_params(axis='x', labelsize=24)
+        features_ax.tick_params(axis='y', labelsize=24)
+
+        features_fig.tight_layout()
+        auc_fig.tight_layout()
 
         return auc_fig, features_fig
 
