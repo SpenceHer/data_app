@@ -729,7 +729,6 @@ class ComparisonTableClass:
             self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
             self.table_df = self.table_df.dropna()
 
-        print(self.table_df[self.selected_dependent_variable].unique())
         self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
         self.summary_table = []
         for independent_variable, option in self.selected_variable_types.items():
@@ -1912,7 +1911,7 @@ class RegressionAnalysisClass:
         self.apply_logistic_regression_variable_selection()
         model_string = f"{self.selected_dependent_variable} ~ "
         self.clean_df[self.selected_dependent_variable] = self.clean_df[self.selected_dependent_variable].astype(int)
-        print(self.clean_df)
+
 
         for variable, data_type in self.selected_options.items():
 
@@ -3084,7 +3083,14 @@ class MachineLearningClass:
         # Bind events
         self.variable_type_canvas.bind("<Configure>", self.on_variable_handling_canvas_configure)
         self.scrollable_frame.bind("<Configure>", lambda e: self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all")))
-        self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
+
+        # Cross-platform scroll event binding
+        if self.visualize_content_frame.tk.call('tk', 'windowingsystem') == 'aqua':  # macOS
+            self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
+        else:  # Windows and others
+            self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
+            self.variable_handling_options_frame.bind_all("<Button-4>", self.on_variable_handling_mousewheel)
+            self.variable_handling_options_frame.bind_all("<Button-5>", self.on_variable_handling_mousewheel)
 
         ########################################################################################################
 
@@ -3107,10 +3113,17 @@ class MachineLearningClass:
         canvas_width = event.width
         self.variable_type_canvas.itemconfig(self.scrollable_frame_window, width=canvas_width)
 
-
     def on_variable_handling_mousewheel(self, event):
         if self.variable_type_canvas.winfo_exists():
-            self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            if event.num == 4 or event.delta > 0:  # Scroll up
+                self.variable_type_canvas.yview_scroll(-1, "units")
+            elif event.num == 5 or event.delta < 0:  # Scroll down
+                self.variable_type_canvas.yview_scroll(1, "units")
+
+
+    # def on_variable_handling_mousewheel(self, event):
+    #     if self.variable_type_canvas.winfo_exists():
+    #         self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
     ################################################################################################################
 
@@ -3246,16 +3259,16 @@ class MachineLearningClass:
             return set(unique_values) == {0, 1}
 
         if not check_column_only_0_and_1(self.temp_df, self.selected_dependent_variable):
+
             # MAKE VALUES OF DEPENDENT VARIABLE BINARY
+            self.temp_df.dropna(subset=[self.selected_dependent_variable])
             selected_target_var = self.log_reg_target_value_var.get()
-            self.temp_df.loc[(self.temp_df[self.selected_dependent_variable].notna()) & (self.temp_df[self.selected_dependent_variable] != selected_target_var), self.selected_dependent_variable] = 0
+
+            self.temp_df.loc[(self.temp_df[self.selected_dependent_variable] != selected_target_var) & (self.temp_df[self.selected_dependent_variable] != 1), self.selected_dependent_variable] = 0
             self.temp_df.loc[self.temp_df[self.selected_dependent_variable] == selected_target_var, self.selected_dependent_variable] = 1
-        
 
 
         self.temp_df[self.selected_dependent_variable] = self.temp_df[self.selected_dependent_variable].astype(int)
-
-
 
         for variable in self.selected_independent_variables:
 
@@ -4245,6 +4258,7 @@ class MachineLearningClass:
         try:
             self.apply_variable_handling()
         except:
+            raise
             utils.show_message("error message", "Make sure all values are NUMERICAL")
             return
         
