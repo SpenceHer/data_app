@@ -46,6 +46,51 @@ def forget_frame_widgets(frame):
 
 
 
+def create_scrollable_frame(root):
+    def on_variable_handling_canvas_configure(event):
+        canvas_width = event.width
+        main_canvas.itemconfig(scrollable_frame_window, width=canvas_width)
+
+    def on_variable_handling_mousewheel(event):
+        if main_canvas.winfo_exists():
+            if event.num == 4 or event.delta > 0:  # Scroll up
+                main_canvas.yview_scroll(-1, "units")
+            elif event.num == 5 or event.delta < 0:  # Scroll down
+                main_canvas.yview_scroll(1, "units")
+
+    # SCROLLABLE FRAME 
+    container_frame = tk.Frame(root)
+    container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    # Canvas for scrollable content
+    main_canvas = tk.Canvas(container_frame, bg='yellow')
+    main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    # Scrollbar for the canvas
+    scrollbar = tk.Scrollbar(container_frame, command=main_canvas.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    main_canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Scrollable frame inside the canvas
+    scrollable_frame = tk.Frame(main_canvas, bg='yellow')
+    scrollable_frame_window = main_canvas.create_window((0, 0), window=scrollable_frame, anchor=tk.NW)
+
+    # Bind events
+    main_canvas.bind("<Configure>", on_variable_handling_canvas_configure)
+    scrollable_frame.bind("<Configure>", lambda e: main_canvas.configure(scrollregion=main_canvas.bbox("all")))
+
+    # Cross-platform scroll event binding
+    scrollable_frame.bind_all("<MouseWheel>", on_variable_handling_mousewheel)
+    scrollable_frame.bind_all("<Button-4>", on_variable_handling_mousewheel)
+    scrollable_frame.bind_all("<Button-5>", on_variable_handling_mousewheel)
+    
+    return scrollable_frame
+
+
+
+
+
+
 
 
 
