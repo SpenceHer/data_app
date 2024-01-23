@@ -33,10 +33,10 @@ from sklearn.datasets import make_classification
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import Lasso, LogisticRegression
-from sklearn.metrics import (accuracy_score, auc, brier_score_loss, classification_report, confusion_matrix, 
-                             f1_score, mean_squared_error, precision_score, r2_score, recall_score, 
+from sklearn.metrics import (accuracy_score, auc, brier_score_loss, classification_report, confusion_matrix,
+                             f1_score, mean_squared_error, precision_score, r2_score, recall_score,
                              roc_auc_score, roc_curve, RocCurveDisplay)
-from sklearn.model_selection import (GridSearchCV, KFold, StratifiedKFold, cross_val_predict, 
+from sklearn.model_selection import (GridSearchCV, KFold, StratifiedKFold, cross_val_predict,
                                      cross_val_score, train_test_split, RandomizedSearchCV)
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -65,7 +65,7 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     style.configure("dataframe_view_button.TButton", background="gray")
     style.configure("edit_button.TButton", background="gray")
     style.configure("visualize_button.TButton", background="white")
- 
+
     utils.remove_frame_widgets(sub_button_frame)
 
 
@@ -74,22 +74,22 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
     comparison_table_button = ttk.Button(sub_button_frame, text="Comparison Table", style="comparison_table_button.TButton")
     comparison_table_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     comparison_table_button.config(command=lambda: ComparisonTableClass(visualize_content_frame, style))
- 
+
     style.configure("regression_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     regression_button = ttk.Button(sub_button_frame, text="Regression", style="regression_button.TButton")
     regression_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     regression_button.config(command=lambda: RegressionAnalysisClass(visualize_content_frame, style))
- 
+
     style.configure("create_plot_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     create_plot_button = ttk.Button(sub_button_frame, text="Create Plot", style="create_plot_button.TButton")
     create_plot_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     create_plot_button.config(command=lambda: CreatePlotClass(visualize_content_frame, style))
- 
+
     style.configure("machine_learning_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     machine_learning_button = ttk.Button(sub_button_frame, text="Machine Learning", style="machine_learning_button.TButton")
     machine_learning_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     machine_learning_button.config(command=lambda: MachineLearningClass(visualize_content_frame, style))
- 
+
 
     tab_dict = data_manager.get_tab_dict()
 
@@ -199,7 +199,7 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
 #                                                                                                              #
 ################################################################################################################
 ################################################################################################################
- 
+
 
 class ComparisonTableClass:
     def __init__(self, visualize_content_frame, style):
@@ -603,7 +603,7 @@ class ComparisonTableClass:
 
         self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
         self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
-        
+
         self.scrollable_frame.bind("<Configure>", on_canvas_configure)
 
         def on_mousewheel(event):
@@ -709,7 +709,7 @@ class ComparisonTableClass:
 
     def apply_comparison_table_variable_selection(self):
         self.selected_variable_types.clear()
-        
+
         for value, var in self.variable_type_dict.items():
             if value in self.selected_independent_variables:
 
@@ -724,7 +724,7 @@ class ComparisonTableClass:
         if self.selected_data == "all data":
             self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
             self.table_df = self.table_df.dropna(subset=self.selected_dependent_variable)
-        
+
         if self.selected_data == "data complete only":
             self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
             self.table_df = self.table_df.dropna()
@@ -843,7 +843,7 @@ class ComparisonTableClass:
                 row1 = []
                 row1.append(f"{independent_variable}")
                 row1.extend([np.nan] * len(self.unique_dependent_variable_values))
-    
+
                 if p_value < 0.0001:
                     p_value = '< 0.0001'
                     row1.append(p_value)
@@ -857,7 +857,7 @@ class ComparisonTableClass:
                     row1.append(np.nan)
 
                 self.summary_table.append(row1)
-    
+
                 for index, row in observed.iterrows():
 
                     new_row = [f"  {index}"]
@@ -992,7 +992,7 @@ class ComparisonTableClass:
                 row1 = []
                 row1.append(f"{independent_variable}")
                 row1.extend([np.nan] * len(self.unique_dependent_variable_values))
-    
+
                 if p_value < 0.0001:
                     p_value = '< 0.0001'
                     row1.append(p_value)
@@ -1006,7 +1006,7 @@ class ComparisonTableClass:
                     row1.append(np.nan)
 
                 self.summary_table.append(row1)
-    
+
                 for index, row in observed.iterrows():
 
                     new_row = [f"  {index}"]
@@ -1038,11 +1038,11 @@ class ComparisonTableClass:
         for value in self.unique_dependent_variable_values:
             count_of_value = len(self.table_df.loc[self.table_df[self.selected_dependent_variable] == value])
             columns.append(f"{value} (N = {count_of_value})")
-            
+
         columns.append('p-value')
         if len(self.unique_dependent_variable_values) == 2:
             columns.append("Odds ratio")
-        
+
         self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
 
 
@@ -1077,7 +1077,7 @@ class ComparisonTableClass:
     def switch_to_independent_variables_frame(self):
         if self.selected_dependent_variable == None:
             return
-   
+
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -1091,7 +1091,7 @@ class ComparisonTableClass:
         self.visualize_content_frame.update_idletasks()
         self.independent_var_search_entry.focus_set()
 
-        
+
 
 
 
@@ -1291,7 +1291,7 @@ class RegressionAnalysisClass:
             self.dependent_variable_listbox.yview(index)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
-            
+
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
@@ -1578,7 +1578,7 @@ class RegressionAnalysisClass:
     ################################################################################################################
 
     # HANDLE VARIABLES FOR LINEAR REGRESSION
-        
+
     def handle_variables_linear_regression(self):
 
         self.variable_handling_label.configure(text="Change Non-Numeric Values in The Following Independent Variables")
@@ -1626,7 +1626,7 @@ class RegressionAnalysisClass:
             for value in self.clean_df[variable].unique():
                 if isinstance(value, str) and not value.isdigit():
                     non_numeric_values.append(value)
-            
+
             for value in non_numeric_values:
 
                 value_frame = tk.Frame(options_frame, bg='yellow')
@@ -1635,7 +1635,7 @@ class RegressionAnalysisClass:
                 if variable in self.non_numeric_input_var_dict:
                     if value in self.non_numeric_input_var_dict[variable]:
                         input_var = self.non_numeric_input_var_dict[variable][value]
-                            
+
                         user_input_var = tk.StringVar(value=input_var)
                         data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
                     else:
@@ -1669,7 +1669,7 @@ class RegressionAnalysisClass:
 
             if variable in self.non_numeric_columns:
 
-                non_numeric_values = [] 
+                non_numeric_values = []
 
                 for value in self.clean_df[variable].unique():
                     if isinstance(value, str) and not value.isdigit():
@@ -1699,7 +1699,7 @@ class RegressionAnalysisClass:
 
         utils.remove_frame_widgets(self.scrollable_frame)
 
-        
+
         self.clean_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
         self.clean_df.dropna(inplace=True)
 
@@ -1727,7 +1727,7 @@ class RegressionAnalysisClass:
         else:
             self.log_reg_target_value_var = tk.StringVar(value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}")
             self.log_reg_target_value_var_dict[self.selected_dependent_variable] = self.log_reg_target_value_var
-            
+
 
         self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df[self.selected_dependent_variable].unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -1746,13 +1746,13 @@ class RegressionAnalysisClass:
         self.independent_variable_handling_frame_label = tk.Label(self.independent_variable_handling_frame, text='Choose variable types and reference values', font=('Arial', 32), bg='yellow', fg='black')
         self.independent_variable_handling_frame_label.grid(row=0, column=0, columnspan=4, padx=5, pady=5)
 
-        self.variable_name_label = tk.Label(self.independent_variable_handling_frame, text='Variable', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.variable_name_label = tk.Label(self.independent_variable_handling_frame, text='Variable', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')
         self.variable_name_label.grid(row=1, column=0, padx=5, pady=5)
 
-        self.variable_type_label = tk.Label(self.independent_variable_handling_frame, text='Variable Type', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.variable_type_label = tk.Label(self.independent_variable_handling_frame, text='Variable Type', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')
         self.variable_type_label.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
 
-        self.reference_variable_label = tk.Label(self.independent_variable_handling_frame, text='Reference Value', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')  
+        self.reference_variable_label = tk.Label(self.independent_variable_handling_frame, text='Reference Value', font=Font(family="Arial", size=28, weight="bold", underline=True), bg='yellow', fg='black')
         self.reference_variable_label.grid(row=1, column=3, padx=5, pady=5)
 
         separator = ttk.Separator(self.independent_variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
@@ -1766,7 +1766,7 @@ class RegressionAnalysisClass:
 
 
         row_count = 3
-        
+
         for variable in self.selected_independent_variables:
 
             if len(variable) > 20:
@@ -1834,7 +1834,7 @@ class RegressionAnalysisClass:
         selected_target_var = self.log_reg_target_value_var.get()
         self.clean_df.loc[self.clean_df[self.selected_dependent_variable] != selected_target_var, self.selected_dependent_variable] = 0
         self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == selected_target_var, self.selected_dependent_variable] = 1
-        
+
 
         self.selected_options.clear()
 
@@ -1842,7 +1842,7 @@ class RegressionAnalysisClass:
 
             # Get variable type of the current independent variable
             variable_type = self.log_reg_variable_type_dict[variable].get()
-            
+
             if variable_type == "Continuous":
                 try:
                     self.clean_df[variable] = self.clean_df[variable].astype(float)
@@ -1857,7 +1857,7 @@ class RegressionAnalysisClass:
                     input_value = self.log_reg_reference_variable_dict[variable]
                 except:
                     utils.show_message("Error", f"No reference value for: {variable}")
-            
+
                 column_data_type = self.df[variable].dtype
                 if column_data_type == 'object':
                     self.log_reg_reference_variable_dict[variable] = input_value  # Treat as string
@@ -1867,7 +1867,7 @@ class RegressionAnalysisClass:
                 elif column_data_type == 'float64':
                     input_value = float(input_value)  # Convert to float
                     self.log_reg_reference_variable_dict[variable] = input_value
-            
+
 
 ################################################################################################################
 ################################################################################################################
@@ -1927,7 +1927,7 @@ class RegressionAnalysisClass:
 
         model = smf.logit(model_string, data=self.clean_df)
         results = model.fit(method='bfgs', maxiter=1000)
-   
+
         p_values = results.pvalues[1:]
         p_values = p_values.astype(str)
 
@@ -1937,7 +1937,7 @@ class RegressionAnalysisClass:
                 p_values.iloc[i] = "< 0.0001"
             else:
                 p_values.iloc[i] = str(round(float(p_values.iloc[i]), 4))
-   
+
 
 
         # Print out the results
@@ -1998,7 +1998,7 @@ class RegressionAnalysisClass:
         coefs = pd.DataFrame(results)
         coefs = coefs.reset_index(drop=True)
 
-        
+
 
         for i in range(len(coefs)):
 
@@ -2084,19 +2084,19 @@ class RegressionAnalysisClass:
         if self.selected_regression not in ["logistic", "linear"]:
             utils.show_message('Error', 'Please select either Logistic Regression or Linear Regression')
             return
-        
+
         if len(self.selected_independent_variables) < 1:
             utils.show_message('Error', 'No Independent Variables Selected')
             return
 
-    
-        
+
+
         if self.selected_regression == "logistic":
             # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
             if len(self.df[self.selected_dependent_variable].dropna().unique()) != 2:
                 utils.show_message('dependent variable error', 'Dependent Variable not binary for logistic regression')
                 return
-            
+
             self.handle_variables_logistic_regression()
 
 
@@ -2107,7 +2107,7 @@ class RegressionAnalysisClass:
             except:
                 utils.show_message('dependent variable error', 'Dependent Variable not numeric for linear regression')
                 return
-            
+
             self.handle_variables_linear_regression()
 
         self.results_frame.pack_forget()
@@ -2120,7 +2120,7 @@ class RegressionAnalysisClass:
     def switch_to_results_frame(self):
 
         self.run_analysis()
-    
+
         self.indedependent_variables_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
@@ -2193,10 +2193,10 @@ class RegressionAnalysisClass:
 
 
 class CreatePlotClass():
- 
+
     def __init__(self, visualize_content_frame, style):
         self.df = data_manager.get_dataframe()
- 
+
         self.style = style
 
         self.style.configure("comparison_table_button.TButton", background="gray")
@@ -2208,17 +2208,17 @@ class CreatePlotClass():
 
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
- 
+
         self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.plot_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
- 
+
         self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.figure_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.figure_display_frame.pack_forget()
- 
+
 
         self.create_plot_options_list()
 
@@ -2231,7 +2231,7 @@ class CreatePlotClass():
 
 
     def create_plot_options_list(self):
- 
+
         self.available_plots = ["Scatter Plot"]
         self.selected_plot = None
         self.selected_plot = tk.StringVar(value=self.selected_plot)
@@ -2257,7 +2257,7 @@ class CreatePlotClass():
         self.plot_type_selection = tk.StringVar()
         self.plot_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
         self.plot_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
         for plot in self.available_plots:
             self.plot_choice_listbox.insert(tk.END, plot)
 
@@ -2268,14 +2268,14 @@ class CreatePlotClass():
             if selected_index:
                 selected_plot_type = self.plot_choice_listbox.get(selected_index[0])
                 self.plot_type_selection.set(selected_plot_type)
- 
-       
+
+
         self.plot_choice_listbox.bind("<<ListboxSelect>>", on_plot_choice_listbox_selection)
- 
+
 
         self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg='beige')
         self.plot_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg='beige', command=lambda: self.choose_plot())
         self.choose_plot_button.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5)
 
@@ -2294,13 +2294,13 @@ class CreatePlotClass():
         selected_index = self.plot_choice_listbox.curselection()
         if selected_index:
             self.selected_plot = self.plot_choice_listbox.get(selected_index[0])
- 
+
             self.display_plot_settings()
 
 
 
     def display_plot_settings(self):
- 
+
         if self.selected_plot == "Scatter Plot":
             self.display_scatter_plot_settings()
 
@@ -2312,17 +2312,17 @@ class CreatePlotClass():
     def display_scatter_plot_settings(self):
         self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg='beige')
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
         self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg='beige')
         self.submit_settings_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
- 
+
         self.x_axis_selection = tk.StringVar()
         self.y_axis_selection = tk.StringVar()
- 
+
         ###################### X AXIS ######################
         self.x_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
         self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.x_axis_frame_label.pack(side=tk.TOP)
 
@@ -2336,32 +2336,32 @@ class CreatePlotClass():
 
         self.x_axis_listbox = tk.Listbox(self.x_axis_frame, font=('Arial', 24))
         self.x_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         for column in sorted(self.df.columns):
             self.x_axis_listbox.insert(tk.END, column)
- 
+
         def on_x_axis_listbox_selection(event):
             selected_index = self.x_axis_listbox.curselection()
             if selected_index:
                 selected_column = self.x_axis_listbox.get(selected_index[0])
                 self.x_axis_selection.set(selected_column)
                 self.x_axis_label.config(text=self.x_axis_selection.get(), font=("Arial", 30, "bold"))  # Update x_axis_label text
-        
+
 
         self.x_axis_listbox.bind("<<ListboxSelect>>", on_x_axis_listbox_selection)
- 
+
         self.x_axis_label = tk.Label(self.x_axis_frame, textvariable=self.x_axis_selection)
         self.x_axis_label.pack(side=tk.TOP)
         self.x_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
         ###################### X AXIS ######################
- 
+
         ###################### Y AXIS ######################
         self.y_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
         self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-AXIS SELECTION", font=("Arial", 30, "bold"))
         self.y_axis_frame_label.pack(side=tk.TOP)
- 
+
 
 
         self.y_axis_search_var = tk.StringVar()
@@ -2371,7 +2371,7 @@ class CreatePlotClass():
 
         self.y_axis_listbox = tk.Listbox(self.y_axis_frame, font=('Arial', 24))
         self.y_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         for column in sorted(self.df.columns):
             self.y_axis_listbox.insert(tk.END, column)
 
@@ -2382,23 +2382,23 @@ class CreatePlotClass():
                 selected_column = self.y_axis_listbox.get(selected_index[0])
                 self.y_axis_selection.set(selected_column)
                 self.y_axis_label.config(text=self.y_axis_selection.get(), font=("Arial", 30, "bold"))  # Update y_axis_label text
- 
-       
+
+
         self.y_axis_listbox.bind("<<ListboxSelect>>", on_y_axis_listbox_selection)
- 
+
         self.y_axis_label = tk.Label(self.y_axis_frame, textvariable=self.y_axis_selection)
         self.y_axis_label.pack(side=tk.TOP)
         self.y_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
- 
+
         # Force update the Listboxes after the frame becomes visible
         self.x_axis_listbox.update()
         self.y_axis_listbox.update()
         ###################### Y AXIS ######################
- 
+
         # Add the Submit button
         self.submit_button = tk.Button(self.submit_settings_button_frame, text="Submit", command=self.submit_plot_settings, font=('Arial', 40))
         self.submit_button.pack(pady=10)
- 
+
     def update_x_axis_variable_listbox(self, *args):
         search_term = self.x_axis_search_var.get().lower()
         self.x_axis_listbox.delete(0, tk.END)
@@ -2416,19 +2416,19 @@ class CreatePlotClass():
     def submit_plot_settings(self):
         self.figure_settings_frame.pack_forget()
         self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.fig = self.create_scatter_plot()
- 
+
         canvas = FigureCanvasTkAgg(self.fig, master=self.figure_display_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-   
- 
+
+
         # Add code here to perform additional actions or plotting based on the selections
- 
+
 
     def create_scatter_plot(self):
- 
+
         x_axis_variable = self.x_axis_selection.get()
         if not x_axis_variable:
             utils.show_message("No Columns Selected", "No X-AXIS VARIABLE selected")
@@ -2448,32 +2448,32 @@ class CreatePlotClass():
             utils.show_message("Error", "Y-AXIS VARIABLE not a continuous variable. Pick Again")
             return
         clean_df = self.df[[x_axis_variable, y_axis_variable]].dropna()
- 
+
         # Create scatter plot with seaborn
         sns.set(style="ticks")
         fig, ax = plt.subplots()
         sns.scatterplot(data=clean_df, x=x_axis_variable, y=y_axis_variable, ax=ax)
-       
+
         # Calculate regression line parameters
         slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[x_axis_variable], clean_df[y_axis_variable])
         line = slope * clean_df[x_axis_variable] + intercept
-       
+
         # Add regression line to the plot
         sns.lineplot(x=clean_df[x_axis_variable], y=line, color='r', ax=ax)
-       
+
         # Add R-squared and p-value to the plot
         plt.text(0.05, 0.95, f"R-squared: {r_value**2:.4f}\nP-value: {p_value:.4f}", transform=ax.transAxes)
-       
+
         # Customize plot aesthetics (title, labels, etc.)
         plt.title("")
         plt.xlabel(x_axis_variable)
         plt.ylabel(y_axis_variable)
         plt.tight_layout()
-       
-        return fig
- 
 
-       
+        return fig
+
+
+
 
 
 
@@ -2490,18 +2490,18 @@ def create_histogram(visualize_content_frame, df):
     except:
         utils.show_message("Error", "X-AXIS VARIABLE not a continuous variable. Pick Again")
         return
- 
+
     clean_df = df[chosen_continuous_variable].dropna()
- 
+
     sns.set(style="ticks")
     fig, ax = plt.subplots()
     sns.histplot(data=clean_df, kde=True, ax=ax)
- 
+
     # Customize plot aesthetics (title, labels, etc.)
     plt.xlabel(chosen_continuous_variable)
     plt.ylabel("Frequency")
     plt.tight_layout()
- 
+
     return fig
 
 
@@ -2606,7 +2606,7 @@ class MachineLearningClass:
         self.selected_independent_variables = data_manager.get_mach_learn_tab_ind_var_list()
 
         self.log_reg_target_value_var_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
-        
+
         self.selected_model_type = data_manager.get_mach_learn_tab_selected_model_type()
         self.selected_categorical_model = data_manager.get_mach_learn_tab_selected_cat_model()
         self.selected_continuous_model = data_manager.get_mach_learn_tab_selected_cont_model()
@@ -2618,7 +2618,7 @@ class MachineLearningClass:
         self.hypertune_parameters_choice = data_manager.get_mach_learn_tab_hyper_param_choice()
 
 
-    
+
         self.available_categorical_models_dict = {
             "Random Forest":RandomForestClassifier(random_state=69),
             "XGBoost":XGBClassifier(random_state=69),
@@ -2649,7 +2649,7 @@ class MachineLearningClass:
         self.settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
         self.prediction_tool_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        
+
         self.create_dependent_variable_frame()
         self.create_independent_variables_frame()
         self.create_variable_handling_frame()
@@ -2724,7 +2724,7 @@ class MachineLearningClass:
             self.dependent_variable_listbox.yview(index)
             self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
-            
+
     def on_dependent_variable_listbox_select(self, event):
         if self.dependent_variable_listbox.curselection():
             self.selected_dependent_variable = self.dependent_variable_listbox.get(self.dependent_variable_listbox.curselection()[0])
@@ -2752,20 +2752,20 @@ class MachineLearningClass:
         # self.independent_variable_options_frame = tk.Frame(self.indedependent_variables_frame, bg='beige')
         # self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # MAIN CONTENT FRAME
-        self.independent_variable_options_frame = utils.create_scrollable_frame(self.indedependent_variables_frame)
-        # self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
         # TITLE LABEL
-        self.choose_independent_variables_label = tk.Label(self.independent_variable_options_frame, text="Choose your INDEPENDENT variables", font=("Arial", 36, "bold"), bg='beige')
+        self.choose_independent_variables_label = tk.Label(self.indedependent_variables_frame, text="INDEPENDENT Variable and Model Selection", font=("Arial", 36, "bold"), bg='beige')
         self.choose_independent_variables_label.pack(side=tk.TOP)
 
-        separator = ttk.Separator(self.independent_variable_options_frame, orient="horizontal", style="Separator.TSeparator")
+        separator = ttk.Separator(self.indedependent_variables_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
 
+        # MAIN CONTENT FRAME
+        self.independent_variable_scrollable_frame, self.independent_variable_canvas = utils.create_scrollable_frame(self.indedependent_variables_frame)
+        # self.independent_variable_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
         # AVAILABLE INDEPENDENT VARIABLES SELECTION FRAME
-        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
+        self.indedependent_variables_selection_frame = tk.Frame(self.independent_variable_scrollable_frame, bg='beige')
         self.indedependent_variables_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.available_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg='beige')
@@ -2778,6 +2778,9 @@ class MachineLearningClass:
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.available_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.available_independent_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.independent_variable_scrollable_frame, self.independent_variable_canvas, False))
+        self.available_independent_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.independent_variable_scrollable_frame, self.independent_variable_canvas, True))
+
 
         for column in sorted(self.df.columns, key=str.lower):
             self.available_independent_variable_listbox.insert(tk.END, column)
@@ -2810,6 +2813,10 @@ class MachineLearningClass:
 
         self.selected_independent_variable_listbox = tk.Listbox(self.selected_independent_variables_frame, selectmode=tk.MULTIPLE, font=("Arial", 24))
         self.selected_independent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.selected_independent_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.independent_variable_scrollable_frame, self.independent_variable_canvas, False))
+        self.selected_independent_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.independent_variable_scrollable_frame, self.independent_variable_canvas, True))
+
+
 
         if len(self.selected_independent_variables) > 0:
             for var in self.selected_independent_variables:
@@ -2822,7 +2829,7 @@ class MachineLearningClass:
 
 
         # MACHINE LEARNING MODEL SELECTION FRAME
-        self.model_selection_frame = tk.Frame(self.independent_variable_options_frame, bg='beige')
+        self.model_selection_frame = tk.Frame(self.independent_variable_scrollable_frame, bg='beige')
         self.model_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=20)
 
         self.model_selection_label = tk.Label(self.model_selection_frame, text="Model Selection", font=("Arial", 36, "bold"), bg='beige')
@@ -2840,19 +2847,19 @@ class MachineLearningClass:
         def on_model_type_radio_button_selected():
             self.selected_model_type = self.model_type_var.get()
             data_manager.set_mach_learn_tab_selected_model_type(self.selected_model_type)
-            
+
             if self.selected_model_type == "Categorical":
                 self.selected_model = self.categorical_model_var.get()
                 self.categorical_model_selection_combobox.configure(state="readonly")
                 self.style.configure("categorical_model.TCombobox", foreground='black', background='darkgray')
-                
+
                 self.continuous_model_selection_combobox.configure(state="disabled")
                 self.style.configure("continuous_model.TCombobox", foreground='lightgray', background='lightgray')
             if self.selected_model_type == "Continuous":
                 self.selected_model = self.continuous_model_var.get()
                 self.continuous_model_selection_combobox.configure(state="readonly")
                 self.style.configure("continuous_model.TCombobox", foreground='black', background='darkgray')
-                
+
                 self.categorical_model_selection_combobox.configure(state="disabled")
                 self.style.configure("categorical_model.TCombobox", foreground='lightgray', background='lightgray')
 
@@ -2907,15 +2914,15 @@ class MachineLearningClass:
             self.selected_continuous_model = self.continuous_model_var.get()
             self.selected_model = self.selected_continuous_model
             data_manager.set_mach_learn_tab_selected_cont_model(self.selected_continuous_model)
-        
+
         self.style.configure('continuous_model.TCombobox', selectbackground="darkgray", selectforeground="black")
         self.style.map("continuous_model.TCombobox", fieldbackground=[("readonly", "darkgray"), ("disabled", "lightgray")])
         self.continuous_model_selection_combobox = ttk.Combobox(self.continuous_model_selection_frame, textvariable=self.continuous_model_var, values=self.available_continuous_models_dict, font=("Arial", 36), state="readonly", style="continuous_model.TCombobox")
         self.continuous_model_selection_combobox.bind("<<ComboboxSelected>>", on_continuous_model_combobox_selected)
         self.continuous_model_selection_combobox.pack(side=tk.TOP)
-        
 
-        
+
+
 
         self.selected_model_type = self.model_type_var.get()
 
@@ -2924,7 +2931,7 @@ class MachineLearningClass:
 
             self.categorical_model_selection_combobox.configure(state="readonly")
             self.style.configure("categorical_model.TCombobox", foreground='black', background='darkgray')
-            
+
             self.continuous_model_selection_combobox.configure(state="disabled")
             self.style.configure("continuous_model.TCombobox", foreground='lightgray', background='lightgray')
 
@@ -2933,7 +2940,7 @@ class MachineLearningClass:
 
             self.continuous_model_selection_combobox.configure(state="readonly")
             self.style.configure("continuous_model.TCombobox", foreground='black', background='darkgray')
-            
+
             self.categorical_model_selection_combobox.configure(state="disabled")
             self.style.configure("categorical_model.TCombobox", foreground='lightgray', background='lightgray')
 
@@ -3067,7 +3074,7 @@ class MachineLearningClass:
 
         ########################################################################################################
 
-        # SCROLLABLE FRAME 
+        # SCROLLABLE FRAME
         self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame)
         self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -3132,7 +3139,7 @@ class MachineLearningClass:
     ################################################################################################################
 
     # HANDLE VARIABLES FOR MACHINE LEARNING
-        
+
     def handle_variables_machine_learning(self):
 
         self.variable_handling_label.configure(text=f"{self.selected_model} Model Variable Settings")
@@ -3160,7 +3167,7 @@ class MachineLearningClass:
         else:
             self.log_reg_target_value_var = tk.StringVar(value=f"{self.clean_df.unique()[0]}")
             self.log_reg_target_value_var_dict[self.selected_dependent_variable] = self.log_reg_target_value_var
-            
+
 
         self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[0]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
@@ -3168,7 +3175,7 @@ class MachineLearningClass:
         self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[1]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
         self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        
+
 
         # DETERMINE NON-NUMERIC VARIABLES
         self.non_numeric_columns = []
@@ -3219,7 +3226,7 @@ class MachineLearningClass:
                 for value in self.temp_df[variable].unique():
                     if isinstance(value, str) and not value.isdigit():
                         non_numeric_values.append(value)
-                
+
                 for value in non_numeric_values:
 
                     value_frame = tk.Frame(options_frame, bg='yellow')
@@ -3228,7 +3235,7 @@ class MachineLearningClass:
                     if variable in self.non_numeric_input_var_dict:
                         if value in self.non_numeric_input_var_dict[variable]:
                             input_var = self.non_numeric_input_var_dict[variable][value]
-                                
+
                             user_input_var = tk.StringVar(value=input_var)
                             data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
                         else:
@@ -3278,7 +3285,7 @@ class MachineLearningClass:
 
             if variable in self.non_numeric_columns:
 
-                non_numeric_values = [] 
+                non_numeric_values = []
 
                 for value in self.temp_df[variable].unique():
                     if isinstance(value, str) and not value.isdigit():
@@ -3305,9 +3312,9 @@ class MachineLearningClass:
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
-            
+
     # CREATE SETTINGS FRAME
-    
+
     def create_settings_frame(self):
 
         self.settings_frame_label = tk.Label(self.settings_frame, text=f"Settings for {self.selected_model} Model", font=("Arial", 36, "bold"), bg='beige')
@@ -3320,7 +3327,7 @@ class MachineLearningClass:
         # self.model_settings_frame = tk.Frame(self.settings_frame, bg='beige')
         # self.model_settings_frame.pack(side=tk.TOP, padx=5, pady=50, fill=tk.BOTH)
 
-        self.model_settings_frame = utils.create_scrollable_frame(self.settings_frame)
+        self.model_settings_frame, self.model_settings_canvas = utils.create_scrollable_frame(self.settings_frame)
 
         #NULL VALUE HANDLING
         self.null_value_handling_frame = tk.Frame(self.model_settings_frame, bg='beige')
@@ -3405,7 +3412,7 @@ class MachineLearningClass:
             self.number_of_folds_var = tk.IntVar(value=self.number_of_folds_choice)
         else:
             self.number_of_folds_var = tk.IntVar(value=10)
-            
+
 
         self.number_of_folds_combobox = ttk.Combobox(self.number_of_folds_combobox_selection_frame, textvariable=self.number_of_folds_var, state="readonly", font=("Arial", 24), width=3)
         self.number_of_folds_combobox['values'] = [2,3,4,5,6,7,8,9,10]
@@ -3422,7 +3429,7 @@ class MachineLearningClass:
 
 
         self.train_fold_percent_frame = tk.Frame(self.number_of_folds_combobox_selection_frame, bg='beige')
-        
+
         self.train_fold_percent_label_1 = tk.Label(self.train_fold_percent_frame, text="Train model on ", font=("Arial", 24), bg='beige')
         self.train_fold_percent_label_1.pack(side=tk.LEFT,padx=5)
 
@@ -3507,7 +3514,7 @@ class MachineLearningClass:
         self.specificity_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Specificity", variable=self.specificity_checkbox_var, font=("Arial", 36), bg='beige')
         self.specificity_checkbox.grid(row=1, column=0, sticky=tk.W, padx=40)
         self.specificity_checkbox_var.set(True)
-        
+
         self.shap_values_checkbox_var = tk.BooleanVar()
         self.shap_values_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Shap Values", variable=self.shap_values_checkbox_var, font=("Arial", 36), bg='beige')
         self.shap_values_checkbox.grid(row=1, column=1, sticky=tk.W, padx=40)
@@ -3537,7 +3544,7 @@ class MachineLearningClass:
 ################################################################################################################
 
     # CREATE RESULTS FRAME
-    
+
     def create_results_frame(self):
 
         # GRAPH FRAMES
@@ -3654,8 +3661,8 @@ class MachineLearningClass:
             self.final_df = self.final_df.dropna()
 
         ############################################################
-            
-        # GET MODEL 
+
+        # GET MODEL
         if self.hypertune_parameters_var.get() == "Yes":
             self.ML_model = self.ML_tune()
         else:
@@ -3666,11 +3673,11 @@ class MachineLearningClass:
 
 
         ############################################################
-        
+
         # NUMBER OF FOLDS
         if self.number_of_folds_var.get() == 2:
             self.ML_train_percent = self.train_percent_var.get()
-            
+
             self.auc_graph, self.features_graph = self.ML_single_fold()
 
             self.display_graphs()
@@ -3728,7 +3735,7 @@ class MachineLearningClass:
         except:
             y_pred_prob = model.predict_proba(X_test)[:, 0]
 
-        
+
         fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
         auc_score = auc(fpr, tpr)
 
@@ -3885,7 +3892,7 @@ class MachineLearningClass:
             specificity = tn/(tn+fp)
             accuracy = accuracy_score(y[test], y_pred)
 
-    
+
             interp_tpr = np.interp(mean_fpr, fpr, tpr)
             interp_tpr[0] = 0.0
 
@@ -4009,13 +4016,13 @@ class MachineLearningClass:
         random_search = RandomizedSearchCV(
             model, param_distributions=param_grid, n_iter=50, scoring='accuracy', cv=self.number_of_folds_var.get(), n_jobs=-1, verbose=2, random_state=69
         )
-        
+
         random_search.fit(X, y)
 
 
         # Return the best-tuned model
         best_model = random_search.best_estimator_
-        
+
         return best_model
 
 
@@ -4042,7 +4049,7 @@ class MachineLearningClass:
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
-    
+
     def create_prediction_tool_frame(self):
 
         # MAIN CONTENT FRAME
@@ -4138,7 +4145,7 @@ class MachineLearningClass:
 
             variable_frame = tk.Frame(self.user_input_scrollable_frame, bg='beige')
             variable_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
-        
+
             input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
             input_entry.pack(side=tk.LEFT)
 
@@ -4225,6 +4232,10 @@ class MachineLearningClass:
         self.results_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.prediction_tool_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
 
+        utils.bind_mousewheel_to_frame(self.independent_variable_scrollable_frame, self.independent_variable_canvas, True)
+
+
+
 
     def switch_to_variable_handling_frame(self):
 
@@ -4245,7 +4256,7 @@ class MachineLearningClass:
         elif self.check_variables_duplicates():
             utils.show_message("error message", "Error. Can't have same variables as both dependent and independent variable")
             return
-        
+
 
 
 
@@ -4272,7 +4283,7 @@ class MachineLearningClass:
             raise
             utils.show_message("error message", "Make sure all values are NUMERICAL")
             return
-        
+
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
@@ -4299,7 +4310,7 @@ class MachineLearningClass:
             except:
                 utils.show_message("error message", "User choice must be a number")
                 return
-        
+
         if self.initialize_results_frame == True:
             self.apply_settings()
 
@@ -4335,7 +4346,7 @@ class MachineLearningClass:
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
-    
+
     # INPUT VALIDATION
 
     def check_variables_unique_values(self):
