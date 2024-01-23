@@ -12,7 +12,7 @@ import tkinter.font as tkfont
 
 def show_message(title, message):
     messagebox.showinfo(title, message)
- 
+
 def prompt_yes_no(text_prompt):
     answer = messagebox.askyesno("Yes No Choice", text_prompt)
     return answer
@@ -58,7 +58,7 @@ def create_scrollable_frame(root):
             elif event.num == 5 or event.delta < 0:  # Scroll down
                 main_canvas.yview_scroll(1, "units")
 
-    # SCROLLABLE FRAME 
+    # SCROLLABLE FRAME
     container_frame = tk.Frame(root)
     container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -83,8 +83,36 @@ def create_scrollable_frame(root):
     scrollable_frame.bind_all("<MouseWheel>", on_variable_handling_mousewheel)
     scrollable_frame.bind_all("<Button-4>", on_variable_handling_mousewheel)
     scrollable_frame.bind_all("<Button-5>", on_variable_handling_mousewheel)
-    
-    return scrollable_frame
+
+    return scrollable_frame, main_canvas
+
+
+
+def bind_mousewheel_to_frame(scrollable_frame, main_canvas, bind=True):
+    def on_mousewheel(event):
+        if main_canvas.winfo_exists():
+            # Get the current view
+            current_view = main_canvas.yview()
+
+            # Scroll up
+            if (event.num == 4 or event.delta > 0) and current_view[0] > 0:
+                main_canvas.yview_scroll(-1, "units")
+
+            # Scroll down
+            elif (event.num == 5 or event.delta < 0) and current_view[1] < 1:
+                main_canvas.yview_scroll(1, "units")
+
+    if bind:
+        scrollable_frame.bind_all("<MouseWheel>", on_mousewheel)
+        scrollable_frame.bind_all("<Button-4>", on_mousewheel)
+        scrollable_frame.bind_all("<Button-5>", on_mousewheel)
+    else:
+        scrollable_frame.unbind_all("<MouseWheel>")
+        scrollable_frame.unbind_all("<Button-4>")
+        scrollable_frame.unbind_all("<Button-5>")
+
+
+
 
 
 
@@ -98,17 +126,17 @@ def create_scrollable_frame(root):
 
 
 def create_table(parent, df, show_index=True, table_name="", graph_name="", title=""):
- 
+
     table_frame = tk.Frame(parent, bg='beige')
     table_frame.pack(fill=tk.Y, expand=True)
- 
+
     if title != "":
         label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'), bg='beige')
         label.pack(pady=10)
- 
+
     treeview_frame = tk.Frame(table_frame)
     treeview_frame.pack(fill=tk.BOTH, expand=True)
- 
+
     yscrollbar = ttk.Scrollbar(treeview_frame, orient="vertical")
     yscrollbar.pack(side="right", fill="y")
 
@@ -122,18 +150,18 @@ def create_table(parent, df, show_index=True, table_name="", graph_name="", titl
 
     yscrollbar.configure(command=table_treeview.yview)
     xscrollbar.configure(command=table_treeview.xview)
- 
+
     columns = df.columns.tolist()
     table_treeview["columns"] = columns
- 
+
 
     if show_index == True:
         table_treeview.heading("#0", text="Index")
- 
+
     for column in columns:
- 
+
         table_treeview.heading(column, text=column)
- 
+
     for i, row in df.iterrows():
         try:
             values = ["" if pd.isnull(val) else val for val in row.tolist()]
@@ -142,9 +170,9 @@ def create_table(parent, df, show_index=True, table_name="", graph_name="", titl
             print(row)
     for column in columns:
         table_treeview.column(column, width=160, anchor="center")
- 
+
     table_treeview.pack(side="left", fill="both", expand=True)
- 
+
     if not hasattr(parent, "table_frames"):
         parent.table_frames = {}
     parent.table_frames[table_name] = table_frame
@@ -159,31 +187,31 @@ def create_table(parent, df, show_index=True, table_name="", graph_name="", titl
 
 
 def create_graph(content_frame, fig):
- 
+
     remove_frame_widgets(content_frame)
- 
+
     # Create a new graph frame
     graph_frame = tk.Frame(content_frame)
     graph_frame.pack()
- 
+
     # Set the size of the figure
     fig.set_size_inches(10, 7)
- 
+
     # Create a canvas for the graph
     canvas = FigureCanvasTkAgg(fig, master=graph_frame)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=True)
-    
+
 
 
 def is_column_numeric(df, column_name):
     try:
         if df[column_name].dtype == 'O':
             return False
-       
+
         numeric_values = pd.to_numeric(df[column_name], errors='coerce')
         non_null_numeric_values = numeric_values.nunique()
- 
+
         if non_null_numeric_values > 2:
             return True
         else:
@@ -229,5 +257,3 @@ def create_summary_table(df):
     summary = pd.concat(summary_list, ignore_index=True)
 
     return summary
-
-
