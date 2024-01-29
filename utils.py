@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import time
 import tkinter.font as tkfont
+import styles
+from styles import color_dict
 
 def show_message(title, message):
     messagebox.showinfo(title, message)
@@ -60,19 +62,18 @@ def create_scrollable_frame(root):
 
     # SCROLLABLE FRAME
     container_frame = tk.Frame(root)
-    container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+    container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
 
     # Canvas for scrollable content
-    main_canvas = tk.Canvas(container_frame, bg='yellow')
+    main_canvas = tk.Canvas(container_frame, bg=color_dict["main_content_bg"], highlightthickness=0)
     main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # Scrollbar for the canvas
     scrollbar = tk.Scrollbar(container_frame, command=main_canvas.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
     main_canvas.configure(yscrollcommand=scrollbar.set)
 
     # Scrollable frame inside the canvas
-    scrollable_frame = tk.Frame(main_canvas, bg='yellow')
+    scrollable_frame = tk.Frame(main_canvas, bg=color_dict["main_content_bg"])
     scrollable_frame_window = main_canvas.create_window((0, 0), window=scrollable_frame, anchor=tk.NW)
 
     # Bind events
