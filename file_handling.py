@@ -6,14 +6,22 @@ import utils
 import pandas as pd
 import data_manager
 import os
-
+import styles
+from styles import color_dict
 
 def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=True):
 
-    style.configure("file_button.TButton", background="white")
-    style.configure("dataframe_view_button.TButton", background="gray")
-    style.configure("edit_button.TButton", background="gray")
-    style.configure("visualize_button.TButton", background="gray")
+
+    for button_style in ["file_button.TButton", "dataframe_view_button.TButton", "edit_button.TButton", "visualize_button.TButton"]:
+        style.map(
+            button_style,
+            background=[("active", color_dict["hover_main_tab_bg"])],
+            foreground=[("active", color_dict["hover_main_tab_txt"])]
+        )
+    style.configure("file_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
+    style.configure("dataframe_view_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("edit_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("visualize_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
 
     utils.remove_frame_widgets(sub_button_frame)
 
@@ -21,7 +29,7 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     editing_content_frame.pack_forget()
     visualize_content_frame.pack_forget()
     file_handling_content_frame.pack(fill=tk.BOTH, expand=True)
-    
+
     if initialize==True:
         SetupFileTabClass(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize)
 
@@ -64,14 +72,14 @@ class SetupFileTabClass():
         self.editing_content_frame = editing_content_frame
         self.visualize_content_frame = visualize_content_frame
         self.style = style
-        self.selected_dataframe = None
 
+        self.selected_dataframe = None
 
 
         self.create_main_frame()
 
 
-        
+
     def create_main_frame(self):
 
         self.file_handling_content_frame.pack(fill=tk.BOTH, expand=True)
@@ -106,7 +114,7 @@ class SetupFileTabClass():
 
 
         # RIGHT FRAME
-        self.right_file_menu_frame = tk.Frame(self.file_handling_content_frame, bg='beige')
+        self.right_file_menu_frame = tk.Frame(self.file_handling_content_frame, bg=color_dict["background_frame_bg"])
         self.right_file_menu_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         self.create_new_dataframe_button_frame = tk.Frame(self.right_file_menu_frame)
@@ -140,7 +148,7 @@ class SetupFileTabClass():
             utils.remove_frame_widgets(self.visualize_content_frame)
         else:
             return
-        
+
 
 
 
@@ -158,7 +166,7 @@ class SetupFileTabClass():
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
 
 
 
@@ -170,8 +178,8 @@ class SetupFileTabClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        self.file_path = filedialog.askopenfilename()
-        # self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+        # self.file_path = filedialog.askopenfilename()
+        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
@@ -189,7 +197,7 @@ class SetupFileTabClass():
                 df.columns = df.columns.str.replace(r'\W+', '', regex=True)
 
         fix_columns(self.df)
-        
+
         dataframe_name = os.path.basename(self.file_path)
 
         data_manager.set_dataframe_name(dataframe_name)
@@ -200,11 +208,11 @@ class SetupFileTabClass():
 
 
         self.update_dataframe_listbox()
-        
+
         setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=True)
         utils.remove_frame_widgets(self.editing_content_frame)
         utils.remove_frame_widgets(self.visualize_content_frame)
-        
+
 
     def update_dataframe_listbox(self):
         self.dataframe_listbox.delete(0, tk.END)
@@ -226,7 +234,7 @@ class SetupFileTabClass():
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
     def create_new_dataframe(self):
         self.df = data_manager.get_dataframe()
         if self.df is None:
@@ -256,7 +264,7 @@ class SetupFileTabClass():
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
     def create_column_selection_frame(self):
 
         self.selected_columns = []
@@ -274,7 +282,7 @@ class SetupFileTabClass():
 
         self.available_columns_frame = tk.Frame(self.selection_frame, bg='beige')
         self.available_columns_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    
+
         self.transfer_buttons_frame = tk.Frame(self.selection_frame, bg='beige')
         self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -350,7 +358,7 @@ class SetupFileTabClass():
 
         print(self.column_selection_frame.focus_get())
 
-        
+
 
 
 
@@ -376,7 +384,7 @@ class SetupFileTabClass():
 
         for index in reversed(selections):
             self.available_columns_listbox.delete(index)
-        
+
 
 
 
@@ -424,7 +432,7 @@ class SetupFileTabClass():
                                      'Greater Than':'>',
                                      'Less Than or Equal To':'<=',
                                      'Greater Than or Equal To':'>='}
-        
+
         self.condition_options_frame = tk.Frame(self.dataframe_settings_frame, bg='beige')
         self.condition_options_frame.pack(side=tk.TOP)
 
@@ -465,9 +473,9 @@ class SetupFileTabClass():
 
 
 
-        
 
-        
+
+
     # REMOVE MOST RECENT CONDITION LINE
     def remove_condition(self):
         if len(self.condition_frames) > 1:
@@ -480,7 +488,7 @@ class SetupFileTabClass():
 
         else:
             return
-        
+
     # ADD NEW CONDITION LINE
     def add_condition(self, label=''):
 
@@ -488,7 +496,7 @@ class SetupFileTabClass():
         condition_frame.pack(side=tk.TOP)
 
         self.condition_frames.append(condition_frame)
-        
+
         condition_label = tk.Label(condition_frame, text=label)
         condition_label.pack(side=tk.LEFT)
 
@@ -581,7 +589,7 @@ class SetupFileTabClass():
                 except:
                     self.df[condition[1]] = self.df[condition[1]].astype(object)
                     condition_string = condition_string + "'" + condition[3] + "'"
-            
+
             condition_string = condition_string + ')'
             condition_strings.append(condition_string)
 
@@ -600,13 +608,13 @@ class SetupFileTabClass():
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
     def switch_to_create_new_dataframe_button_frame(self):
         self.column_selection_frame.pack_forget()
         self.dataframe_settings_frame.pack_forget()
         self.create_new_dataframe_button_frame.pack(fill=tk.BOTH, expand=True)
 
-        
+
 
     def switch_to_column_selection_frame(self):
         self.create_new_dataframe_button_frame.pack_forget()
@@ -619,7 +627,7 @@ class SetupFileTabClass():
     def switch_to_dataframe_settings_frame(self):
         if not self.selected_columns:
             return
-        
+
         utils.remove_frame_widgets(self.conditions_frame)
         self.condition_frames = []
         self.add_condition(label='Where')
@@ -663,10 +671,12 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
     if df is None:
         utils.show_message("Error", "Please open a file first.")
         return
-    style.configure("file_button.TButton", background="gray")
-    style.configure("dataframe_view_button.TButton", background="white")
-    style.configure("edit_button.TButton", background="gray")
-    style.configure("visualize_button.TButton", background="gray")
+
+
+    style.configure("file_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("dataframe_view_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
+    style.configure("edit_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("visualize_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
 
     utils.remove_frame_widgets(sub_button_frame)
 
@@ -674,31 +684,31 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
     save_file_button = ttk.Button(sub_button_frame, text="Save File", style="save_file_button.TButton")
     save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
     save_file_button.config(command=lambda: save_file(df))
- 
+
     def initialize_dataframe_view_tab():
         utils.remove_frame_widgets(dataframe_content_frame)
- 
+
         utils.create_table(dataframe_content_frame, df)
         summary_df = utils.create_summary_table(df)
         utils.create_table(dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
- 
+
         editing_content_frame.pack_forget()
         visualize_content_frame.pack_forget()
         file_handling_content_frame.pack_forget()
         dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
- 
+
     def switch_to_dataframe_view_tab():
         editing_content_frame.pack_forget()
         visualize_content_frame.pack_forget()
         file_handling_content_frame.pack_forget()
         dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
- 
+
 
     if initialize == True:
         initialize_dataframe_view_tab()
     if initialize == False:
         switch_to_dataframe_view_tab()
-    
+
     dataframe_content_frame.update_idletasks()
 
 
@@ -730,5 +740,3 @@ def save_file(df):
         df.to_excel(file_path, index=False)
     else:
         return
-
- 
