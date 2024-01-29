@@ -1,78 +1,109 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, font
 from tkinter import ttk
+
+import pandas as pd
+import numpy as np
+
+from tkinter import font
+
+# LOCAL FILES
+import file_handling
+import data_manager
 import utils
 import visualize
 import edit
-import pandas as pd
-import numpy as np
-import file_handling
-import data_manager
- 
+import styles
+from styles import color_dict
+
 
 # Create the main window
-
-
 main_window = tk.Tk()
 screen_width = main_window.winfo_screenwidth() // 3
 screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
 
 main_window.geometry(f"{screen_width}x{screen_height}+0+0")
-
 # main_window.wm_state('zoomed')
 
- 
+
+
+
+
+
 style = ttk.Style()
 style.theme_use("clam")
-
-
+style.configure("Separator.Separator", background="#E91E63")
 
 # Create frames
-banner_frame = tk.Frame(main_window, bg="gray")
+banner_frame = tk.Frame(main_window)
 banner_frame.pack(side="top", fill=tk.X)
- 
-button_frame = tk.Frame(banner_frame, bg='gray')
+
+button_frame = tk.Frame(banner_frame)
 button_frame.pack(fill=tk.X)  # Change to fill=tk.X to expand horizontally
- 
+
 sub_button_frame = tk.Frame(banner_frame)
 sub_button_frame.pack(fill=tk.X)  # Change to fill=tk.X to expand horizontally
 sub_button_frame.pack_propagate(True)
- 
-content_frame = tk.Frame(main_window, bg="beige")
+
+content_frame = tk.Frame(main_window)
 content_frame.pack(side="top", fill=tk.BOTH, expand=True)
- 
-dataframe_content_frame = tk.Frame(content_frame, bg="beige")
-file_handling_content_frame = tk.Frame(content_frame, bg="beige")
-editing_content_frame = tk.Frame(content_frame, bg="beige")
-visualize_content_frame = tk.Frame(content_frame, bg="beige")
+
+dataframe_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+file_handling_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+editing_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+visualize_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
 
 # Add Buttons
 
 # Banner Frame
-style.configure("file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 48, 'bold'))
+style.configure("file_button.TButton", background="white", borderwidth=0, padding=0, font=styles.main_tabs_font)
 file_button = ttk.Button(button_frame, text="File", style="file_button.TButton")
-file_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+file_button.pack(side="left", fill="x", expand=True)
 file_button.config(command=lambda: file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=False))
- 
-style.configure("dataframe_view_button.TButton", background="gray", borderwidth=0, padding=0, font=("Arial", 48, 'bold'))
+
+style.configure("dataframe_view_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
 dataframe_view_button = ttk.Button(button_frame, text="Dataframe View", style="dataframe_view_button.TButton")
-dataframe_view_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+dataframe_view_button.pack(side="left", fill="x", expand=True)
 dataframe_view_button.config(command=lambda: file_handling.setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=False))
- 
-style.configure("edit_button.TButton", background="gray", borderwidth=0, padding=0, font=("Arial", 48, 'bold'))
-edit_button = ttk.Button(button_frame, text="Edit/Clean Data", style="edit_button.TButton")
-edit_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+
+style.configure("edit_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
+edit_button = ttk.Button(button_frame, text="Edit Data", style="edit_button.TButton")
+edit_button.pack(side="left", fill="x", expand=True)
 edit_button.config(command=lambda: edit.setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
- 
-style.configure("visualize_button.TButton", background="gray", borderwidth=0, padding=0, font=("Arial", 48, 'bold'))
+
+style.configure("visualize_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
 visualize_button = ttk.Button(button_frame, text="Visualize Data", style="visualize_button.TButton")
-visualize_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
+visualize_button.pack(side="left", fill="x", expand=True)
 visualize_button.config(command=lambda: visualize.setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
 
 
+
+
+
+for button in ["file_button.TButton", "dataframe_view_button.TButton", "edit_button.TButton", "visualize_button.TButton"]:
+    style.map(button, background=[("active", "#3E2723")])
+
+
+
 file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame)
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Start the GUI event loop
 main_window.mainloop()
