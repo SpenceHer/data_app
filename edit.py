@@ -12,56 +12,69 @@ import data_manager
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
- 
+import styles
+from styles import color_dict
 
 
 def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
+
     df = data_manager.get_dataframe()
     if df is None:
         utils.show_message("Error", "Please open a file first.")
         return
-    style.configure("file_button.TButton", background="gray")
-    style.configure("dataframe_view_button.TButton", background="gray")
-    style.configure("edit_button.TButton", background="white")
-    style.configure("visualize_button.TButton", background="gray")
+
+    style.configure("file_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("dataframe_view_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("edit_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
+    style.configure("visualize_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+
+    style.configure("edit_data_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+    style.configure("create_new_var_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+
+    for button_style in ["edit_data_button.TButton", "create_new_var_button.TButton"]:
+        style.map(
+            button_style,
+            background=[("active", color_dict["hover_subtab_bg"])],
+            foreground=[("active", color_dict["hover_subtab_txt"])]
+        )
+
+
+    # CHECK FOR CURRRENT TAB
+    tab_dict = data_manager.get_tab_dict()
+    try:
+        current_tab = tab_dict["current_edit_tab"]
+    except:
+        current_tab = None
+
+    # SET SUBTAB COLORS
+    for tab in ["edit_data", "create_new_var"]:
+        button_style = f"{tab}_button.TButton"
+        if tab == current_tab:
+            style.configure(button_style, background=color_dict["active_subtab_bg"], foreground=color_dict["active_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+        else:
+            style.configure(button_style, background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+
+        style.map(
+            button_style,
+            background=[("active", color_dict["hover_subtab_bg"])],
+            foreground=[("active", color_dict["hover_subtab_txt"])]
+        )
 
     utils.remove_frame_widgets(sub_button_frame)
 
 
     # SUBHEADING BUTTONS
-    style.configure("edit_data_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     edit_data_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_data_button.TButton")
     edit_data_button.pack(side="left", fill="x", expand=True)
     edit_data_button.config(command=lambda: EditDataClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style))
 
-    style.configure("create_new_var_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36, "bold"))
     create_new_var = ttk.Button(sub_button_frame, text="Create New Variable", style="create_new_var_button.TButton")
     create_new_var.pack(side="left", fill="x", expand=True)
     create_new_var.config(command=lambda: CreateNewVariableClass(editing_content_frame, dataframe_content_frame, sub_button_frame, style))
 
 
 
-
-
-    # SHOW CURRENT TAB
-    tab_dict = data_manager.get_tab_dict()
-
-    
-
-    try:
-        if tab_dict['current_edit_tab']:
-            for tab in ['edit_data', 'create_new_var']:
-                if tab_dict['current_edit_tab'] == tab:
-                    style.configure(f"{tab_dict['current_edit_tab']}_button.TButton", background="white")
-                else:
-                    style.configure(f"{tab}_button.TButton", background="gray")
-
-    except:
-        pass
-
-
-
-
+                
 
     # LOAD EDIT FRAME
     visualize_content_frame.pack_forget()
@@ -74,7 +87,6 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 
     # UPDATE TAB IF DATAFRAME HAS BEEN CHANGED
     tab_update_status = data_manager.get_df_update_status_dict()
-
     if tab_update_status:
         if tab_update_status["edit_tab"] == True:
             if "current_edit_tab" in tab_dict:
@@ -164,8 +176,8 @@ class EditDataClass():
         self.sub_button_frame = sub_button_frame
         self.style = style
 
-        self.style.configure("edit_data_button.TButton", background="white")
-        self.style.configure("create_new_var_button.TButton", background="gray")
+        style.configure("edit_data_button.TButton", background=color_dict["active_subtab_bg"], foreground=color_dict["active_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+        style.configure("create_new_var_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
 
         data_manager.add_tab_to_tab_dict("current_edit_tab", "edit_data")
 
@@ -200,14 +212,14 @@ class EditDataClass():
 
 
     def create_column_options_list(self):
- 
+
         self.available_columns = self.df.columns
         self.selected_column = None
         self.selected_column = tk.StringVar(value=self.selected_column)
- 
+
         self.choice_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.choice_frame_label = tk.Label(self.choice_frame, text="Select A Column", font=("Arial", 30, "bold"), bg='beige')
         self.choice_frame_label.pack(side=tk.TOP)
 
@@ -223,27 +235,27 @@ class EditDataClass():
         self.column_type_selection = tk.StringVar()
         self.column_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24), exportselection=False)
         self.column_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
         for column in sorted(self.df.columns, key=str.lower):
             self.column_choice_listbox.insert(tk.END, column)
- 
+
         self.column_choice_listbox.update_idletasks()
- 
+
         def on_column_choice_listbox_selection(event):
             selected_index = self.column_choice_listbox.curselection()
             if selected_index:
                 selected_column_type = self.column_choice_listbox.get(selected_index[0])
                 self.column_type_selection.set(selected_column_type)
- 
+
 
         self.column_choice_listbox.bind("<<ListboxSelect>>", on_column_choice_listbox_selection)
- 
+
         self.column_options_button_frame = tk.Frame(self.column_options_frame, bg='beige')
         self.column_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.choose_column_button = tk.Button(self.column_options_button_frame, text="Edit\nColumn", command=lambda: self.edit_column(), font=('Arial', 36))
         self.choose_column_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
- 
+
     def update_column_listbox(self, *args):
         search_term = self.column_search_var.get().lower()
         self.column_choice_listbox.delete(0, tk.END)
@@ -255,7 +267,7 @@ class EditDataClass():
     def edit_column(self):
         selected_index = self.column_choice_listbox.curselection()
         if selected_index:
-            
+
             utils.remove_frame_widgets(self.edit_frame)
 
             self.variable_type_choice_frame = tk.Frame(self.edit_frame, bg='beige')
@@ -303,10 +315,10 @@ class EditDataClass():
         # CATEGORICAL VARIABLE BUTTON
         self.categorical_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg='beige')
         self.categorical_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
- 
+
         self.categorical_variable_button = tk.Button(self.categorical_variable_frame, text='Categorical Variable', command=self.edit_categorical_variable, font=('Arial', 30))
         self.categorical_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20)
- 
+
 
         # CONTINUOUS VARIABLE BUTTON
         self.continuous_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg='beige')
@@ -319,7 +331,7 @@ class EditDataClass():
         # MENU
         self.variable_type_choice_menu_frame = tk.Frame(self.variable_type_choice_frame, bg='lightgray')
         self.variable_type_choice_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
- 
+
         self.variable_type_choice_menu_frame_label = tk.Label(self.variable_type_choice_menu_frame, text=f"Selected Column: {self.selected_column}", font=("Arial", 36), bg="lightgray", fg='black')
         self.variable_type_choice_menu_frame_label.pack(side=tk.TOP, padx= 10, pady=10, fill=tk.BOTH, expand=True)
 
@@ -352,13 +364,13 @@ class EditDataClass():
 
     ################################################################################################################
 
-    # EDIT CATEGORICAL VARIABLE 
+    # EDIT CATEGORICAL VARIABLE
 
     def edit_categorical_variable(self):
         self.selected_variable_type = "Categorical"
 
         self.temp_df = self.df.copy()
-        
+
         self.handle_categorical_values()
 
         self.switch_to_value_handling_frame()
@@ -388,7 +400,7 @@ class EditDataClass():
         self.value_choice_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
 
-        
+
 
         self.unique_categorical_values = sorted(self.temp_df[self.selected_column].unique())
         self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
@@ -396,23 +408,23 @@ class EditDataClass():
         # Listbox label
         self.value_choice_frame_label = tk.Label(self.value_choice_frame, text="Unique Values", font=("Arial", 30, "bold"), bg='beige')
         self.value_choice_frame_label.pack(side=tk.TOP)
- 
+
         self.value_selection = tk.StringVar()
         self.value_choice_listbox = tk.Listbox(self.value_choice_frame, font=("Arial", 36), exportselection=False)
         self.value_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
         for value in self.unique_categorical_values:
             self.value_choice_listbox.insert(tk.END, value)
 
         # Default value is first value
         self.value_choice_listbox.select_set(0)
         self.selected_value = tk.StringVar(value=self.unique_categorical_values[0])
- 
+
         def on_value_choice_listbox_selection(event):
             selected_index = self.value_choice_listbox.curselection()
             if selected_index:
                 self.selected_value = self.value_choice_listbox.get(selected_index[0])
- 
+
         self.value_choice_listbox.bind("<<ListboxSelect>>", on_value_choice_listbox_selection)
 
 
@@ -440,7 +452,7 @@ class EditDataClass():
 
         self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
         self.new_value_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-        
+
         separator = ttk.Separator(self.value_action_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
 
@@ -448,7 +460,7 @@ class EditDataClass():
         self.remove_change_value_action_frame.columnconfigure(1, weight=1)
 
 
-        # RENAME COLUMN 
+        # RENAME COLUMN
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
@@ -483,21 +495,21 @@ class EditDataClass():
     def change_categorical_value(self):
         if type(self.selected_value) == str:
             self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value, self.selected_column] = self.new_value_entry.get()
- 
+
         else:
             self.temp_df.loc[self.temp_df[self.selected_column] == self.selected_value.get(), self.selected_column] = self.new_value_entry.get()
         self.update_categorical_value_listbox()
- 
+
     def update_categorical_value_listbox(self):
         self.temp_df[self.selected_column] = self.temp_df[self.selected_column].astype(str)
         self.unique_categorical_values = sorted(self.temp_df[self.selected_column].unique())
         self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
-       
+
         # Clear the listbox and insert the updated values
         self.value_choice_listbox.delete(0, tk.END)
         for value in self.unique_categorical_values:
             self.value_choice_listbox.insert(tk.END, value)
- 
+
         self.value_choice_listbox.update_idletasks()
         self.value_choice_listbox.select_set(0)
         try:
@@ -512,7 +524,7 @@ class EditDataClass():
 
     def edit_continuous_variable(self):
         self.selected_variable_type = "Continuous"
-        
+
         self.temp_df = self.df.copy()
 
         self.handle_continuous_values()
@@ -521,7 +533,7 @@ class EditDataClass():
 
 
     def handle_continuous_values(self):
-        
+
         def is_float(value):
             try:
                 float(value)
@@ -580,7 +592,7 @@ class EditDataClass():
         # VALUE ACTIONS
         self.value_action_frame = tk.Frame(self.handle_continuous_values_frame, bg='beige')
         self.value_action_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
+
 
         # REMOVE OR CHANGE VALUE
         self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg='beige')
@@ -657,7 +669,7 @@ class EditDataClass():
 
 
 
-        # RENAME COLUMN 
+        # RENAME COLUMN
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg='beige')
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
@@ -681,9 +693,9 @@ class EditDataClass():
         separator.pack(side=tk.TOP, fill=tk.X, padx=50, pady=5)
 
 
- 
 
-   
+
+
     def enable_rename_column(self):
         self.rename_column_entry.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
         self.rename_column_entry.focus_set()
@@ -702,7 +714,7 @@ class EditDataClass():
                 self.update_non_numeric_listbox()
         except:
             return
- 
+
     def change_non_numeric_value(self):
         try:
             if type(self.selected_value) == str:
@@ -721,9 +733,9 @@ class EditDataClass():
 
 
 
-       
+
         self.update_non_numeric_listbox()
- 
+
 
     def update_non_numeric_listbox(self):
 
@@ -735,12 +747,12 @@ class EditDataClass():
                 return False
         self.non_numeric_values = [value for value in self.temp_df[self.selected_column] if not is_float(value)]
         self.unique_non_numeric_values = list(set(self.non_numeric_values))
- 
+
         # Clear the listbox and insert the updated values
         self.value_choice_listbox.delete(0, tk.END)
         for value in self.unique_non_numeric_values:
             self.value_choice_listbox.insert(tk.END, value)
- 
+
         self.value_choice_listbox.update_idletasks()
         self.value_choice_listbox.select_set(0)
         try:
@@ -752,7 +764,7 @@ class EditDataClass():
     def is_valid_column_name(self, column_name):
         # Define a regular expression pattern for a valid column name
         pattern = r'^[a-zA-Z0-9_\-]+$'
-        
+
         if re.match(pattern, column_name):
             try:
                 df = pd.DataFrame(columns=[column_name])
@@ -801,35 +813,35 @@ class EditDataClass():
     # CATEGORICAL BAR PLOT
     def create_categorical_variable_barplot(self):
         self.figure = self.create_barplot_figure()
- 
+
         utils.remove_frame_widgets(self.display_frame)
         # Create a canvas to display the histogram in the frame
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.display_frame)
         self.canvas.draw()
- 
+
         self.canvas.get_tk_widget().pack(pady=5, padx=5, ipadx=5, ipady=5, side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
     def create_barplot_figure(self):
         self.new_df[self.selected_column] = self.new_df[self.selected_column].replace('nan', np.nan)
- 
+
         # Drop rows containing NaN values in the selected column
         clean_df = self.new_df.dropna(subset=[self.selected_column])
- 
+
         # Create scatter plot with seaborn
         sns.set(style="ticks")
         fig, ax = plt.subplots()
- 
+
         # Create the histogram using Seaborn
         ordered_categories = clean_df[self.selected_column].value_counts().sort_index().index
         sns.countplot(x=clean_df[self.selected_column], color='skyblue', ax=ax, order=ordered_categories)
- 
+
         # Set the title and labels
         plt.title('Count Plot')
         plt.xlabel('Categories')
         plt.ylabel('Frequency')
         plt.xticks(rotation=90)
         plt.tight_layout()
- 
+
         return fig
 
 
@@ -841,15 +853,15 @@ class EditDataClass():
 
     def create_continuous_variable_histogram(self):
         self.figure = self.create_histogram_figure()
- 
+
         utils.remove_frame_widgets(self.display_frame)
         # Create a canvas to display the histogram in the frame
         self.canvas = FigureCanvasTkAgg(self.figure, master=self.display_frame)
         self.canvas.draw()
- 
+
         # Remove expand=True and add height=histogram_frame_height
         self.canvas.get_tk_widget().pack(pady=5, padx=5, side=tk.TOP, fill=tk.BOTH, expand=True)
- 
+
     def create_histogram_figure(self):
         self.new_df[self.selected_column] = pd.to_numeric(self.new_df[self.selected_column], errors='coerce')
 
@@ -871,14 +883,14 @@ class EditDataClass():
         plt.xlabel('Value')
         plt.ylabel('Frequency')
         plt.tight_layout()
- 
+
         return fig
 
 
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
-    
+
     # UPDATE DATAFRAME
 
     def update_dataframe(self):
@@ -902,7 +914,7 @@ class EditDataClass():
         data_manager.add_df_update_status_to_dict("visualize_tab", True)
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
- 
+
         utils.create_table(self.dataframe_content_frame, self.df)
         summary_df = utils.create_summary_table(self.df)
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
@@ -929,30 +941,30 @@ class EditDataClass():
         save_file_button = ttk.Button(self.sub_button_frame, text="Save File", style="save_file_button.TButton")
         save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
         save_file_button.config(command=lambda: file_handling.save_file(df))
-    
+
         def initialize_dataframe_view_tab():
             utils.remove_frame_widgets(self.dataframe_content_frame)
-    
+
             utils.create_table(self.dataframe_content_frame, df)
             summary_df = utils.create_summary_table(df)
             utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
-    
+
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
-    
+
         def switch_to_dataframe_view_tab():
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
-    
+
 
         if initialize == True:
             initialize_dataframe_view_tab()
         if initialize == False:
             switch_to_dataframe_view_tab()
-        
+
         self.dataframe_content_frame.update_idletasks()
 
-        
+
 
 
 ################################################################################################################
@@ -991,7 +1003,7 @@ class EditDataClass():
                 self.remove_values_of_zero()
             if self.remove_negative_values_var.get() == "Yes":
                 self.remove_negative_values()
-            
+
 
             self.create_continuous_variable_histogram()
         elif self.selected_variable_type == "Categorical":
@@ -1001,9 +1013,9 @@ class EditDataClass():
         self.value_handling_frame.pack_forget()
         self.data_display_frame.pack(fill=tk.BOTH, expand=True)
 
-        
+
         self.editing_content_frame.update_idletasks()
-    
+
 
 
 ################################################################################################################
@@ -1078,8 +1090,8 @@ class CreateNewVariableClass:
         self.sub_button_frame = sub_button_frame
         self.style = style
 
-        self.style.configure("edit_data_button.TButton", background="gray")
-        self.style.configure("create_new_var_button.TButton", background="white")
+        style.configure("edit_data_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
+        style.configure("create_new_var_button.TButton", background=color_dict["active_subtab_bg"], foreground=color_dict["active_subtab_txt"], borderwidth=0, padding=0, font=("Arial", 36, "bold"))
 
         data_manager.add_tab_to_tab_dict("current_edit_tab", "create_new_var")
 
@@ -1102,7 +1114,7 @@ class CreateNewVariableClass:
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
     # CREATE VARIABLE SELECTION FRAME
 
     def create_variable_selection_frame(self):
@@ -1291,7 +1303,7 @@ class CreateNewVariableClass:
 
         self.column_name_entry = tk.Entry(self.column_name_frame, font=('Arial', 24))
         self.column_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
-        
+
         separator = ttk.Separator(self.variable_options_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
@@ -1308,7 +1320,7 @@ class CreateNewVariableClass:
 
 
 
-        
+
         # CONDITIONS OPTIONS FRAME
         self.value_frames = []
         self.condition_frames = []
@@ -1319,7 +1331,7 @@ class CreateNewVariableClass:
                                      'Greater Than':'>',
                                      'Less Than or Equal To':'<=',
                                      'Greater Than or Equal To':'>='}
-        
+
         self.condition_options_frame = tk.Frame(self.conditions_frame, bg='beige')
         self.condition_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -1381,7 +1393,7 @@ class CreateNewVariableClass:
 
             else:
                 return
-        
+
         # ADD NEW CONDITION LINE
         def add_condition(label=''):
             if label == 'AND' or label == 'OR':
@@ -1405,7 +1417,7 @@ class CreateNewVariableClass:
             condition_frame.pack(side=tk.TOP)
 
             condition_frames.append(condition_frame)
-            
+
             condition_label = tk.Label(condition_frame, text=label)
             condition_label.pack(side=tk.LEFT)
 
@@ -1415,7 +1427,7 @@ class CreateNewVariableClass:
                 column_selected = column_dropdown.get()
 
                 temp_df = self.df.copy().dropna(subset=[column_selected])
-                
+
                 is_numeric = pd.to_numeric(temp_df[column_selected], errors='coerce').notna().all()
 
                 if is_numeric:
@@ -1496,7 +1508,7 @@ class CreateNewVariableClass:
 
         # FRAME WHERE THE USER EDITS THE CONDITIONS
         add_condition(label='Where')
-        
+
         self.value_frames.append(new_value_frame)
 
 
@@ -1556,7 +1568,7 @@ class CreateNewVariableClass:
                 condition_string = condition_string + self.condition_signs_dict[condition[2]]
 
                 if condition[3] == 'USER CHOICE':
-                    
+
                     try:
                         self.new_df[condition[1]] = self.new_df[condition[1]].astype(float)
                         condition_string = condition_string + str(float(condition[4]))
@@ -1564,7 +1576,7 @@ class CreateNewVariableClass:
                         self.new_df[condition[1]] = self.new_df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[4] + "'"
                 else:
-                    
+
                     try:
 
                         if condition[3] == self.q1_string:
@@ -1581,7 +1593,7 @@ class CreateNewVariableClass:
 
                         self.new_df[condition[1]] = self.new_df[condition[1]].astype(object)
                         condition_string = condition_string + "'" + condition[3] + "'"
-                
+
                 condition_string = condition_string + ')'
                 condition_strings.append(condition_string)
 
@@ -1596,12 +1608,12 @@ class CreateNewVariableClass:
             column_name = column_name.replace('__', '_')
             column_name = column_name.replace('___', '_')
             return column_name
-        
+
         column_name = fix_columns(column_name)
 
         # Define a regular expression pattern for a valid column name
         pattern = r'^[a-zA-Z0-9_\-]+$'
-        
+
         if re.match(pattern, column_name):
             try:
                 df = pd.DataFrame(columns=[column_name])
@@ -1616,7 +1628,7 @@ class CreateNewVariableClass:
     ###################################################################################################################################################################################################
 
     # CREATE FINALIZE FRAME #
-            
+
     def create_finalize_frame(self):
         # GRAPH DISPLAY FRAME
         self.finalize_display_frame = tk.Frame(self.finalize_frame, bg='purple')
@@ -1673,7 +1685,7 @@ class CreateNewVariableClass:
         data_manager.add_df_update_status_to_dict("visualize_tab", True)
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
- 
+
         utils.create_table(self.dataframe_content_frame, self.df)
         summary_df = utils.create_summary_table(self.df)
         utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
@@ -1699,33 +1711,33 @@ class CreateNewVariableClass:
         save_file_button = ttk.Button(self.sub_button_frame, text="Save File", style="save_file_button.TButton")
         save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
         save_file_button.config(command=lambda: file_handling.save_file(df))
-    
+
         def initialize_dataframe_view_tab():
             utils.remove_frame_widgets(self.dataframe_content_frame)
-    
+
             utils.create_table(self.dataframe_content_frame, df)
             summary_df = utils.create_summary_table(df)
             utils.create_table(self.dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
-    
+
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
-    
+
         def switch_to_dataframe_view_tab():
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
-    
+
 
         if initialize == True:
             initialize_dataframe_view_tab()
         if initialize == False:
             switch_to_dataframe_view_tab()
-        
+
         self.dataframe_content_frame.update_idletasks()
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
-    
+
     # NAVIGATION MENU HANDLING FUNCTIONS
 
     def switch_to_variable_selection_frame(self):
@@ -1735,7 +1747,7 @@ class CreateNewVariableClass:
 
         self.variable_search_entry.focus_set()
 
-        
+
 
     def switch_to_conditions_frame(self):
         if not self.selected_variables:
@@ -1773,10 +1785,3 @@ class CreateNewVariableClass:
         self.finalize_frame.pack(fill=tk.BOTH, expand=True)
 
         self.editing_content_frame.update_idletasks()
-
-
-
-
-
-
-
