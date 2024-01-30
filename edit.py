@@ -172,6 +172,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
 class EditDataClass():
     def __init__(self, editing_content_frame, dataframe_content_frame, sub_button_frame, style):
         self.df = data_manager.get_dataframe()
+
         self.dataframe_content_frame = dataframe_content_frame
         self.sub_button_frame = sub_button_frame
         self.style = style
