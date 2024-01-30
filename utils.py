@@ -125,11 +125,43 @@ def bind_mousewheel_to_frame(scrollable_frame, main_canvas, bind=True):
 
 
 
+import tkinter as tk
+from tkinter import ttk
+import pandas as pd  # Assuming you're using pandas DataFrame for 'df'
 
-def create_table(parent, df, show_index=True, table_name="", graph_name="", title=""):
+def create_table(parent, df, style, show_index=True, table_name="", graph_name="", title=""):
+
+
+
+    # Define the Barbie-themed color scheme for the Treeview
+    style.configure("Treeview",
+                    background="#FCE4EC",
+                    foreground="#4A2C4E",
+                    rowheight=25,
+                    fieldbackground="#FCE4EC")
+    style.map("Treeview",
+              background=[('selected', '#E91E63')],
+              foreground=[('selected', '#FFFFFF')])
+
+    # Treeview Heading style (for columns)
+    style.configure("Treeview.Heading",
+                    background="#AD1457",
+                    foreground="#FFFFFF",
+                    font=('Arial Rounded MT Bold', 12, 'bold'))
+    style.map("Treeview.Heading",
+              background=[('active', '#EC407A')],
+              foreground=[('active', '#FFFFFF')])
+
+    # Scrollbar style
+    style.configure("Vertical.TScrollbar", gripcount=0,
+                    background="#E91E63", darkcolor="#E91E63", lightcolor="#E91E63",
+                    troughcolor="#FADCE6", bordercolor="#E91E63", arrowcolor="#FFFFFF")
+    style.configure("Horizontal.TScrollbar", gripcount=0,
+                    background="#E91E63", darkcolor="#E91E63", lightcolor="#E91E63",
+                    troughcolor="#FADCE6", bordercolor="#E91E63", arrowcolor="#FFFFFF")
 
     table_frame = tk.Frame(parent, bg='beige')
-    table_frame.pack(fill=tk.Y, expand=True)
+    table_frame.pack(fill=tk.BOTH, expand=True)
 
     if title != "":
         label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'), bg='beige')
@@ -138,45 +170,34 @@ def create_table(parent, df, show_index=True, table_name="", graph_name="", titl
     treeview_frame = tk.Frame(table_frame)
     treeview_frame.pack(fill=tk.BOTH, expand=True)
 
-    yscrollbar = ttk.Scrollbar(treeview_frame, orient="vertical")
+    yscrollbar = ttk.Scrollbar(treeview_frame, orient="vertical", style="Vertical.TScrollbar")
     yscrollbar.pack(side="right", fill="y")
 
-    xscrollbar = ttk.Scrollbar(table_frame, orient="horizontal")
+    xscrollbar = ttk.Scrollbar(table_frame, orient="horizontal", style="Horizontal.TScrollbar")
     xscrollbar.pack(side="bottom", fill="x")
 
-    table_treeview = ttk.Treeview(
-        treeview_frame, show="headings",
-        yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set
-    )
+    table_treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview", yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set)
 
-    yscrollbar.configure(command=table_treeview.yview)
-    xscrollbar.configure(command=table_treeview.xview)
+    yscrollbar.config(command=table_treeview.yview)
+    xscrollbar.config(command=table_treeview.xview)
 
     columns = df.columns.tolist()
     table_treeview["columns"] = columns
 
-
-    if show_index == True:
-        table_treeview.heading("#0", text="Index")
-
     for column in columns:
-
         table_treeview.heading(column, text=column)
+        table_treeview.column(column, width=160, anchor="center")
 
     for i, row in df.iterrows():
-        try:
-            values = ["" if pd.isnull(val) else val for val in row.tolist()]
-            table_treeview.insert("", "end", values=values)
-        except:
-            print(row)
-    for column in columns:
-        table_treeview.column(column, width=160, anchor="center")
+        values = ["" if pd.isnull(val) else val for val in row.tolist()]
+        table_treeview.insert("", "end", values=values)
 
     table_treeview.pack(side="left", fill="both", expand=True)
 
     if not hasattr(parent, "table_frames"):
         parent.table_frames = {}
     parent.table_frames[table_name] = table_frame
+
 
 
 
@@ -225,6 +246,10 @@ def is_column_numeric(df, column_name):
 
 
 def create_summary_table(df):
+
+    temp_df = df.copy()
+    temp_df.replace("[MISSING VALUE]", np.nan, inplace=True)
+
     # Preparing the columns for the summary dataframe
     describe_cols = ['mean', 'std', 'min', '25%', '50%', '75%', 'max']
     summary_cols = ['Column', 'Mode', 'Non-Missing Count', 'Missing Count', 'Non-Missing Unique Count'] + describe_cols
@@ -232,21 +257,22 @@ def create_summary_table(df):
 
     # Function to check if a column is numeric
     def is_numeric(col):
-        return pd.api.types.is_numeric_dtype(df[col])
+        return pd.api.types.is_numeric_dtype(temp_df[col])
 
     # Iterating through each column to compute the statistics
-    for column in df.columns:
+    for column in temp_df.columns:
+
         data = {
             'Column': column,
-            'Mode': tuple(map(str, df[column].mode().values)),
-            'Non-Missing Count': df[column].count(),
-            'Missing Count': df[column].isnull().sum(),
-            'Non-Missing Unique Count': df[column].nunique()
+            'Mode': tuple(map(str, temp_df[column].mode().values)),
+            'Non-Missing Count': temp_df[column].count(),
+            'Missing Count': temp_df[column].isnull().sum(),
+            'Non-Missing Unique Count': temp_df[column].nunique()
         }
 
         # Adding descriptive statistics for numeric columns
         if is_numeric(column):
-            data.update(df[column].describe()[describe_cols].to_dict())
+            data.update(temp_df[column].describe()[describe_cols].to_dict())
 
         # Filtering out empty or all-NA columns from the data dictionary
         data = {k: v for k, v in data.items() if v is not None and not pd.isna(v)}
