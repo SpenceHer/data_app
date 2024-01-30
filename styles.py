@@ -1,77 +1,78 @@
+
+
 color_dict = {
     # Main Tabs
-    "active_main_tab_bg": "#FFFFFF",  # White for active main tabs
-    "active_main_tab_txt": "#333333",  # Dark Grey text for contrast
-    "inactive_main_tab_bg": "#F0F0F0",  # Light Grey for inactive main tabs
-    "inactive_main_tab_txt": "#666666",  # Light Grey for text
-    "hover_main_tab_bg": "#E0E0E0",  # Lighter Grey for hover states
-    "hover_main_tab_txt": "#333333",  # Dark Grey text for hover states
+    "active_main_tab_bg": "#E91E63",  # Barbie Pink for active main tabs
+    "active_main_tab_txt": "#FFFFFF",  # White text for contrast
+    "inactive_main_tab_bg": "#F8BBD0",  # Lighter pink for inactive main tabs
+    "inactive_main_tab_txt": "#4A2C4E",  # Dark purple for text
+    "hover_main_tab_bg": "#AD1457",  # Deeper pink for hover states
+    "hover_main_tab_txt": "#FFFFFF",  # White text for hover states
 
     # Sub Tabs
-    "active_subtab_bg": "#FFFFFF",  # White for active subtabs
-    "active_subtab_txt": "#333333",  # Dark Grey text for active subtabs
-    "inactive_subtab_bg": "#F0F0F0",  # Light Grey for inactive subtabs
-    "inactive_subtab_txt": "#666666",  # Light Grey text for inactive subtabs
-    "hover_subtab_bg": "#E0E0E0",  # Lighter Grey for hover states on subtabs
-    "hover_subtab_txt": "#333333",  # Dark Grey text for hover states
+    "active_subtab_bg": "#F06292",  # Bright pink for active subtabs
+    "active_subtab_txt": "#FFFFFF",  # White text for active subtabs
+    "inactive_subtab_bg": "#FCE4EC",  # Very light pink for inactive subtabs
+    "inactive_subtab_txt": "#4A2C4E",  # Dark purple for inactive subtabs text
+    "hover_subtab_bg": "#EC407A",  # Medium pink for hover states on subtabs
+    "hover_subtab_txt": "#FFFFFF",  # White text for hover states
 
     # Background Frame
-    "background_frame_bg": "#F0F0F0",  # Light Grey for the background frame
+    "background_frame_bg": "#FCE4EC",  # Very light pink for the background frame
 
     # Main Content Frame
-    "main_content_bg": "#FFFFFF",  # Pure White for main content background
-    "main_content_border": "#E0E0E0",  # Light Grey for borders
+    "main_content_bg": "#FAFAFA",  # Off-white for main content background
+    "main_content_border": "#F8BBD0",  # Light pink for borders
 
-    "main_content_header": "#333333",  # Dark Grey for main headers
-    "main_content_sub_header": "#666666",  # Light Grey for sub-headers
-    "main_content_regular_text": "#333333",  # Dark Grey for regular text
+    "main_content_header": "#AD1457",  # A deeper shade of pink for main headers, providing contrast and emphasis
+    "main_content_sub_header": "#E91E63",  # A slightly lighter Barbie pink for sub-headers to differentiate from the main headers but maintain the theme
+    "main_content_regular_text": "#4A2C4E",  # A dark purple or almost black for regular text, ensuring readability against lighter backgrounds
 
-    # Sub Content Frame
-    "sub_frame_bg": "#F0F0F0",  # Light Grey for sub-frame backgrounds
-    "sub_frame_border": "#E0E0E0",  # Light Grey for sub-frame borders
+    # Sub Content Frame - Several within every Main Content Frame
+    "sub_frame_bg": "#FADCE6",  # Pastel pink for sub-frame backgrounds, providing a soft, thematic contrast
+    "sub_frame_border": "#E1BEE7",  # Pastel purple for sub-frame borders, adding a pop of color and definition
 
-    # Navigation Banner
-    "nav_banner_bg": "#333333",  # Dark Grey for navigation banner
+    # Navigation Banner - at the bottom of every main_content frame
+    "nav_banner_bg": "#E91E63",  # Barbie Pink for navigation banner
     "nav_banner_txt": "#FFFFFF",  # White for navigation text
-    "nav_banner_hover_bg": "#555555",  # Slightly darker Grey for hover states
+    "nav_banner_hover_bg": "#C2185B",  # Darker pink for hover states
     "nav_banner_hover_txt": "#FFFFFF",  # White for hover state text
 
     # Navigation Menu Buttons
-    "nav_menu_button_bg": "#666666",  # Light Grey for menu buttons
+    "nav_menu_button_bg": "#F06292",  # Bright pink for menu buttons
     "nav_menu_button_txt": "#FFFFFF",  # White text for buttons
-    "nav_menu_button_hover_bg": "#555555",  # Slightly darker Grey for button hover states
+    "nav_menu_button_hover_bg": "#E91E63",  # Barbie Pink for button hover states
     "nav_menu_button_hover_txt": "#FFFFFF",  # White text for hover states
 
     # Listboxes
-    "listbox_bg": "#FFFFFF",  # Pure White for listbox background
-    "listbox_fg": "#333333",  # Dark Grey for listbox foreground text
-    "listbox_highlight_bg": "#E0E0E0",  # Light Grey for listbox highlight background
-    "listbox_highlight_color": "#333333",  # Dark Grey for highlight color
-    "listbox_select_bg": "#F0F0F0",  # Light Grey for selected item background
-    "listbox_select_fg": "#333333",  # Dark Grey for selected item text
+    "listbox_bg": "#FAFAFA",  # Off-white for listbox background
+    "listbox_fg": "#AD1457",  # Deep pink for listbox foreground text
+    "listbox_highlight_bg": "#F8BBD0",  # Light pink for listbox highlight background
+    "listbox_highlight_color": "#EC407A",  # Medium pink for highlight color
+    "listbox_select_bg": "#FCE4EC",  # Very light pink for selected item background
+    "listbox_select_fg": "#4A2C4E",  # Dark purple for selected item text
 
     # Radio Buttons
-    "radio_button_inactive_text": "#333333",  # Dark Grey text
-    "radio_button_inactive_background": "#FFFFFF",  # White background
-    "radio_button_inactive_border": "#666666",  # Light Grey border
-    "radio_button_active_text": "#FFFFFF",  # White text
-    "radio_button_active_background": "#333333",  # Dark Grey background
-    "radio_button_active_border": "#555555",  # Slightly darker Grey border
-    "radio_button_pressed_text": "#FFFFFF",  # White text
-    "radio_button_pressed_background": "#666666",  # Light Grey background
-    "radio_button_pressed_border": "#555555",  # Slightly darker Grey border
-    "radio_button_hover_text": "#FFFFFF",  # White text
-    "radio_button_hover_background": "#555555",  # Slightly darker Grey background
-    "radio_button_hover_border": "#444444",  # Darker Grey border
+    "radio_button_inactive_text": "#4A2C4E",
+    "radio_button_inactive_background": "#FAFAFA",
+    "radio_button_inactive_border": "#E91E63",
+    "radio_button_active_text": "#FFFFFF",
+    "radio_button_active_background": "#E91E63",
+    "radio_button_active_border": "#AD1457",
+    "radio_button_pressed_text": "#4A2C4E",
+    "radio_button_pressed_background": "#F8BBD0",
+    "radio_button_pressed_border": "#C2185B",
+    "radio_button_hover_text": "#FFFFFF",
+    "radio_button_hover_background": "#AD1457",
+    "radio_button_hover_border": "#991846",
 
     # Transfer Buttons
-    "transfer_button_text_color": "#FFFFFF",  # White text
-    "transfer_button_bg": "#333333",  # Dark Grey
-    "transfer_button_pressed_bg": "#555555",  # Slightly darker Grey for pressed state
-    "transfer_button_active_bg": "#444444"  # Darker Grey for active state
-}
+    "transfer_button_text_color": "#FFFFFF",
+    "transfer_button_bg": "#E91E63",
+    "transfer_button_pressed_bg": "#C2185B",
+    "transfer_button_active_bg": "#AD1457"
 
-################################################################################################################
+}
 
 # FONTS
 main_tabs_font = ("Brush Script MT", 48, "bold")  # Playful script font for main tabs
@@ -90,6 +91,4 @@ listbox_font = ("Arial Rounded MT Bold", 36, "bold")
 
 radio_button_font = ("Arial Rounded MT Bold", 24)  # Playful and legible font
 
-transfer_button_font = ("Arial Rounded MT Bold", 36)  # Playful and legible font
-
-
+transfer_button_font = ("Arial Rounded MT Bold", 36)  # Bold and fun for standout buttons
