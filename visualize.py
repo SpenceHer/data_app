@@ -53,7 +53,6 @@ from styles import color_dict
 
 # TO DO NOTE
 
-
 ########################
 
 
@@ -219,6 +218,8 @@ class ComparisonTableClass:
     def __init__(self, visualize_content_frame, style):
 
         self.df = data_manager.get_dataframe()
+        self.df.replace("[MISSING VALUE]", np.nan, inplace=True)
+
         self.visualize_content_frame = visualize_content_frame
 
         self.style = style
@@ -860,25 +861,44 @@ class ComparisonTableClass:
 
     def create_results_frame(self):
 
-
         # MAIN CONTENT FRAME
-        self.results_display_frame_container_frame = tk.Frame(self.results_frame, bg='beige')
-        self.results_display_frame_container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=150)
+        self.results_inner_frame = tk.Frame(self.results_frame, bg=color_dict["main_content_bg"])
+        self.results_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
 
-        self.results_display_frame = tk.Frame(self.results_display_frame_container_frame, bg='beige')
-        self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+################################################################################################################
+
+        # RESULTS TABLE DISPLAY FRAME
+        self.results_table_subframe_border = tk.Frame(self.results_inner_frame, bg=color_dict["sub_frame_border"])
+        self.results_table_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.results_table_subframe = tk.Frame(self.results_table_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.results_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.results_table_label = tk.Label(self.results_table_subframe, text="Variable Type Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.results_table_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.results_table_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+
+        self.results_display_frame = tk.Frame(self.results_table_subframe, bg=color_dict["sub_frame_bg"])
+        self.results_display_frame.pack(side=tk.TOP, fill=tk.Y, expand=True, pady=10)
+
+
+################################################################################################################
 
         # NAVIGATION MENU
-        self.results_menu_frame = tk.Frame(self.results_frame, bg='lightgray')
+        self.results_menu_frame = tk.Frame(self.results_frame, bg=color_dict["nav_banner_bg"])
         self.results_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_variable_handling_frame_button = tk.Button(self.results_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', font=("Arial", 36))
+        self.return_to_variable_handling_frame_button = ttk.Button(self.results_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', style='nav_menu_button.TButton')
         self.return_to_variable_handling_frame_button.pack(side=tk.LEFT)
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+################################################################################################################
 
     def apply_comparison_table_variable_selection(self):
         self.selected_variable_types = {}
@@ -974,6 +994,7 @@ class ComparisonTableClass:
                     return
 
             elif option == 'Categorical':
+ 
 
                 self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
 
@@ -982,7 +1003,6 @@ class ComparisonTableClass:
                 try:
 
                     observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-
                     # Calculate the odds ratio
                     odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
 
@@ -1004,6 +1024,8 @@ class ComparisonTableClass:
                     # Convert confidence interval back to odds ratio scale
                     ci_lower = np.exp(ci_lower_ln)
                     ci_upper = np.exp(ci_upper_ln)
+
+                    print(observed)
 
                 except:
 
@@ -1037,12 +1059,12 @@ class ComparisonTableClass:
                     row_sum = row.sum()
                     column_sums = observed.sum(axis=0)
 
-                    if self.selected_percent_type == "row":
+                    if self.selected_percent_type == "Row":
 
                         for value in row:
                             new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
 
-                    if self.selected_percent_type == "column":
+                    if self.selected_percent_type == "Column":
 
                         for value, column_sum in zip(row, column_sums):
                             new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
@@ -1051,7 +1073,7 @@ class ComparisonTableClass:
 
                     if len(self.unique_dependent_variable_values) == 2:
                         new_row.append(np.nan)
-
+                    print(new_row)
                     self.summary_table.append(new_row)
 
                 self.summary_table.append([np.nan] * len(row1))
@@ -1186,12 +1208,12 @@ class ComparisonTableClass:
                     row_sum = row.sum()
                     column_sums = observed.sum(axis=0)
 
-                    if self.selected_percent_type == "row":
+                    if self.selected_percent_type == "Row":
 
                         for value in row:
                             new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
 
-                    if self.selected_percent_type == "column":
+                    if self.selected_percent_type == "Column":
 
                         for value, column_sum in zip(row, column_sums):
                             new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
@@ -1219,10 +1241,10 @@ class ComparisonTableClass:
         self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
 
 
-        utils.create_table(self.results_display_frame, self.summary_df)
+        utils.create_table(self.results_display_frame, self.summary_df, self.style)
 
-        save_summary_button = tk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), font=("Arial", 36))
-        save_summary_button.pack(side=tk.BOTTOM)
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), style="main_content_button.TButton")
+        save_summary_button.pack(side=tk.BOTTOM, pady=10)
 
 
 
@@ -1375,6 +1397,7 @@ class RegressionAnalysisClass:
     def __init__(self, visualize_content_frame, style):
 
         self.df = data_manager.get_dataframe()
+        self.df.replace("[MISSING VALUE]", np.nan, inplace=True)
 
         self.visualize_content_frame = visualize_content_frame
 
@@ -2155,7 +2178,7 @@ class RegressionAnalysisClass:
                 coefs.loc[i, 'CI_low'] = '-inf'
 
 
-        utils.create_table(self.results_display_frame, coefs)
+        utils.create_table(self.results_display_frame, coefs, self.style)
 
 
         summary_text = tk.Text(self.results_display_frame, height=20, width=120)
@@ -2209,7 +2232,7 @@ class RegressionAnalysisClass:
             coefs.loc[i, 'Coefficient'] = round(coefs.loc[i, 'Coefficient'], 2)
 
 
-        utils.create_table(self.results_display_frame, coefs)
+        utils.create_table(self.results_display_frame, coefs, self.style)
 
 
         summary_text = tk.Text(self.results_display_frame, height=20, width=120)
@@ -2386,6 +2409,7 @@ class CreatePlotClass():
     def __init__(self, visualize_content_frame, style):
 
         self.df = data_manager.get_dataframe()
+        self.df.replace("[MISSING VALUE]", np.nan, inplace=True)
 
         self.style = style
 
@@ -2781,6 +2805,8 @@ class MachineLearningClass:
     def __init__(self, visualize_content_frame, style):
 
         self.df = data_manager.get_dataframe()
+        self.df.replace("[MISSING VALUE]", np.nan, inplace=True)
+
         self.visualize_content_frame = visualize_content_frame
 
         self.style = style
