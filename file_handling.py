@@ -11,7 +11,6 @@ from styles import color_dict
 
 def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=True):
 
-
     for button_style in ["file_button.TButton", "dataframe_view_button.TButton", "edit_button.TButton", "visualize_button.TButton"]:
         style.map(
             button_style,
@@ -183,9 +182,11 @@ class SetupFileTabClass():
 
         try:
             if self.file_path.endswith('.xlsx'):
-                self.df = pd.read_excel(self.file_path, keep_default_na=False, na_values=[''])
+                self.df = pd.read_excel(self.file_path)
+                self.df.fillna("[MISSING VALUE]", inplace=True)
             else:
-                self.df = pd.read_csv(self.file_path, keep_default_na=False, na_values=[''])
+                self.df = pd.read_csv(self.file_path)
+                self.df.fillna("[MISSING VALUE]", inplace=True)
         except:
             utils.show_message('error loading', 'Error Reading File')
             raise
@@ -688,9 +689,9 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
     def initialize_dataframe_view_tab():
         utils.remove_frame_widgets(dataframe_content_frame)
 
-        utils.create_table(dataframe_content_frame, df)
+        utils.create_table(dataframe_content_frame, df, style)
         summary_df = utils.create_summary_table(df)
-        utils.create_table(dataframe_content_frame, summary_df, title="COLUMN SUMMARY TABLE")
+        utils.create_table(dataframe_content_frame, summary_df, style, title="COLUMN SUMMARY TABLE")
 
         editing_content_frame.pack_forget()
         visualize_content_frame.pack_forget()
