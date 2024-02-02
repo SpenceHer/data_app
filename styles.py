@@ -70,7 +70,15 @@ color_dict = {
     "transfer_button_text_color": "#FFFFFF",
     "transfer_button_bg": "#E91E63",
     "transfer_button_pressed_bg": "#C2185B",
-    "transfer_button_active_bg": "#AD1457"
+    "transfer_button_active_bg": "#AD1457",
+
+
+    # Comboboxes
+    "active_combobox_background": "#FFB6C1",  # Light Pink
+    "active_combobox_text": "#FF69B4",        # Hot Pink
+    "inactive_combobox_background": "#E6E6E6", # Light Gray
+    "inactive_combobox_text": "#E6E6E6"       # Light Gray
+
 
 }
 
