@@ -129,7 +129,7 @@ def get_comp_tab_data_selection():
 reg_tab_dep_var = None
 reg_tab_ind_var_list = []
 
-reg_tab_selected_regression = ""
+reg_tab_selected_regression = None
 
 
 # REGRESSION DEPENDENT VARIABLE
@@ -228,8 +228,8 @@ def get_non_numeric_ind_dict():
 ################################################################################################################
 ################################################################################################################
 
-mach_learn_tab_dep_var = None
-mach_learn_tab_ind_var_list = []
+mach_learn_tab_dep_var = "major_complication"
+mach_learn_tab_ind_var_list = ["albumin", "bmi_cat"]
 
 mach_learn_tab_selected_model_type = None
 mach_learn_tab_selected_cat_model = None
