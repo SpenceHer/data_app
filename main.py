@@ -93,15 +93,65 @@ file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, f
 
 
 
+# STYLING
+
+style.configure("Separator.TSeparator", background="#E91E63")
+# RADIO BUTTONS
+style.configure("inactive_radio_button.TButton", 
+                    font=styles.radio_button_font, 
+                    foreground=color_dict["radio_button_inactive_text"],
+                    background=color_dict["radio_button_inactive_background"],
+                    bordercolor=color_dict["radio_button_inactive_border"],
+                    relief="flat")
+
+# Style for the active (selected) state
+style.configure("active_radio_button.TButton", 
+                    font=styles.radio_button_font, 
+                    foreground=color_dict["radio_button_active_text"],
+                    background=color_dict["radio_button_active_background"],
+                    bordercolor=color_dict["radio_button_active_border"],
+                    relief="groove")
+
+style.map("inactive_radio_button.TButton",
+                foreground=[("pressed", color_dict["radio_button_pressed_text"]), ("active", color_dict["radio_button_pressed_text"])],
+                background=[("pressed", color_dict["radio_button_pressed_background"]), ("active", color_dict["radio_button_pressed_background"])],
+                bordercolor=[("pressed", color_dict["radio_button_pressed_border"]), ("active", color_dict["radio_button_pressed_border"])])
+style.map("active_radio_button.TButton",
+                foreground=[("pressed", color_dict["radio_button_hover_text"]), ("active", color_dict["radio_button_hover_text"])],
+                background=[("pressed", color_dict["radio_button_hover_background"]), ("active", color_dict["radio_button_hover_background"])],
+                bordercolor=[("pressed", color_dict["radio_button_hover_border"]), ("active", color_dict["radio_button_hover_border"])])
 
 
 
 
 
+style.map("TCombobox",  # Style for active ComboBoxes
+    fieldbackground=[("readonly", color_dict["active_combobox_background"]), ("disabled", color_dict["inactive_combobox_background"])],
+    background=[("readonly", color_dict["active_combobox_background"]), ("disabled", color_dict["inactive_combobox_background"])],
+    foreground = [("readonly", color_dict["listbox_fg"]), ("disabled", color_dict["inactive_combobox_text"])],
+)
+
+
+style.configure('nav_menu_button.TButton', font=styles.nav_menu_button_font, background=color_dict["nav_menu_button_bg"], foreground=color_dict["nav_menu_button_txt"])
+style.map("nav_menu_button.TButton",
+    background=[("active", color_dict["nav_menu_button_hover_bg"])],
+    foreground=[("active", color_dict["nav_menu_button_hover_txt"])]
+)
+    
 
 
 
+        # self.style.configure('categorical_model.TCombobox', selectbackground="darkgray", selectforeground="black")
+        # self.style.map("categorical_model.TCombobox", fieldbackground=[("readonly", "darkgray"), ("disabled", "lightgray")])
 
+
+
+        #     self.continuous_model_selection_combobox.configure(state="readonly")
+        #     self.style.configure("continuous_model.TCombobox", foreground='black', background='darkgray')
+
+
+        #     self.categorical_model_selection_combobox.configure(state="disabled")
+        #     self.style.configure("categorical_model.TCombobox", foreground='lightgray', background='lightgray')
 
 
 
