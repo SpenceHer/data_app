@@ -41,6 +41,7 @@ from sklearn.model_selection import (GridSearchCV, KFold, StratifiedKFold, cross
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.utils import resample
+from sklearn.linear_model import LinearRegression
 
 # Local application/library specific imports
 import data_manager
@@ -90,12 +91,7 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_h
             foreground=[("active", color_dict["hover_subtab_txt"])]
         )
 
-    # SET OTHER COLORS
-    style.configure('nav_menu_button.TButton', font=styles.nav_menu_button_font, background=color_dict["nav_menu_button_bg"], foreground=color_dict["nav_menu_button_txt"])
-    style.map("nav_menu_button.TButton",
-        background=[("active", color_dict["nav_menu_button_hover_bg"])],
-        foreground=[("active", color_dict["nav_menu_button_hover_txt"])]
-    )
+
 
 
     utils.remove_frame_widgets(sub_button_frame)
@@ -810,7 +806,7 @@ class ComparisonTableClass:
 
 
             if value in self.variable_type_dict:
-                print(self.variable_type_dict[value])
+
                 selected_type = self.variable_type_dict[value]
             
                 if selected_type == "Continuous":
@@ -1006,7 +1002,7 @@ class ComparisonTableClass:
                     ci_lower = np.exp(ci_lower_ln)
                     ci_upper = np.exp(ci_upper_ln)
 
-                    print(observed)
+           
 
                 except:
 
@@ -1054,7 +1050,7 @@ class ComparisonTableClass:
 
                     if len(self.unique_dependent_variable_values) == 2:
                         new_row.append(np.nan)
-                    print(new_row)
+          
                     self.summary_table.append(new_row)
 
                 self.summary_table.append([np.nan] * len(row1))
@@ -1839,9 +1835,7 @@ class RegressionAnalysisClass:
         # MAIN CONTENT FRAME
         self.variable_handling_inner_frame, self.variable_handling_canvas = utils.create_scrollable_frame(self.variable_handling_frame)
 
-
 ################################################################################################################
-
 
         # NAVIGATION MENU
         self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg=color_dict["nav_banner_bg"])
@@ -1855,7 +1849,6 @@ class RegressionAnalysisClass:
 
         self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
-
 
 
 ################################################################################################################
@@ -2202,8 +2195,6 @@ class RegressionAnalysisClass:
         self.clean_df.loc[self.clean_df[self.selected_dependent_variable]==self.selected_target_value, self.corrected_dependent_variable] = 1
         self.clean_df.loc[self.clean_df[self.selected_dependent_variable]!=self.selected_target_value, self.corrected_dependent_variable] = 0
 
-        print(self.clean_df[self.selected_dependent_variable].unique())
-        print(self.clean_df[self.corrected_dependent_variable].unique())
 
 
         self.selected_options.clear()
@@ -2250,6 +2241,7 @@ class RegressionAnalysisClass:
 
         # MAIN CONTENT FRAME
         self.results_inner_frame, self.results_frame_canvas = utils.create_scrollable_frame(self.results_frame)
+
 ################################################################################################################
 
         # RESULTS TABLE DISPLAY FRAME
@@ -2314,7 +2306,6 @@ class RegressionAnalysisClass:
 
         model_string = model_string.rstrip(" +")
 
-        print(model_string)
         model = smf.logit(model_string, data=self.clean_df)
         results = model.fit(method='bfgs', maxiter=1000)
 
@@ -2627,28 +2618,158 @@ class CreatePlotClass():
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
 
-        self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+
+
+        self.create_plot_options_frame()
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+    # CREATE PLOT OPTIONS FRAME
+
+
+
+    def create_plot_selection_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.plot_selection_inner_frame = tk.Frame(self.plot_selection_frame, bg=color_dict["main_content_bg"])
+        self.plot_selection_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+
+
+################################################################################################################
+
+
+        # PLOT SELECTION
+
+        self.plot_selection_selection_subframe_border = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_selection_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.plot_selection_selection_subframe = tk.Frame(self.plot_selection_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_selection_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.plot_selection_frame_label = tk.Label(self.plot_selection_selection_subframe, text="Plot Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_selection_frame_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.plot_selection_selection_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        # PLOT SELECTION FRAME
+        self.plot_choice_frame = tk.Frame(self.plot_selection_selection_subframe, bg=color_dict["sub_frame_bg"])
+        self.plot_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
+
+        self.plot_search_var = tk.StringVar()
+        self.plot_search_var.trace("w", self.update_plot_selection_listbox)
+        self.plot_var_search_entry = tk.Entry(self.plot_choice_frame, textvariable=self.plot_search_var, font=styles.listbox_font)
+        self.plot_var_search_entry.pack(side=tk.TOP, pady=10)
+
+        self.plot_selection_listbox = tk.Listbox(self.plot_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+                     fg=color_dict["listbox_fg"],
+                     highlightbackground=color_dict["listbox_highlight_bg"],
+                     highlightcolor=color_dict["listbox_highlight_color"],
+                     selectbackground=color_dict["listbox_select_bg"],
+                     selectforeground=color_dict["listbox_select_fg"])
+        self.plot_selection_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+
+        for column in sorted(self.df.columns, key=str.lower):
+            self.plot_selection_listbox.insert(tk.END, column)
+
+        self.plot_selection_listbox.bind("<<ListboxSelect>>", self.on_plot_selection_listbox_select)
+
+
+
+
+################################################################################################################
+
+        # NAVIGATION MENU
+        self.plot_selection_menu_frame = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.plot_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.advance_to_inplot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=self.switch_to_inplot_selections_frame, style='nav_menu_button.TButton')
+        self.advance_to_inplot_selections_button.pack(side=tk.RIGHT)
+
+        self.plot_selection_label = tk.Label(self.plot_selection_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.plot_selection_label.pack(side=tk.RIGHT, expand=True)
+
+
+
+        if self.selected_plot:
+            self.plot_selection_listbox.selection_clear(0, tk.END)
+            items = list(self.plot_selection_listbox.get(0, tk.END))
+            index = items.index(self.selected_plot)
+            self.plot_selection_listbox.selection_set(index)
+            self.plot_selection_listbox.yview(index)
+            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_plot}")
+
+
+
+################################################################################################################
+
+    def on_plot_selection_listbox_select(self, event):
+        if self.plot_selection_listbox.curselection():
+            self.selected_plot_selection = self.plot_selection_listbox.get(self.plot_selection_listbox.curselection()[0])
+            data_manager.set_mach_learn_tab_dep_var(self.selected_plot_selection)
+            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_plot_selection}")
+
+
+
+    def update_plot_selection_listbox(self, *args):
+        search_term = self.dependent_search_var.get().lower()
+        self.plot_selection_listbox.delete(0, tk.END)
+
+        # Check if the search term is empty
+        if search_term == "":
+            # If search term is empty, insert all columns sorted alphabetically
+            for column in sorted(self.df.columns, key=str.lower):
+                self.plot_selection_listbox.insert(tk.END, column)
+        else:
+            # If there is a search term, filter and sort the columns based on the search term
+            filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
+            # Populate the Listbox with the sorted list
+            for column in filtered_sorted_columns:
+                self.plot_selection_listbox.insert(tk.END, column)
+
+
+
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def create_plot_options_frame(self):
+
+
+
+        self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
         self.plot_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
 
-        self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
         self.figure_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
         self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.figure_display_frame.pack_forget()
 
 
-        self.create_plot_options_list()
-
-    def update_column_listbox(self, *args):
-        search_term = self.column_search_var.get().lower()
-        self.plot_choice_listbox.delete(0, tk.END)
-        for plot in self.available_plots:
-            if search_term in plot.lower():
-                self.plot_choice_listbox.insert(tk.END, plot)
-
-
-    def create_plot_options_list(self):
 
         self.available_plots = ["Scatter Plot"]
         self.selected_plot = None
@@ -2656,7 +2777,7 @@ class CreatePlotClass():
 
         self.radiobuttons = []
 
-        self.choice_frame = tk.Frame(self.plot_options_frame, bg='beige')
+        self.choice_frame = tk.Frame(self.plot_options_frame, bg=color_dict["sub_frame_bg"])
         self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.choice_frame_label = tk.Label(self.choice_frame, text="Choose a Graph", font=("Arial", 30, "bold"), bg="beige")
@@ -2691,10 +2812,10 @@ class CreatePlotClass():
         self.plot_choice_listbox.bind("<<ListboxSelect>>", on_plot_choice_listbox_selection)
 
 
-        self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg='beige')
+        self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg=color_dict["sub_frame_bg"])
         self.plot_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg='beige', command=lambda: self.choose_plot())
+        self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg=color_dict["sub_frame_bg"], command=lambda: self.choose_plot())
         self.choose_plot_button.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5)
 
 
@@ -2728,17 +2849,17 @@ class CreatePlotClass():
 
 
     def display_scatter_plot_settings(self):
-        self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg='beige')
+        self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg=color_dict["sub_frame_bg"])
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg='beige')
+        self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg=color_dict["sub_frame_bg"])
         self.submit_settings_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         self.x_axis_selection = tk.StringVar()
         self.y_axis_selection = tk.StringVar()
 
         ###################### X AXIS ######################
-        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
+        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-AXIS SELECTION", font=("Arial", 30, "bold"))
@@ -2774,7 +2895,7 @@ class CreatePlotClass():
         ###################### X AXIS ######################
 
         ###################### Y AXIS ######################
-        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg='beige')
+        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-AXIS SELECTION", font=("Arial", 30, "bold"))
@@ -3064,12 +3185,12 @@ class MachineLearningClass:
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
-        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        self.settings_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        self.results_frame = tk.Frame(self.visualize_content_frame, bg='beige')
-        self.prediction_tool_frame = tk.Frame(self.visualize_content_frame, bg='beige')
+        self.dependent_variable_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.indedependent_variables_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.variable_handling_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.settings_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.results_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.prediction_tool_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
 
         self.create_dependent_variable_frame()
         self.create_independent_variables_frame()
@@ -3408,7 +3529,7 @@ class MachineLearningClass:
 
 
             elif self.selected_model_type == "Continuous":
-                print(2)
+
                 self.toggle_model_type_button_style("Continuous")
                 self.categorical_model_selection_combobox.configure(state="disabled")
                 self.continuous_model_selection_combobox.configure(state="readonly")
@@ -3416,6 +3537,8 @@ class MachineLearningClass:
                 self.continuous_model_selection_combobox.set(self.selected_continuous_model)
 
                 self.selected_model = self.selected_continuous_model
+        else:
+            self.toggle_model_type_button_style("Categorical")
 
 
 
@@ -3537,6 +3660,7 @@ class MachineLearningClass:
             self.categorical_model_type_button.configure(style="active_radio_button.TButton")
             self.selected_model_type = "Categorical"
             data_manager.set_mach_learn_tab_selected_model_type(self.selected_model_type)
+            self.selected_model = self.categorical_model_selection_combobox.get()
 
             self.continuous_model_selection_combobox.configure(state="disabled")
             self.categorical_model_selection_combobox.configure(state="readonly")
@@ -3546,6 +3670,7 @@ class MachineLearningClass:
             self.categorical_model_type_button.configure(style="inactive_radio_button.TButton")
             self.selected_model_type = "Continuous"
             data_manager.set_mach_learn_tab_selected_model_type(self.selected_model_type)
+            self.selected_model = self.continuous_model_selection_combobox.get()
 
             self.continuous_model_selection_combobox.configure(state="readonly")
             self.categorical_model_selection_combobox.configure(state="disabled")
@@ -3558,120 +3683,96 @@ class MachineLearningClass:
     # CREATE VARIABLE HANDLING FRAME
 
     def create_variable_handling_frame(self):
+
         # MAIN CONTENT FRAME
-        self.variable_handling_label_frame = tk.Frame(self.variable_handling_frame)
-        self.variable_handling_label_frame.pack(side=tk.TOP)
-
-        # TITLE LABEL
-        self.variable_handling_label = tk.Label(self.variable_handling_label_frame, text="", font=("Arial", 36, "bold"), bg='beige')
-        self.variable_handling_label.pack(side=tk.TOP)
-
-        separator = ttk.Separator(self.variable_handling_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+        self.variable_handling_inner_frame, self.variable_handling_canvas = utils.create_scrollable_frame(self.variable_handling_frame)
 
         ########################################################################################################
 
-        # SCROLLABLE FRAME
-        self.variable_handling_options_frame = tk.Frame(self.variable_handling_frame)
-        self.variable_handling_options_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # Canvas for scrollable content
-        self.variable_type_canvas = tk.Canvas(self.variable_handling_options_frame, bg='yellow')
-        self.variable_type_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Scrollbar for the canvas
-        self.scrollbar = tk.Scrollbar(self.variable_handling_options_frame, command=self.variable_type_canvas.yview)
-        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.variable_type_canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        # Scrollable frame inside the canvas
-        self.scrollable_frame = tk.Frame(self.variable_type_canvas, bg='yellow')
-        self.scrollable_frame_window = self.variable_type_canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
-
-        # Bind events
-        self.variable_type_canvas.bind("<Configure>", self.on_variable_handling_canvas_configure)
-        self.scrollable_frame.bind("<Configure>", lambda e: self.variable_type_canvas.configure(scrollregion=self.variable_type_canvas.bbox("all")))
-
-        # Cross-platform scroll event binding
-        if self.visualize_content_frame.tk.call('tk', 'windowingsystem') == 'aqua':  # macOS
-            self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
-        else:  # Windows and others
-            self.variable_handling_options_frame.bind_all("<MouseWheel>", self.on_variable_handling_mousewheel)
-            self.variable_handling_options_frame.bind_all("<Button-4>", self.on_variable_handling_mousewheel)
-            self.variable_handling_options_frame.bind_all("<Button-5>", self.on_variable_handling_mousewheel)
-
-        ########################################################################################################
 
         # NAVIGATION MENU FRAME
-        self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg='lightgray')
+        self.variable_handling_menu_frame = tk.Frame(self.variable_handling_frame, bg=color_dict["nav_banner_bg"])
         self.variable_handling_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_independent_variable_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', font=("Arial", 36))
+        self.return_to_independent_variable_frame_button = ttk.Button(self.variable_handling_menu_frame, command=self.switch_to_independent_variables_frame, text='Back', style='nav_menu_button.TButton')
         self.return_to_independent_variable_frame_button.pack(side=tk.LEFT)
 
-        self.advance_to_settings_frame_button = tk.Button(self.variable_handling_menu_frame, command=self.switch_to_settings_frame, text="Next ->", font=("Arial", 36))
+        self.advance_to_settings_frame_button = ttk.Button(self.variable_handling_menu_frame, command=self.switch_to_settings_frame, text="Next ->", style='nav_menu_button.TButton')
         self.advance_to_settings_frame_button.pack(side=tk.RIGHT)
 
-        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
-
-    def on_variable_handling_canvas_configure(self, event):
-        # Update the width of the scrollable frame to match the canvas
-        canvas_width = event.width
-        self.variable_type_canvas.itemconfig(self.scrollable_frame_window, width=canvas_width)
-
-    def on_variable_handling_mousewheel(self, event):
-        if self.variable_type_canvas.winfo_exists():
-            if event.num == 4 or event.delta > 0:  # Scroll up
-                self.variable_type_canvas.yview_scroll(-1, "units")
-            elif event.num == 5 or event.delta < 0:  # Scroll down
-                self.variable_type_canvas.yview_scroll(1, "units")
-
-
-    # def on_variable_handling_mousewheel(self, event):
-    #     if self.variable_type_canvas.winfo_exists():
-    #         self.variable_type_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
     ################################################################################################################
 
     # HANDLE VARIABLES FOR MACHINE LEARNING
 
     def handle_variables_machine_learning(self):
+        
+        utils.remove_frame_widgets(self.variable_handling_inner_frame)
 
-        self.variable_handling_label.configure(text=f"{self.selected_model} Model Variable Settings")
-
-        utils.remove_frame_widgets(self.scrollable_frame)
 
         self.temp_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-
         self.clean_df = self.temp_df[self.selected_dependent_variable].copy().dropna()
 
 
-        # TARGET VALUE FRAME
-        self.dependent_variable_handling_frame = tk.Frame(self.scrollable_frame, bg='yellow')
-        self.dependent_variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+
+################################################################################################################
+
+        # TARGET VALUE SUBFRAME
+        self.target_value_subframe_border = tk.Frame(self.variable_handling_inner_frame, bg=color_dict["sub_frame_border"])
+        self.target_value_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=10)
+
+        self.target_value_subframe = tk.Frame(self.target_value_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.target_value_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.target_value_label = tk.Label(self.target_value_subframe, text="Target Value Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.target_value_label.pack(side=tk.TOP, pady=10)
+        
+        separator = ttk.Separator(self.target_value_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
 
-        self.dependent_variable_handling_frame_label = tk.Label(self.dependent_variable_handling_frame, text='Choose Target Value', font=('Arial', 32, "bold"), bg='yellow')
-        self.dependent_variable_handling_frame_label.pack(side=tk.TOP)
+        self.target_value_1 = f"{self.clean_df.unique()[0]}"
+        self.target_value_2 = f"{self.clean_df.unique()[1]}"
 
-        def on_dependent_variable_value_selected():
-            data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, self.log_reg_target_value_var)
+        self.target_value_1_button = ttk.Button(self.target_value_subframe, text=self.target_value_1, style="inactive_radio_button.TButton", command=lambda: self.toggle_target_value_button_style(self.target_value_1))
+        self.target_value_1_button.pack(side=tk.TOP, fill=tk.X, padx=100, pady=10)
 
+        self.target_value_2_button = ttk.Button(self.target_value_subframe, text=self.target_value_2, style="inactive_radio_button.TButton", command=lambda: self.toggle_target_value_button_style(self.target_value_2))
+        self.target_value_2_button.pack(side=tk.TOP, fill=tk.X, padx=100, pady=10)
+
+        # Load Previously Chosen Percent Selection
         if self.selected_dependent_variable in self.log_reg_target_value_var_dict:
-            self.log_reg_target_value_var = tk.StringVar(value=self.log_reg_target_value_var_dict[self.selected_dependent_variable].get())
+            
+            if self.log_reg_target_value_var_dict[self.selected_dependent_variable] == self.target_value_1:
+                self.toggle_target_value_button_style(self.target_value_1)
+            elif self.log_reg_target_value_var_dict[self.selected_dependent_variable] == self.target_value_2:
+                self.toggle_target_value_button_style(self.target_value_2)
         else:
-            self.log_reg_target_value_var = tk.StringVar(value=f"{self.clean_df.unique()[0]}")
-            self.log_reg_target_value_var_dict[self.selected_dependent_variable] = self.log_reg_target_value_var
+            self.toggle_target_value_button_style(self.target_value_1)
 
 
-        self.dependent_variable_unique_value_1 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[0]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[0]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
-        self.dependent_variable_unique_value_1.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        self.dependent_variable_unique_value_2 = tk.Radiobutton(self.dependent_variable_handling_frame, text=f"{self.clean_df.unique()[1]}", variable=self.log_reg_target_value_var, value=f"{self.clean_df.unique()[1]}", command=on_dependent_variable_value_selected, indicator=0, font=("Arial", 40), selectcolor="hotpink", borderwidth=10)
-        self.dependent_variable_unique_value_2.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
+################################################################################################################
+
+        # VARIABLE HANDLING FRAME
+        self.variable_handling_subframe_border = tk.Frame(self.variable_handling_inner_frame, bg=color_dict["sub_frame_border"])
+        self.variable_handling_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.variable_handling_subframe = tk.Frame(self.variable_handling_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.variable_handling_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.variable_handling_frame_label = tk.Label(self.variable_handling_subframe, text="Change Non-Numeric Values in The Following Independent Variables", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.variable_handling_frame_label.pack(side=tk.TOP, pady=10)
+        
+        separator = ttk.Separator(self.variable_handling_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        self.value_entry_frame = tk.Frame(self.variable_handling_subframe, bg=color_dict["sub_frame_bg"])
+        self.value_entry_frame.pack(side=tk.TOP, pady=10)
 
 
         # DETERMINE NON-NUMERIC VARIABLES
@@ -3686,25 +3787,18 @@ class MachineLearningClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.scrollable_frame, text="No Non-Numeric Variables. Click NEXT", font=("Arial", 28, "bold"), bg='yellow')
+            proceed_to_results_label = tk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click NEXT", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
         else:
-            # Scrollable frame label
-            self.scrollable_frame_label = tk.Label(self.scrollable_frame, text="Change Non-Numeric Values in The Following Independent Variables", font=("Arial", 36,"bold"), bg='yellow')
-            self.scrollable_frame_label.pack(side=tk.TOP)
-
-            separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
-            separator.pack(fill=tk.X, padx=5, pady=5)
-
 
             # HANDLE NON-NUMERIC VARIABLES
             for variable in self.non_numeric_columns:
 
 
 
-                options_frame = tk.Frame(self.scrollable_frame, bg='yellow')
-                options_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
+                options_frame = tk.Frame(self.value_entry_frame, bg=color_dict["sub_frame_bg"])
+                options_frame.pack(side=tk.TOP, pady=10, padx=20)
 
 
                 if len(variable) > 20:
@@ -3712,11 +3806,9 @@ class MachineLearningClass:
                 else:
                     variable_string = variable
 
-                variable_label = tk.Label(options_frame, text=variable_string, font=("Arial", 28), bg='yellow', fg='black')
+                variable_label = tk.Label(options_frame, text=variable_string, font=styles.sub_tabs_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
                 variable_label.pack(side=tk.TOP)
 
-                separator = ttk.Separator(self.scrollable_frame, orient="horizontal", style="Separator.TSeparator")
-                separator.pack(fill=tk.X, padx=5, pady=5)
 
                 non_numeric_values = []
 
@@ -3726,7 +3818,7 @@ class MachineLearningClass:
 
                 for value in non_numeric_values:
 
-                    value_frame = tk.Frame(options_frame, bg='yellow')
+                    value_frame = tk.Frame(options_frame, bg=color_dict["sub_frame_bg"])
                     value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
 
                     if variable in self.non_numeric_input_var_dict:
@@ -3746,37 +3838,55 @@ class MachineLearningClass:
 
 
 
-                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=("Arial", 28), width=10)
+                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.main_content_regular_text_font, width=10)
                     input_entry.pack(side=tk.LEFT)
 
-                    value_label = tk.Label(value_frame, text=value, font=("Arial", 28), bg='yellow', fg='black')
+                    value_label = tk.Label(value_frame, text=value, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
                     value_label.pack(side=tk.LEFT)
 
                     # Bind the entry widget to an event
                     input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
+
+                separator = ttk.Separator(self.value_entry_frame, orient="horizontal", style="Separator.TSeparator")
+                separator.pack(fill=tk.X, padx=5, pady=5)
+
 
 
     def on_key_release(self, event, variable, value):
         data_manager.add_variable_to_non_numeric_ind_dict(variable, value, event.widget.get())
 
 
+    # Function to toggle button styles
+    def toggle_target_value_button_style(self, selected):
+        if selected in [self.target_value_1, self.target_value_2]:
+            if selected == self.target_value_1:
+                self.target_value_1_button.configure(style="active_radio_button.TButton")
+                self.target_value_2_button.configure(style="inactive_radio_button.TButton")
+                self.selected_target_value = self.target_value_1
+                data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, selected)
+            elif selected == self.target_value_2:
+                self.target_value_1_button.configure(style="inactive_radio_button.TButton")
+                self.target_value_2_button.configure(style="active_radio_button.TButton")
+                self.selected_target_value = self.target_value_2
+                data_manager.add_variable_to_reg_tab_log_reg_target_value_dict(self.selected_dependent_variable, selected)
+
+
     def apply_variable_handling(self):
-
-        def check_column_only_0_and_1(df, column_name):
-            unique_values = df[column_name].unique()
-            return set(unique_values) == {0, 1}
-
-        if not check_column_only_0_and_1(self.temp_df, self.selected_dependent_variable):
-
-            # MAKE VALUES OF DEPENDENT VARIABLE BINARY
-            self.temp_df.dropna(subset=[self.selected_dependent_variable])
-            selected_target_var = self.log_reg_target_value_var.get()
-
-            self.temp_df.loc[(self.temp_df[self.selected_dependent_variable] != selected_target_var) & (self.temp_df[self.selected_dependent_variable] != 1), self.selected_dependent_variable] = 0
-            self.temp_df.loc[self.temp_df[self.selected_dependent_variable] == selected_target_var, self.selected_dependent_variable] = 1
+        self.settings_subframe_label.configure(text=f"{self.selected_model} Model Settings")
 
 
-        self.temp_df[self.selected_dependent_variable] = self.temp_df[self.selected_dependent_variable].astype(int)
+        self.temp_df[self.selected_dependent_variable] = self.temp_df[self.selected_dependent_variable].astype(str)
+
+        # MAKE VALUES OF DEPENDENT VARIABLE BINARY
+        self.corrected_dependent_variable = "new_outcome_variable"
+
+        self.temp_df.dropna(subset=[self.selected_dependent_variable])
+
+        self.temp_df.loc[self.temp_df[self.selected_dependent_variable]==self.selected_target_value, self.corrected_dependent_variable] = 1
+        self.temp_df.loc[self.temp_df[self.selected_dependent_variable]!=self.selected_target_value, self.corrected_dependent_variable] = 0
+
+
+        self.temp_df[self.corrected_dependent_variable] = self.temp_df[self.corrected_dependent_variable].astype(int)
 
         for variable in self.selected_independent_variables:
 
@@ -3814,20 +3924,30 @@ class MachineLearningClass:
 
     def create_settings_frame(self):
 
-        self.settings_frame_label = tk.Label(self.settings_frame, text="", font=("Arial", 36, "bold"), bg='beige')
-        self.settings_frame_label.pack(side=tk.TOP, fill=tk.X)
+        self.settings_inner_frame, self.settings_canvas = utils.create_scrollable_frame(self.settings_frame)
 
-        separator = ttk.Separator(self.settings_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+################################################################################################################
 
-        # MODEL SETTINGS
-        # self.model_settings_frame = tk.Frame(self.settings_frame, bg='beige')
-        # self.model_settings_frame.pack(side=tk.TOP, padx=5, pady=50, fill=tk.BOTH)
 
-        self.model_settings_frame, self.model_settings_canvas = utils.create_scrollable_frame(self.settings_frame)
+        # SETTINGS FRAME
+        self.settings_subframe_border = tk.Frame(self.settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.settings_subframe = tk.Frame(self.settings_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.settings_subframe_label = tk.Label(self.settings_subframe, text="", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.settings_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+
+################################################################################################################
+
 
         #NULL VALUE HANDLING
-        self.null_value_handling_frame = tk.Frame(self.model_settings_frame, bg='beige')
+        self.null_value_handling_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.null_value_handling_frame.pack(side=tk.TOP, fill=tk.X)
 
 
@@ -3837,13 +3957,13 @@ class MachineLearningClass:
             self.null_value_option_var = tk.StringVar(value="REMOVE null values")
 
 
-        self.null_value_handling_option_label = tk.Label(self.null_value_handling_frame, text="MISSING/NULL values", font=("Arial", 36), bg='beige')
+        self.null_value_handling_option_label = tk.Label(self.null_value_handling_frame, text="MISSING/NULL values", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.null_value_handling_option_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.null_value_handling_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=400, pady=5)
 
-        self.null_value_combobox_selection_frame = tk.Frame(self.null_value_handling_frame, bg='beige')
+        self.null_value_combobox_selection_frame = tk.Frame(self.null_value_handling_frame, bg=color_dict["sub_frame_bg"])
         self.null_value_combobox_selection_frame.pack(side=tk.TOP)
 
         def on_null_value_combobox_select(event):
@@ -3855,7 +3975,7 @@ class MachineLearningClass:
             else:
                 self.null_value_user_choice_entry.pack_forget()
 
-        self.null_value_option_combobox = ttk.Combobox(self.null_value_combobox_selection_frame, textvariable=self.null_value_option_var, font=("Arial", 24), width=25, state='disabled')
+        self.null_value_option_combobox = ttk.Combobox(self.null_value_combobox_selection_frame, textvariable=self.null_value_option_var, font=("Arial", 24), width=25, state='readonly')
         self.null_value_option_combobox['values'] = ['REMOVE null values', 'REPLACE with mean', 'REPLACE with median', 'REPLACE with mode', 'REPLACE with user choice']
         self.null_value_option_combobox.bind("<<ComboboxSelected>>", on_null_value_combobox_select)
         self.null_value_option_combobox.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=20)
@@ -3879,21 +3999,21 @@ class MachineLearningClass:
             self.null_value_user_choice_entry.pack(side=tk.LEFT, padx=5, pady=5)
             self.null_value_user_choice_entry.focus_set()
 
-        ##############################################
+################################################################################################################
 
 
         # NUMBER OF FOLDS SELECTION
-        self.number_of_folds_frame = tk.Frame(self.model_settings_frame, bg='beige')
+        self.number_of_folds_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.number_of_folds_frame.pack(side=tk.TOP, fill=tk.BOTH)
 
-        self.number_of_folds_label = tk.Label(self.number_of_folds_frame, text="TRAIN/TEST Folds", font=("Arial", 36), bg='beige')
+        self.number_of_folds_label = tk.Label(self.number_of_folds_frame, text="TRAIN/TEST Folds", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.number_of_folds_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.number_of_folds_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=400, pady=5)
 
 
-        self.number_of_folds_combobox_selection_frame = tk.Frame(self.number_of_folds_frame, bg='beige')
+        self.number_of_folds_combobox_selection_frame = tk.Frame(self.number_of_folds_frame, bg=color_dict["sub_frame_bg"])
         self.number_of_folds_combobox_selection_frame.pack(side=tk.TOP)
 
         def on_number_of_folds_combobox_select(event):
@@ -3925,15 +4045,15 @@ class MachineLearningClass:
 
 
 
-        self.train_fold_percent_frame = tk.Frame(self.number_of_folds_combobox_selection_frame, bg='beige')
+        self.train_fold_percent_frame = tk.Frame(self.number_of_folds_combobox_selection_frame, bg=color_dict["sub_frame_bg"])
 
-        self.train_fold_percent_label_1 = tk.Label(self.train_fold_percent_frame, text="Train model on ", font=("Arial", 24), bg='beige')
+        self.train_fold_percent_label_1 = tk.Label(self.train_fold_percent_frame, text="Train model on ", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
         self.train_fold_percent_label_1.pack(side=tk.LEFT,padx=5)
 
         self.train_fold_percent_entry = tk.Entry(self.train_fold_percent_frame, textvariable=self.train_percent_var, font=("Arial", 24), width=5)
         self.train_fold_percent_entry.pack(side=tk.LEFT,padx=5)
 
-        self.train_fold_percent_label_2 = tk.Label(self.train_fold_percent_frame, text="% of the dataframe", font=("Arial", 24), bg='beige')
+        self.train_fold_percent_label_2 = tk.Label(self.train_fold_percent_frame, text="% of the dataframe", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
         self.train_fold_percent_label_2.pack(side=tk.LEFT,padx=5)
 
 
@@ -3949,92 +4069,110 @@ class MachineLearningClass:
 
 
 
-        ##############################################
+################################################################################################################
 
         # HYPERTUNING PARAMETERS CHECKBOX
-        self.hypertune_parameters_frame = tk.Frame(self.model_settings_frame, bg='beige')
+        self.hypertune_parameters_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.hypertune_parameters_frame.pack(side=tk.TOP, fill=tk.BOTH)
 
-        self.hypertune_parameters_label = tk.Label(self.hypertune_parameters_frame, text="Hypertune Model Parameters", font=("Arial", 36), bg='beige')
+        self.hypertune_parameters_label = tk.Label(self.hypertune_parameters_frame, text="Hypertune Model Parameters", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.hypertune_parameters_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.hypertune_parameters_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=400, pady=5)
 
-        if self.hypertune_parameters_choice:
-            self.hypertune_parameters_var = tk.StringVar(value=self.hypertune_parameters_choice)
-        else:
-            self.hypertune_parameters_choice = "No"
-            self.hypertune_parameters_var = tk.StringVar(value=self.hypertune_parameters_choice)
 
-        def on_hypertune_parameters_select():
-            selected_option = self.hypertune_parameters_var.get()
-            data_manager.set_mach_learn_tab_hyper_param_choice(selected_option)
-
-        self.hypertune_parameters_button_frame = tk.Frame(self.hypertune_parameters_frame, bg='beige')
+        self.hypertune_parameters_button_frame = tk.Frame(self.hypertune_parameters_frame, bg=color_dict["sub_frame_bg"])
         self.hypertune_parameters_button_frame.pack(side=tk.TOP)
 
-        self.hypertune_parameters_yes_button = tk.Radiobutton(self.hypertune_parameters_button_frame, text="Yes", value="Yes", variable=self.hypertune_parameters_var, command=on_hypertune_parameters_select, indicator=0, font=("Arial", 24), borderwidth=10, width=20)
-        self.hypertune_parameters_yes_button.grid(row=0, column=0,)
+        self.hypertune_parameters_yes_button = ttk.Button(self.hypertune_parameters_button_frame, text="Yes", style="inactive_radio_button.TButton", command=lambda: self.toggle_hypertune_button_style("Yes"))
+        self.hypertune_parameters_yes_button.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=10)
 
-        self.hypertune_parameters_no_button = tk.Radiobutton(self.hypertune_parameters_button_frame, text="No", value="No", variable=self.hypertune_parameters_var, command=on_hypertune_parameters_select, indicator=0, font=("Arial", 24), borderwidth=10, width=20)
-        self.hypertune_parameters_no_button.grid(row=0, column=1)
+        self.hypertune_parameters_no_button = ttk.Button(self.hypertune_parameters_button_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_hypertune_button_style("No"))
+        self.hypertune_parameters_no_button.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=10)
+
+        # Load Previously Chosen Percent Selection
+        if self.hypertune_parameters_choice:
+            
+            if self.hypertune_parameters_choice == "Yes":
+                self.toggle_hypertune_button_style("Yes")
+            elif self.hypertune_parameters_choice == "No":
+                self.toggle_hypertune_button_style("No")
+        else:
+            self.toggle_hypertune_button_style("No")
 
 
-        ##############################################
+
+
+
+################################################################################################################
 
 
         # PLOT SETTINGS
-        self.plot_settings_frame = tk.Frame(self.settings_frame, bg='beige')
+        self.plot_settings_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.plot_settings_frame.pack(side=tk.TOP, padx=5, pady=10, fill=tk.BOTH)
 
-        self.plot_settings_label = tk.Label(self.plot_settings_frame, text="Select plot features to include", font=("Arial", 40), bg='beige')
+        self.plot_settings_label = tk.Label(self.plot_settings_frame, text="Select plot features to include", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.plot_settings_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.plot_settings_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=400, pady=5)
 
-        self.plot_features_grid_frame = tk.Frame(self.plot_settings_frame, bg='beige')
+        self.plot_features_grid_frame = tk.Frame(self.plot_settings_frame, bg=color_dict["sub_frame_bg"])
         self.plot_features_grid_frame.pack(side=tk.TOP, pady=5)
 
         self.accuracy_checkbox_var = tk.BooleanVar()
-        self.accuracy_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Accuracy", variable=self.accuracy_checkbox_var, font=("Arial", 36), bg='beige')
+        self.accuracy_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Accuracy", variable=self.accuracy_checkbox_var, font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.accuracy_checkbox.grid(row=0, column=0, sticky=tk.W, padx=40)
         self.accuracy_checkbox_var.set(True)
 
         self.sensitivity_checkbox_var = tk.BooleanVar()
-        self.sensitivity_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Sensitivity", variable=self.sensitivity_checkbox_var, font=("Arial", 36), bg='beige')
+        self.sensitivity_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Sensitivity", variable=self.sensitivity_checkbox_var, font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.sensitivity_checkbox.grid(row=0, column=1, sticky=tk.W, padx=40)
         self.sensitivity_checkbox_var.set(True)
 
         self.specificity_checkbox_var = tk.BooleanVar()
-        self.specificity_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Specificity", variable=self.specificity_checkbox_var, font=("Arial", 36), bg='beige')
+        self.specificity_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Specificity", variable=self.specificity_checkbox_var, font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.specificity_checkbox.grid(row=1, column=0, sticky=tk.W, padx=40)
         self.specificity_checkbox_var.set(True)
 
         self.shap_values_checkbox_var = tk.BooleanVar()
-        self.shap_values_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Shap Values", variable=self.shap_values_checkbox_var, font=("Arial", 36), bg='beige')
+        self.shap_values_checkbox = tk.Checkbutton(self.plot_features_grid_frame, text="Shap Values", variable=self.shap_values_checkbox_var, font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.shap_values_checkbox.grid(row=1, column=1, sticky=tk.W, padx=40)
         self.shap_values_checkbox_var.set(False)
 
-        ##############################################
+################################################################################################################
 
         # NAVIGATION MENU FRAME
-        self.model_settings_menu_frame = tk.Frame(self.settings_frame, bg='lightgray')
+        self.model_settings_menu_frame = tk.Frame(self.settings_frame, bg=color_dict["nav_banner_bg"])
         self.model_settings_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_variable_handling_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', font=("Arial", 36))
+        self.return_to_variable_handling_frame_button = ttk.Button(self.model_settings_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', style='nav_menu_button.TButton')
         self.return_to_variable_handling_frame_button.pack(side=tk.LEFT)
 
-        self.advance_to_results_frame_button = tk.Button(self.model_settings_menu_frame, command=self.switch_to_results_frame, text='View Results', font=("Arial", 36))
+        self.advance_to_results_frame_button = ttk.Button(self.model_settings_menu_frame, command=self.switch_to_results_frame, text='View Results', style='nav_menu_button.TButton')
         self.advance_to_results_frame_button.pack(side=tk.RIGHT)
 
-        self.model_settings_frame_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.model_settings_frame_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
         self.model_settings_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
+################################################################################################################
 
 
+    # Function to toggle button styles
+    def toggle_hypertune_button_style(self, selected):
 
+        if selected == "Yes":
+            self.hypertune_parameters_yes_button.configure(style="active_radio_button.TButton")
+            self.hypertune_parameters_no_button.configure(style="inactive_radio_button.TButton")
+            self.hypertune_parameters_choice = "Yes"
+            data_manager.set_mach_learn_tab_hyper_param_choice(selected)
+
+        elif selected == "No":
+            self.hypertune_parameters_yes_button.configure(style="inactive_radio_button.TButton")
+            self.hypertune_parameters_no_button.configure(style="active_radio_button.TButton")
+            self.hypertune_parameters_choice = "No"
+            data_manager.set_mach_learn_tab_hyper_param_choice(selected)
 
 ################################################################################################################
 ################################################################################################################
@@ -4044,51 +4182,69 @@ class MachineLearningClass:
 
     def create_results_frame(self):
 
+        self.results_inner_frame, self.results_canvas = utils.create_scrollable_frame(self.results_frame)
+
+################################################################################################################
+
+
+        # RESULTS FRAME
+        self.results_subframe_border = tk.Frame(self.results_inner_frame, bg=color_dict["sub_frame_border"])
+        self.results_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.results_subframe = tk.Frame(self.results_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.results_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+
+
+
+
+################################################################################################################
+
         # GRAPH FRAMES
-        self.results_display_frame = tk.Frame(self.results_frame, bg='red')
+        self.results_display_frame = tk.Frame(self.results_subframe, bg='red')
         self.results_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
-        self.auc_results_frame = tk.Frame(self.results_display_frame, bg='beige')
+        self.auc_results_frame = tk.Frame(self.results_display_frame, bg=color_dict["sub_frame_bg"])
         self.auc_results_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.auc_graph_label = tk.Label(self.auc_results_frame, text="AUC Graph", font=("Arial", 36, "bold"), bg='beige')
+        self.auc_graph_label = tk.Label(self.auc_results_frame, text="AUC Graph", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
         self.auc_graph_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.auc_results_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
-        self.auc_graph_display_frame = tk.Frame(self.auc_results_frame, bg='beige')
+        self.auc_graph_display_frame = tk.Frame(self.auc_results_frame, bg=color_dict["sub_frame_bg"])
         self.auc_graph_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
 
 
-        self.feature_importance_results_frame = tk.Frame(self.results_display_frame, bg='beige')
+        self.feature_importance_results_frame = tk.Frame(self.results_display_frame, bg=color_dict["sub_frame_bg"])
 
-        self.feature_importance_label = tk.Label(self.feature_importance_results_frame, text="Feature Importances", font=("Arial", 36, "bold"), bg='beige')
+        self.feature_importance_label = tk.Label(self.feature_importance_results_frame, text="Feature Importances", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
         self.feature_importance_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.feature_importance_results_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
-        self.feature_importance_display_frame = tk.Frame(self.feature_importance_results_frame, bg='beige')
+        self.feature_importance_display_frame = tk.Frame(self.feature_importance_results_frame, bg=color_dict["sub_frame_bg"])
         self.feature_importance_display_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
 
         # SAVE FIGURE AND SWITCH BETWEEN GRAPHS FRAME
-        self.results_button_frame = tk.Frame(self.results_frame,bg='purple')
+        self.results_button_frame = tk.Frame(self.results_subframe, bg=color_dict["sub_frame_bg"])
         self.results_button_frame.pack(side=tk.TOP, fill=tk.X)
 
         # Calculate the maximum text width based on the longest possible text for both buttons
         max_text_width = max(len("Save Graph"), len("View Feature Importances"))
 
         # Save button
-        self.save_graph_button = tk.Button(self.results_button_frame, text="Save Graph", command=self.save_figure, font=("Arial", 36), width=max_text_width)
+        self.save_graph_button = ttk.Button(self.results_button_frame, text="Save Graph", command=self.save_figure, style='nav_menu_button.TButton', width=max_text_width)
         self.save_graph_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Switch button
-        self.switch_graph_button = tk.Button(self.results_button_frame, text="View Feature Importances", command=self.switch_display_frames, font=("Arial", 36), width=max_text_width)
+        self.switch_graph_button = ttk.Button(self.results_button_frame, text="View Feature Importances", command=self.switch_display_frames, style='nav_menu_button.TButton', width=max_text_width)
         self.switch_graph_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         # Configure column weights to make them occupy half of the frame
@@ -4102,23 +4258,29 @@ class MachineLearningClass:
 
 
 
-
+################################################################################################################
 
 
 
         # NAVIGATION MENU FRAME
-        self.results_menu_frame = tk.Frame(self.results_frame, bg='lightgray')
+        self.results_menu_frame = tk.Frame(self.results_frame, bg=color_dict["nav_banner_bg"])
         self.results_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.return_to_settings_frame_button = tk.Button(self.results_menu_frame, command=self.switch_to_settings_frame, text='<- Back', font=("Arial", 36))
+        self.return_to_settings_frame_button = ttk.Button(self.results_menu_frame, command=self.switch_to_settings_frame, text='<- Back', style='nav_menu_button.TButton')
         self.return_to_settings_frame_button.pack(side=tk.LEFT)
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
         self.results_frame_dependent_label.pack(side=tk.LEFT, expand=True)
 
-        self.advance_to_prediction_tool_buton = tk.Button(self.results_menu_frame, command=self.switch_to_prediction_tool, text='Prediction Tool ->', font=("Arial", 36))
+        self.advance_to_prediction_tool_buton = ttk.Button(self.results_menu_frame, command=self.switch_to_prediction_tool, text='Prediction Tool ->', style='nav_menu_button.TButton')
         self.advance_to_prediction_tool_buton.pack(side=tk.RIGHT)
 
+
+
+
+
+
+################################################################################################################
 
     def switch_display_frames(self):
 
@@ -4141,17 +4303,7 @@ class MachineLearningClass:
 
     def apply_settings(self):
 
-        self.final_df = self.temp_df.loc[self.temp_df[self.selected_dependent_variable].notna()].reset_index(drop=True).copy()
-
-
-        # self.null_value_option_var
-        # self.null_value_entry_var
-
-        # self.number_of_folds_var
-        # self.train_fold_percent_entry
-
-        # self.hypertune_parameters_var
-
+        self.final_df = self.temp_df.loc[self.temp_df[self.corrected_dependent_variable].notna()].reset_index(drop=True).copy()
 
         # NULL VALUES
         if self.null_value_option_var.get() == "REMOVE null values":
@@ -4160,7 +4312,7 @@ class MachineLearningClass:
         ############################################################
 
         # GET MODEL
-        if self.hypertune_parameters_var.get() == "Yes":
+        if self.hypertune_parameters_choice == "Yes":
             self.ML_model = self.ML_tune()
         else:
             if self.selected_model_type == "Categorical":
@@ -4216,7 +4368,7 @@ class MachineLearningClass:
 
         # DATA LOADING AND MODEL FITTING #
         X = self.final_df[self.selected_independent_variables]
-        y = self.final_df[self.selected_dependent_variable]
+        y = self.final_df[self.corrected_dependent_variable]
 
         train_percent = float(self.ML_train_percent) / 100
         X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_percent)
@@ -4286,8 +4438,8 @@ class MachineLearningClass:
         ############################################################
 
         # PLOTTING GRAPHS #
-        auc_fig = Figure()
-        features_fig = Figure()
+        auc_fig = Figure(figsize=(7,7))
+        features_fig = Figure(figsize=(8,7))
 
         ############################
 
@@ -4310,7 +4462,7 @@ class MachineLearningClass:
 
         # ax1.text(0.01, 0.86, 'F1 Score: {}'.format(round(f1,3)), fontsize=15, transform=ax1.transAxes, ha='left', va='top')
         auc_ax.set(xlim=[-0.00, 1.00], ylim=[0.0, 1.0], xlabel="False Positive Rate", ylabel="True Positive Rate", title=" ")
-        auc_ax.legend(loc='lower right', fontsize=24)
+        auc_ax.legend(loc='lower right', fontsize=15)
         auc_ax.axis("square")
 
         ############################
@@ -4319,7 +4471,7 @@ class MachineLearningClass:
         features_ax = features_fig.add_subplot(111)
         features_ax.barh(feature_importances.index, feature_importances)
         features_ax.set_xlabel("Feature Importance")
-        features_ax.tick_params(axis='y', labelsize=24)
+        features_ax.tick_params(axis='y', labelsize=18)
 
         features_fig.tight_layout()
         auc_fig.tight_layout()
@@ -4331,7 +4483,7 @@ class MachineLearningClass:
     def ML_x_fold(self):
 
         X = self.final_df[self.selected_independent_variables].values
-        y = self.final_df[self.selected_dependent_variable].values
+        y = self.final_df[self.corrected_dependent_variable].values
 
         tprs = []
         aucs = []
@@ -4432,10 +4584,9 @@ class MachineLearningClass:
 
         ############################################################
 
-        # GRAPHS
-
-        auc_fig = Figure()
-        features_fig = Figure()
+        # PLOTTING GRAPHS #
+        auc_fig = Figure(figsize=(7,7))
+        features_fig = Figure(figsize=(8,7))
 
         auc_ax = auc_fig.add_subplot(111)
         auc_ax.plot([0, 1], [0, 1], "k--")
@@ -4447,9 +4598,9 @@ class MachineLearningClass:
         tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
 
         auc_ax.fill_between(mean_fpr, tprs_lower, tprs_upper, color="grey", alpha=0.2, label=r"$\pm$ 1 std. dev.")
-        auc_ax.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05], xlabel="False Positive Rate", ylabel="True Positive Rate", title=" ")
+        auc_ax.set(xlim=[0.00, 1.00], ylim=[0.0, 1.0], xlabel="False Positive Rate", ylabel="True Positive Rate", title="")
+        auc_ax.legend(loc='lower right', fontsize=15)
         auc_ax.axis("square")
-        auc_ax.legend(loc="lower right")
 
         vertical_position = 0.98
 
@@ -4467,7 +4618,7 @@ class MachineLearningClass:
         features_ax = features_fig.add_subplot(111)
         features_ax.barh(mean_importances.index, mean_importances.values)
         features_ax.set_xlabel("Feature Importance")
-        features_ax.tick_params(axis='y', labelsize=24)
+        features_ax.tick_params(axis='y', labelsize=18)
 
         features_fig.tight_layout()
         auc_fig.tight_layout()
@@ -4480,7 +4631,7 @@ class MachineLearningClass:
     def ML_tune(self):
 
         X = self.final_df[self.selected_independent_variables].values
-        y = self.final_df[self.selected_dependent_variable].values
+        y = self.final_df[self.corrected_dependent_variable].values
 
         if self.selected_model == 'Random Forest':
             model = RandomForestClassifier()
@@ -4550,10 +4701,10 @@ class MachineLearningClass:
     def create_prediction_tool_frame(self):
 
         # MAIN CONTENT FRAME
-        self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg='beige')
+        self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["sub_frame_bg"])
         self.prediction_tool_main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.prediction_tool_header_label = tk.Label(self.prediction_tool_main_content_frame, text="Predict Dependent Variable", font=("Arial", 36, "bold"), bg='beige')
+        self.prediction_tool_header_label = tk.Label(self.prediction_tool_main_content_frame, text="Predict Dependent Variable", font=("Arial", 36, "bold"), bg=color_dict["sub_frame_bg"])
         self.prediction_tool_header_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
         separator = ttk.Separator(self.prediction_tool_main_content_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4563,15 +4714,15 @@ class MachineLearningClass:
         self.prediction_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # USER INPUT FRAME
-        self.user_input_frame = tk.Frame(self.prediction_frame, bg='beige')
+        self.user_input_frame = tk.Frame(self.prediction_frame, bg=color_dict["sub_frame_bg"])
         self.user_input_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         def on_mousewheel(event):
             self.user_input_canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-        self.user_input_canvas = tk.Canvas(self.user_input_frame, bg='beige')
+        self.user_input_canvas = tk.Canvas(self.user_input_frame, bg=color_dict["sub_frame_bg"])
         self.user_input_scrollbar = tk.Scrollbar(self.user_input_frame, orient="vertical", command=self.user_input_canvas.yview)
-        self.user_input_scrollable_frame = tk.Frame(self.user_input_canvas, bg='beige')
+        self.user_input_scrollable_frame = tk.Frame(self.user_input_canvas, bg=color_dict["sub_frame_bg"])
 
         self.user_input_canvas.create_window((0, 0), window=self.user_input_scrollable_frame, anchor="nw")
         self.user_input_canvas.configure(yscrollcommand=self.user_input_scrollbar.set)
@@ -4593,19 +4744,19 @@ class MachineLearningClass:
 
 
         # PREDICTION RESULTS FRAME
-        self.prediction_results_frame = tk.Frame(self.prediction_frame, bg='beige')
+        self.prediction_results_frame = tk.Frame(self.prediction_frame, bg=color_dict["sub_frame_bg"])
         self.prediction_results_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.get_prediction_button = tk.Button(self.prediction_results_frame, text="Get Prediction", command=self.get_prediction, font=("Arial", 28))
         self.get_prediction_button.pack(side=tk.TOP, anchor="center", fill=tk.BOTH, expand=True, padx=100, pady=100)
 
-        self.prediction_outcome_frame = tk.Frame(self.prediction_results_frame, bg='beige')
+        self.prediction_outcome_frame = tk.Frame(self.prediction_results_frame, bg=color_dict["sub_frame_bg"])
         self.prediction_outcome_frame.pack(side=tk.TOP, anchor="center", fill=tk.BOTH, expand=True, padx=100, pady=100)
 
-        self.prediction_outcome_percent_label = tk.Label(self.prediction_outcome_frame, text="", bg='beige',font=("Arial", 48, "bold"))
+        self.prediction_outcome_percent_label = tk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 48, "bold"))
         self.prediction_outcome_percent_label.pack(side=tk.TOP)
 
-        self.prediction_outcome_outcome_label = tk.Label(self.prediction_outcome_frame, text="", bg='beige',font=("Arial", 28))
+        self.prediction_outcome_outcome_label = tk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 28))
         self.prediction_outcome_outcome_label.pack(side=tk.TOP)
 
 
@@ -4624,7 +4775,7 @@ class MachineLearningClass:
 
         utils.remove_frame_widgets(self.user_input_scrollable_frame)
 
-        self.input_values_label = tk.Label(self.user_input_scrollable_frame, text="Input Values for Each Variable", font=("Arial", 36), bg='beige')
+        self.input_values_label = tk.Label(self.user_input_scrollable_frame, text="Input Values for Each Variable", font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.input_values_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4640,13 +4791,13 @@ class MachineLearningClass:
             else:
                 variable_string = variable
 
-            variable_frame = tk.Frame(self.user_input_scrollable_frame, bg='beige')
+            variable_frame = tk.Frame(self.user_input_scrollable_frame, bg=color_dict["sub_frame_bg"])
             variable_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
             input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
             input_entry.pack(side=tk.LEFT)
 
-            variable_label = tk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg='beige', fg='black')
+            variable_label = tk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg=color_dict["sub_frame_bg"], fg='black')
             variable_label.pack(side=tk.LEFT)
 
             separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4661,7 +4812,7 @@ class MachineLearningClass:
     def get_prediction(self):
 
         X = self.final_df[self.selected_independent_variables].values
-        y = self.final_df[self.selected_dependent_variable].values
+        y = self.final_df[self.corrected_dependent_variable].values
 
         self.ML_model.fit(X, y)
 
@@ -4703,7 +4854,7 @@ class MachineLearningClass:
         self.indedependent_variables_frame.pack_forget()
         self.results_frame.pack_forget()
         self.prediction_tool_frame.pack_forget()
-        self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True)
+        self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         self.dependent_var_search_entry.focus_set()
 
@@ -4718,7 +4869,7 @@ class MachineLearningClass:
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.prediction_tool_frame.pack_forget()
-        self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True)
+        self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         
 
@@ -4740,6 +4891,7 @@ class MachineLearningClass:
 
 
     def switch_to_variable_handling_frame(self):
+
 
         if not self.selected_model:
             utils.show_message('error message', "CHOOSE A MACHINE LEARNING MODEL")
@@ -4775,8 +4927,10 @@ class MachineLearningClass:
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
         self.prediction_tool_frame.pack_forget()
-        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True)
+        self.variable_handling_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+
+        utils.bind_mousewheel_to_frame(self.variable_handling_inner_frame, self.variable_handling_canvas, True)
         self.visualize_content_frame.update_idletasks()
 
 
@@ -4786,7 +4940,6 @@ class MachineLearningClass:
         try:
             self.apply_variable_handling()
         except:
-            utils.show_message("error message", "Make sure all values are NUMERICAL")
             return
 
         self.variable_handling_frame.pack_forget()
@@ -4794,12 +4947,14 @@ class MachineLearningClass:
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
         self.prediction_tool_frame.pack_forget()
-        self.settings_frame.pack(fill=tk.BOTH, expand=True)
+        self.settings_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+        utils.bind_mousewheel_to_frame(self.settings_inner_frame, self.settings_canvas, True)
         self.visualize_content_frame.update_idletasks()
+        
 
 
-    def switch_to_results_frame(self, initialize=True):
+    def switch_to_results_frame(self):
 
         # VERIFY USER INPUT
         if self.null_value_option_var.get() == 'REPLACE with user choice':
@@ -4824,11 +4979,12 @@ class MachineLearningClass:
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
         self.prediction_tool_frame.pack_forget()
-        self.results_frame.pack(fill=tk.BOTH, expand=True)
+        self.results_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         self.prediction_outcome_percent_label.configure(text="")
         self.prediction_outcome_outcome_label.configure(text="")
 
+        utils.bind_mousewheel_to_frame(self.results_inner_frame, self.results_canvas, True)
         self.visualize_content_frame.update_idletasks()
 
     def switch_to_prediction_tool(self):
@@ -4842,7 +4998,7 @@ class MachineLearningClass:
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
-        self.prediction_tool_frame.pack(fill=tk.BOTH, expand=True)
+        self.prediction_tool_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         self.visualize_content_frame.update_idletasks()
 
