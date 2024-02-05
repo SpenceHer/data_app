@@ -228,8 +228,8 @@ def get_non_numeric_ind_dict():
 ################################################################################################################
 ################################################################################################################
 
-mach_learn_tab_dep_var = "major_complication"
-mach_learn_tab_ind_var_list = ["albumin", "bmi_cat"]
+mach_learn_tab_dep_var = None
+mach_learn_tab_ind_var_list = []
 
 mach_learn_tab_selected_model_type = None
 mach_learn_tab_selected_cat_model = None
