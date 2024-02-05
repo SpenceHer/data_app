@@ -51,6 +51,8 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     else:
         switch_to_file_tab()
 
+    
+
 
 
 
@@ -76,6 +78,7 @@ class SetupFileTabClass():
 
 
         self.create_main_frame()
+
 
 
 
@@ -177,16 +180,16 @@ class SetupFileTabClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        # self.file_path = filedialog.askopenfilename()
-        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+        self.file_path = filedialog.askopenfilename()
+        # self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
                 self.df = pd.read_excel(self.file_path)
-                self.df.fillna("[MISSING VALUE]", inplace=True)
+                # self.df.fillna("[MISSING VALUE]", inplace=True)
             else:
                 self.df = pd.read_csv(self.file_path)
-                self.df.fillna("[MISSING VALUE]", inplace=True)
+                # self.df.fillna("[MISSING VALUE]", inplace=True)
         except:
             utils.show_message('error loading', 'Error Reading File')
             raise
