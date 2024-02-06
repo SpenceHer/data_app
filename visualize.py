@@ -2815,6 +2815,9 @@ class CreatePlotClass():
                      selectbackground=color_dict["listbox_select_bg"],
                      selectforeground=color_dict["listbox_select_fg"])
         self.x_axis_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.x_axis_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, False))
+        self.x_axis_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True))
+
 
         for column in sorted(self.df.columns, key=str.lower):
             self.x_axis_variable_listbox.insert(tk.END, column)
@@ -2856,6 +2859,8 @@ class CreatePlotClass():
                      selectbackground=color_dict["listbox_select_bg"],
                      selectforeground=color_dict["listbox_select_fg"])
         self.y_axis_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.y_axis_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, False))
+        self.y_axis_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True))
 
         for column in sorted(self.df.columns, key=str.lower):
             self.y_axis_variable_listbox.insert(tk.END, column)
@@ -2976,6 +2981,8 @@ class CreatePlotClass():
 
 
 
+
+
     def create_scatter_plot(self):
         if not self.selected_x_axis_variable or not self.selected_y_axis_variable:
             utils.show_message("No Columns Selected", "Both X and Y AXIS VARIABLES must be selected")
@@ -2988,7 +2995,7 @@ class CreatePlotClass():
             utils.show_message("Error", "Selected variables must be continuous")
             raise
 
-        clean_df = self.df[[self.selected_x_axis_variable, self.selected_y_axis_variable]].dropna()
+        clean_df = self.df[[self.selected_x_axis_variable, self.selected_y_axis_variable]].dropna().reset_index(drop=True)
 
         # Create scatter plot with seaborn
         sns.set(style="ticks")
@@ -2998,8 +3005,8 @@ class CreatePlotClass():
         sns.scatterplot(data=clean_df, x=self.selected_x_axis_variable, y=self.selected_y_axis_variable, ax=ax)
 
         # Calculate regression line parameters
-        slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[self.selected_x_axis_variable],
-                                                                clean_df[self.selected_y_axis_variable])
+        slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[self.selected_x_axis_variable], clean_df[self.selected_y_axis_variable])
+        
         line = slope * clean_df[self.selected_x_axis_variable] + intercept
 
         # Add regression line to the plot
