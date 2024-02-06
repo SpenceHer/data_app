@@ -197,13 +197,45 @@ def get_log_reg_ref_dict():
 
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+plot_tab_plot_selection = None
+x_axis_selection = None
+y_axis_selection = None
+
+# PLOT SELECTION
+def set_plot_tab_plot_selection(plot):
+    global plot_tab_plot_selection
+    plot_tab_plot_selection = plot
+
+def get_plot_tab_plot_selection():
+    return plot_tab_plot_selection
+
+
+# SCATTER PLOT COLUMN SELECTION
+def set_plot_tab_x_axis_selection(column):
+    global x_axis_selection
+    x_axis_selection = column
+
+def get_x_axis_selection():
+    return x_axis_selection
+
+
+def set_plot_tab_y_axis_selection(column):
+    global y_axis_selection
+    y_axis_selection = column
+
+def get_y_axis_selection():
+    return y_axis_selection
 
 
 
 
-#####################################################################
-#####################################################################
-#####################################################################
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 # NON-NUMERIC INDEPENDENT VARIABLES DICT
 non_numeric_ind_dict = {}
