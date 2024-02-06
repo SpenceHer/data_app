@@ -926,15 +926,17 @@ class EditDataClass():
 
 
 
+
+
     def setup_dataframe_view_tab(self, initialize=True):
         df = data_manager.get_dataframe()
         if df is None:
             utils.show_message("Error", "Please open a file first.")
             return
-        self.style.configure("file_button.TButton", background="gray")
-        self.style.configure("dataframe_view_button.TButton", background="white")
-        self.style.configure("edit_button.TButton", background="gray")
-        self.style.configure("visualize_button.TButton", background="gray")
+        self.style.configure("file_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+        self.style.configure("dataframe_view_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
+        self.style.configure("edit_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+        self.style.configure("visualize_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
 
         utils.remove_frame_widgets(self.sub_button_frame)
 
