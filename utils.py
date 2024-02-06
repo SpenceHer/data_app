@@ -48,7 +48,7 @@ def forget_frame_widgets(frame):
 
 
 
-def create_scrollable_frame(root):
+def create_scrollable_frame(root, color=color_dict["main_content_bg"]):
     def on_variable_handling_canvas_configure(event):
         canvas_width = event.width
         main_canvas.itemconfig(scrollable_frame_window, width=canvas_width)
@@ -65,7 +65,7 @@ def create_scrollable_frame(root):
     container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
 
     # Canvas for scrollable content
-    main_canvas = tk.Canvas(container_frame, bg=color_dict["main_content_bg"], highlightthickness=0)
+    main_canvas = tk.Canvas(container_frame, bg=color, highlightthickness=0)
     main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # Scrollbar for the canvas
@@ -73,7 +73,7 @@ def create_scrollable_frame(root):
     main_canvas.configure(yscrollcommand=scrollbar.set)
 
     # Scrollable frame inside the canvas
-    scrollable_frame = tk.Frame(main_canvas, bg=color_dict["main_content_bg"])
+    scrollable_frame = tk.Frame(main_canvas, bg=color)
     scrollable_frame_window = main_canvas.create_window((0, 0), window=scrollable_frame, anchor=tk.NW)
 
     # Bind events
