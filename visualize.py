@@ -2615,12 +2615,27 @@ class CreatePlotClass():
 
         data_manager.add_tab_to_tab_dict("current_visualize_tab", "create_plot")
 
+        self.selected_plot = data_manager.get_plot_tab_plot_selection()
+
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
 
 
 
-        self.create_plot_options_frame()
+        self.plot_selection_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.plot_settings_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+        self.plot_display_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["main_content_border"])
+
+
+
+        self.plot_options = ["Scatter Plot"]
+
+
+        self.create_plot_selection_frame()
+        self.create_plot_settings_frame()
+        self.create_plot_display_frame()
+
+        self.switch_to_plot_selection_frame()
 
 ################################################################################################################
 ################################################################################################################
@@ -2628,34 +2643,30 @@ class CreatePlotClass():
 
     # CREATE PLOT OPTIONS FRAME
 
-
-
     def create_plot_selection_frame(self):
 
         # MAIN CONTENT FRAME
         self.plot_selection_inner_frame = tk.Frame(self.plot_selection_frame, bg=color_dict["main_content_bg"])
         self.plot_selection_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
 
-
 ################################################################################################################
-
 
         # PLOT SELECTION
 
-        self.plot_selection_selection_subframe_border = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["sub_frame_border"])
-        self.plot_selection_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+        self.plot_selection_subframe_border = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
 
-        self.plot_selection_selection_subframe = tk.Frame(self.plot_selection_selection_subframe_border, bg=color_dict["sub_frame_bg"])
-        self.plot_selection_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+        self.plot_selection_subframe = tk.Frame(self.plot_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.plot_selection_frame_label = tk.Label(self.plot_selection_selection_subframe, text="Plot Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_selection_frame_label = tk.Label(self.plot_selection_subframe, text="Plot Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
         self.plot_selection_frame_label.pack(side=tk.TOP, pady=10)
 
-        separator = ttk.Separator(self.plot_selection_selection_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator = ttk.Separator(self.plot_selection_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
         # PLOT SELECTION FRAME
-        self.plot_choice_frame = tk.Frame(self.plot_selection_selection_subframe, bg=color_dict["sub_frame_bg"])
+        self.plot_choice_frame = tk.Frame(self.plot_selection_subframe, bg=color_dict["sub_frame_bg"])
         self.plot_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
 
         self.plot_search_var = tk.StringVar()
@@ -2671,12 +2682,10 @@ class CreatePlotClass():
                      selectforeground=color_dict["listbox_select_fg"])
         self.plot_selection_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
 
-        for column in sorted(self.df.columns, key=str.lower):
-            self.plot_selection_listbox.insert(tk.END, column)
+        for plot in sorted(self.plot_options):
+            self.plot_selection_listbox.insert(tk.END, plot)
 
         self.plot_selection_listbox.bind("<<ListboxSelect>>", self.on_plot_selection_listbox_select)
-
-
 
 
 ################################################################################################################
@@ -2685,11 +2694,8 @@ class CreatePlotClass():
         self.plot_selection_menu_frame = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["nav_banner_bg"])
         self.plot_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.advance_to_inplot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=self.switch_to_inplot_selections_frame, style='nav_menu_button.TButton')
-        self.advance_to_inplot_selections_button.pack(side=tk.RIGHT)
-
-        self.plot_selection_label = tk.Label(self.plot_selection_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
-        self.plot_selection_label.pack(side=tk.RIGHT, expand=True)
+        self.advance_to_plot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=self.switch_to_plot_settings_frame, style='nav_menu_button.TButton')
+        self.advance_to_plot_selections_button.pack(side=tk.RIGHT)
 
 
 
@@ -2699,358 +2705,354 @@ class CreatePlotClass():
             index = items.index(self.selected_plot)
             self.plot_selection_listbox.selection_set(index)
             self.plot_selection_listbox.yview(index)
-            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_plot}")
+            
+
+
+################################################################################################################
+
+    # PLOT SELECTION FUNCTIONS
+
+    def on_plot_selection_listbox_select(self, event):
+        if self.plot_selection_listbox.curselection():
+            self.selected_plot = self.plot_selection_listbox.get(self.plot_selection_listbox.curselection()[0])
+            data_manager.set_plot_tab_plot_selection(self.selected_plot)
+
+
+
+    def update_plot_selection_listbox(self, *args):
+        search_term = self.plot_search_var.get().lower()
+        self.plot_selection_listbox.delete(0, tk.END)
+
+        # Check if the search term is empty
+        if search_term == "":
+            # If search term is empty, insert all plots sorted alphabetically
+            for plot in sorted(self.plot_options, key=str.lower):
+                self.plot_selection_listbox.insert(tk.END, plot)
+        else:
+            # If there is a search term, filter and sort the columns based on the search term
+            filtered_sorted_columns = sorted([plot for plot in self.plot_options if search_term in plot.lower()], key=str.lower)
+            # Populate the Listbox with the sorted list
+            for plot in filtered_sorted_columns:
+                self.plot_selection_listbox.insert(tk.END, plot)
+
+
+
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+    def create_plot_settings_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.plot_settings_inner_frame, self.plot_settings_canvas = utils.create_scrollable_frame(self.plot_settings_frame)
+
+################################################################################################################
+
+        # PLOT SELECTION
+
+        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+
+################################################################################################################
+
+        # NAVIGATION MENU
+
+
+        self.plot_settings_menu_frame = tk.Frame(self.plot_settings_frame, bg=color_dict["nav_banner_bg"])
+        self.plot_settings_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_plot_selection_button = ttk.Button(self.plot_settings_menu_frame, text="Back", command=self.switch_to_plot_selection_frame, style='nav_menu_button.TButton')
+        self.return_to_plot_selection_button.pack(side=tk.LEFT)
+
+        self.advance_to_plot_display_frame_button = ttk.Button(self.plot_settings_menu_frame, text="Next", command=self.switch_to_plot_display_frame, style='nav_menu_button.TButton')
+        self.advance_to_plot_display_frame_button.pack(side=tk.RIGHT)
+
 
 
 
 ################################################################################################################
 
-    def on_plot_selection_listbox_select(self, event):
-        if self.plot_selection_listbox.curselection():
-            self.selected_plot_selection = self.plot_selection_listbox.get(self.plot_selection_listbox.curselection()[0])
-            data_manager.set_mach_learn_tab_dep_var(self.selected_plot_selection)
-            self.dependent_frame_dependent_label.config(text=f"Dependent Variable: {self.selected_plot_selection}")
+
+    def display_scatter_plot_settings(self):
+
+        self.plot_settings_frame_label = tk.Label(self.plot_settings_subframe, text="Scatter Plot Settings", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        ############################################################################################################
+
+        self.column_choice_frame = tk.Frame(self.plot_settings_subframe, bg=color_dict["sub_frame_bg"])
+        self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+    
+        ###################### X AXIS ######################
+        self.selected_x_axis_variable = data_manager.get_x_axis_selection()
+
+        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
+        self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-Axis Selection", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.x_axis_frame_label.pack(side=tk.TOP)
 
 
+        self.x_axis_search_var = tk.StringVar()
+        self.x_axis_search_var.trace("w", self.update_x_axis_variable_listbox)
+        self.x_axis_var_search_entry = tk.Entry(self.x_axis_frame, textvariable=self.x_axis_search_var, font=styles.listbox_font)
+        self.x_axis_var_search_entry.pack(side=tk.TOP, pady=10)
 
-    def update_plot_selection_listbox(self, *args):
-        search_term = self.dependent_search_var.get().lower()
-        self.plot_selection_listbox.delete(0, tk.END)
+        self.x_axis_variable_listbox = tk.Listbox(self.x_axis_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+                     fg=color_dict["listbox_fg"],
+                     highlightbackground=color_dict["listbox_highlight_bg"],
+                     highlightcolor=color_dict["listbox_highlight_color"],
+                     selectbackground=color_dict["listbox_select_bg"],
+                     selectforeground=color_dict["listbox_select_fg"])
+        self.x_axis_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+
+        for column in sorted(self.df.columns, key=str.lower):
+            self.x_axis_variable_listbox.insert(tk.END, column)
+
+        self.x_axis_variable_listbox.bind("<<ListboxSelect>>", self.on_x_axis_variable_listbox_select)
+
+        self.x_axis_variable_label = tk.Label(self.x_axis_frame, text="No Variable Selected", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.x_axis_variable_label.pack(side=tk.TOP, pady=10)
+
+        if self.selected_x_axis_variable:
+            self.x_axis_variable_label.config(text=f"X-Axis: {self.selected_x_axis_variable}")
+            self.x_axis_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.x_axis_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_x_axis_variable)
+            self.x_axis_variable_listbox.selection_set(index)
+            self.x_axis_variable_listbox.yview(index)
+        ###################### X AXIS ######################
+
+
+        ###################### Y AXIS ######################
+        self.selected_y_axis_variable = data_manager.get_y_axis_selection()
+
+        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
+        self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-Axis Selection", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.y_axis_frame_label.pack(side=tk.TOP)
+
+
+        self.y_axis_search_var = tk.StringVar()
+        self.y_axis_search_var.trace("w", self.update_y_axis_variable_listbox)
+        self.y_axis_var_search_entry = tk.Entry(self.y_axis_frame, textvariable=self.y_axis_search_var, font=styles.listbox_font)
+        self.y_axis_var_search_entry.pack(side=tk.TOP, pady=10)
+
+        self.y_axis_variable_listbox = tk.Listbox(self.y_axis_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+                     fg=color_dict["listbox_fg"],
+                     highlightbackground=color_dict["listbox_highlight_bg"],
+                     highlightcolor=color_dict["listbox_highlight_color"],
+                     selectbackground=color_dict["listbox_select_bg"],
+                     selectforeground=color_dict["listbox_select_fg"])
+        self.y_axis_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+
+        for column in sorted(self.df.columns, key=str.lower):
+            self.y_axis_variable_listbox.insert(tk.END, column)
+
+        self.y_axis_variable_listbox.bind("<<ListboxSelect>>", self.on_y_axis_variable_listbox_select)
+
+        self.y_axis_variable_label = tk.Label(self.y_axis_frame, text="No Variable Selected", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.y_axis_variable_label.pack(side=tk.TOP, pady=10)
+
+        if self.selected_y_axis_variable:
+            self.y_axis_variable_label.config(text=f"Y-Axis: {self.selected_y_axis_variable}")
+            self.y_axis_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.y_axis_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_y_axis_variable)
+            self.y_axis_variable_listbox.selection_set(index)
+            self.y_axis_variable_listbox.yview(index)
+        ###################### Y AXIS ######################
+
+
+    def on_y_axis_variable_listbox_select(self, event):
+        if self.y_axis_variable_listbox.curselection():
+            self.selected_y_axis_variable = self.y_axis_variable_listbox.get(self.y_axis_variable_listbox.curselection()[0])
+            data_manager.set_plot_tab_y_axis_selection(self.selected_y_axis_variable)
+            self.y_axis_variable_label.config(text=f"Y-Axis: {self.selected_y_axis_variable}")
+
+
+    def update_y_axis_variable_listbox(self, *args):
+        search_term = self.y_axis_search_var.get().lower()
+        self.y_axis_variable_listbox.delete(0, tk.END)
 
         # Check if the search term is empty
         if search_term == "":
             # If search term is empty, insert all columns sorted alphabetically
             for column in sorted(self.df.columns, key=str.lower):
-                self.plot_selection_listbox.insert(tk.END, column)
+                self.y_axis_variable_listbox.insert(tk.END, column)
         else:
             # If there is a search term, filter and sort the columns based on the search term
             filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
             # Populate the Listbox with the sorted list
             for column in filtered_sorted_columns:
-                self.plot_selection_listbox.insert(tk.END, column)
+                self.y_axis_variable_listbox.insert(tk.END, column)
 
 
+    def on_x_axis_variable_listbox_select(self, event):
+        if self.x_axis_variable_listbox.curselection():
+            self.selected_x_axis_variable = self.x_axis_variable_listbox.get(self.x_axis_variable_listbox.curselection()[0])
+            data_manager.set_plot_tab_x_axis_selection(self.selected_x_axis_variable)
+            self.x_axis_variable_label.config(text=f"X-Axis: {self.selected_x_axis_variable}")
 
-
-
-
-################################################################################################################
-################################################################################################################
-################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def create_plot_options_frame(self):
-
-
-
-        self.plot_options_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
-        self.plot_options_frame.pack(side=tk.LEFT, fill=tk.BOTH)
-
-        self.figure_settings_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
-        self.figure_settings_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.figure_display_frame = tk.Frame(self.visualize_content_frame, bg=color_dict["sub_frame_bg"])
-        self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.figure_display_frame.pack_forget()
-
-
-
-        self.available_plots = ["Scatter Plot"]
-        self.selected_plot = None
-        self.selected_plot = tk.StringVar(value=self.selected_plot)
-
-        self.radiobuttons = []
-
-        self.choice_frame = tk.Frame(self.plot_options_frame, bg=color_dict["sub_frame_bg"])
-        self.choice_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.choice_frame_label = tk.Label(self.choice_frame, text="Choose a Graph", font=("Arial", 30, "bold"), bg="beige")
-        self.choice_frame_label.pack(side=tk.TOP)
-
-        separator = ttk.Separator(self.choice_frame, orient="horizontal", style="Separator.TSeparator")
-        separator.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
-
-        self.column_search_var = tk.StringVar()
-        self.column_search_var.trace("w", self.update_column_listbox)
-        self.column_search_entry = tk.Entry(self.choice_frame, textvariable=self.column_search_var, font=("Arial", 24))
-        self.column_search_entry.pack(side=tk.TOP, pady=5)
-        self.column_search_entry.focus_set()
-
-
-        self.plot_type_selection = tk.StringVar()
-        self.plot_choice_listbox = tk.Listbox(self.choice_frame, font=("Arial", 24))
-        self.plot_choice_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        for plot in self.available_plots:
-            self.plot_choice_listbox.insert(tk.END, plot)
-
-        self.plot_choice_listbox.update()
-
-        def on_plot_choice_listbox_selection(event):
-            selected_index = self.plot_choice_listbox.curselection()
-            if selected_index:
-                selected_plot_type = self.plot_choice_listbox.get(selected_index[0])
-                self.plot_type_selection.set(selected_plot_type)
-
-
-        self.plot_choice_listbox.bind("<<ListboxSelect>>", on_plot_choice_listbox_selection)
-
-
-        self.plot_options_button_frame = tk.Frame(self.plot_options_frame, bg=color_dict["sub_frame_bg"])
-        self.plot_options_button_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.choose_plot_button = tk.Button(self.plot_options_button_frame, text="Choose Plot", bg=color_dict["sub_frame_bg"], command=lambda: self.choose_plot())
-        self.choose_plot_button.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5)
-
-
-
-
-
-
-
-
-
-
-
-
-    def choose_plot(self):
-        selected_index = self.plot_choice_listbox.curselection()
-        if selected_index:
-            self.selected_plot = self.plot_choice_listbox.get(selected_index[0])
-
-            self.display_plot_settings()
-
-
-
-    def display_plot_settings(self):
-
-        if self.selected_plot == "Scatter Plot":
-            self.display_scatter_plot_settings()
-
-        # if self.selected_plot == "Histogram":
-        #     self.display_histogram_settings()
-
-
-
-    def display_scatter_plot_settings(self):
-        self.column_choice_frame = tk.Frame(self.figure_settings_frame, bg=color_dict["sub_frame_bg"])
-        self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        self.submit_settings_button_frame = tk.Frame(self.figure_settings_frame, bg=color_dict["sub_frame_bg"])
-        self.submit_settings_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-
-        self.x_axis_selection = tk.StringVar()
-        self.y_axis_selection = tk.StringVar()
-
-        ###################### X AXIS ######################
-        self.x_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
-        self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-AXIS SELECTION", font=("Arial", 30, "bold"))
-        self.x_axis_frame_label.pack(side=tk.TOP)
-
-
-
-
-        self.x_axis_search_var = tk.StringVar()
-        self.x_axis_search_var.trace("w", self.update_x_axis_variable_listbox)
-        self.x_axis_search_entry = tk.Entry(self.x_axis_frame, textvariable=self.x_axis_search_var, font=("Arial", 24))
-        self.x_axis_search_entry.pack(side=tk.TOP, pady=10)
-
-        self.x_axis_listbox = tk.Listbox(self.x_axis_frame, font=('Arial', 24))
-        self.x_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        for column in sorted(self.df.columns):
-            self.x_axis_listbox.insert(tk.END, column)
-
-        def on_x_axis_listbox_selection(event):
-            selected_index = self.x_axis_listbox.curselection()
-            if selected_index:
-                selected_column = self.x_axis_listbox.get(selected_index[0])
-                self.x_axis_selection.set(selected_column)
-                self.x_axis_label.config(text=self.x_axis_selection.get(), font=("Arial", 30, "bold"))  # Update x_axis_label text
-
-
-        self.x_axis_listbox.bind("<<ListboxSelect>>", on_x_axis_listbox_selection)
-
-        self.x_axis_label = tk.Label(self.x_axis_frame, textvariable=self.x_axis_selection)
-        self.x_axis_label.pack(side=tk.TOP)
-        self.x_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
-        ###################### X AXIS ######################
-
-        ###################### Y AXIS ######################
-        self.y_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
-        self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-AXIS SELECTION", font=("Arial", 30, "bold"))
-        self.y_axis_frame_label.pack(side=tk.TOP)
-
-
-
-        self.y_axis_search_var = tk.StringVar()
-        self.y_axis_search_var.trace("w", self.update_y_axis_variable_listbox)
-        self.y_axis_search_entry = tk.Entry(self.y_axis_frame, textvariable=self.y_axis_search_var, font=("Arial", 24))
-        self.y_axis_search_entry.pack(side=tk.TOP, pady=10)
-
-        self.y_axis_listbox = tk.Listbox(self.y_axis_frame, font=('Arial', 24))
-        self.y_axis_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        for column in sorted(self.df.columns):
-            self.y_axis_listbox.insert(tk.END, column)
-
-
-        def on_y_axis_listbox_selection(event):
-            selected_index = self.y_axis_listbox.curselection()
-            if selected_index:
-                selected_column = self.y_axis_listbox.get(selected_index[0])
-                self.y_axis_selection.set(selected_column)
-                self.y_axis_label.config(text=self.y_axis_selection.get(), font=("Arial", 30, "bold"))  # Update y_axis_label text
-
-
-        self.y_axis_listbox.bind("<<ListboxSelect>>", on_y_axis_listbox_selection)
-
-        self.y_axis_label = tk.Label(self.y_axis_frame, textvariable=self.y_axis_selection)
-        self.y_axis_label.pack(side=tk.TOP)
-        self.y_axis_label.config(text='No Variable Selected', font=("Arial", 30, "bold"))
-
-        # Force update the Listboxes after the frame becomes visible
-        self.x_axis_listbox.update()
-        self.y_axis_listbox.update()
-        ###################### Y AXIS ######################
-
-        # Add the Submit button
-        self.submit_button = tk.Button(self.submit_settings_button_frame, text="Submit", command=self.submit_plot_settings, font=('Arial', 40))
-        self.submit_button.pack(pady=10)
 
     def update_x_axis_variable_listbox(self, *args):
         search_term = self.x_axis_search_var.get().lower()
-        self.x_axis_listbox.delete(0, tk.END)
-        for column in sorted(self.df.columns):
-            if search_term in column.lower():
-                self.x_axis_listbox.insert(tk.END, column)
+        self.x_axis_variable_listbox.delete(0, tk.END)
 
-    def update_y_axis_variable_listbox(self, *args):
-        search_term = self.y_axis_search_var.get().lower()
-        self.y_axis_listbox.delete(0, tk.END)
-        for column in sorted(self.df.columns):
-            if search_term in column.lower():
-                self.y_axis_listbox.insert(tk.END, column)
-
-    def submit_plot_settings(self):
-        self.figure_settings_frame.pack_forget()
-        self.figure_display_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        self.fig = self.create_scatter_plot()
-
-        canvas = FigureCanvasTkAgg(self.fig, master=self.figure_display_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        # Check if the search term is empty
+        if search_term == "":
+            # If search term is empty, insert all columns sorted alphabetically
+            for column in sorted(self.df.columns, key=str.lower):
+                self.x_axis_variable_listbox.insert(tk.END, column)
+        else:
+            # If there is a search term, filter and sort the columns based on the search term
+            filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
+            # Populate the Listbox with the sorted list
+            for column in filtered_sorted_columns:
+                self.x_axis_variable_listbox.insert(tk.END, column)
 
 
-        # Add code here to perform additional actions or plotting based on the selections
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+    def create_plot_display_frame(self):
+
+        # MAIN CONTENT FRAME
+        self.plot_display_inner_frame, self.plot_display_canvas = utils.create_scrollable_frame(self.plot_display_frame)
+
+################################################################################################################
+
+        # PLOT SELECTION
+
+        self.plot_display_subframe_border = tk.Frame(self.plot_display_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_display_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.plot_display_subframe = tk.Frame(self.plot_display_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_display_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.plot_display_label = tk.Label(self.plot_display_subframe, text="", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_display_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.plot_display_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        self.graph_frame = tk.Frame(self.plot_display_subframe, bg=color_dict["sub_frame_bg"])
+        self.graph_frame.pack(side=tk.TOP, pady=10)
+
+################################################################################################################
+
+        # NAVIGATION MENU
+
+
+        self.plot_display_menu_frame = tk.Frame(self.plot_display_frame, bg=color_dict["nav_banner_bg"])
+        self.plot_display_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_plot_selection_button = ttk.Button(self.plot_display_menu_frame, text="Back", command=self.switch_to_plot_settings_frame, style='nav_menu_button.TButton')
+        self.return_to_plot_selection_button.pack(side=tk.LEFT)
+
+
+
+
+
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
 
 
     def create_scatter_plot(self):
+        if not self.selected_x_axis_variable or not self.selected_y_axis_variable:
+            utils.show_message("No Columns Selected", "Both X and Y AXIS VARIABLES must be selected")
+            raise
 
-        x_axis_variable = self.x_axis_selection.get()
-        if not x_axis_variable:
-            utils.show_message("No Columns Selected", "No X-AXIS VARIABLE selected")
-            return
         try:
-            self.df[x_axis_variable] = self.df[x_axis_variable].astype(float)
-        except:
-            utils.show_message("Error", "X-AXIS VARIABLE not a continuous variable. Pick Again")
-            return
-        y_axis_variable = self.y_axis_selection.get()
-        if not y_axis_variable:
-            utils.show_message("No Columns Selected", "No Y-AXIS VARIABLE selected")
-            return
-        try:
-            self.df[y_axis_variable] = self.df[y_axis_variable].astype(float)
-        except:
-            utils.show_message("Error", "Y-AXIS VARIABLE not a continuous variable. Pick Again")
-            return
-        clean_df = self.df[[x_axis_variable, y_axis_variable]].dropna()
+            self.df[self.selected_x_axis_variable] = self.df[self.selected_x_axis_variable].astype(float)
+            self.df[self.selected_y_axis_variable] = self.df[self.selected_y_axis_variable].astype(float)
+        except ValueError:
+            utils.show_message("Error", "Selected variables must be continuous")
+            raise
+
+        clean_df = self.df[[self.selected_x_axis_variable, self.selected_y_axis_variable]].dropna()
 
         # Create scatter plot with seaborn
         sns.set(style="ticks")
-        fig, ax = plt.subplots()
-        sns.scatterplot(data=clean_df, x=x_axis_variable, y=y_axis_variable, ax=ax)
+        fig = Figure(figsize=(8, 7))
+        ax = fig.add_subplot(111)  # Add subplot to the figure
+
+        sns.scatterplot(data=clean_df, x=self.selected_x_axis_variable, y=self.selected_y_axis_variable, ax=ax)
 
         # Calculate regression line parameters
-        slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[x_axis_variable], clean_df[y_axis_variable])
-        line = slope * clean_df[x_axis_variable] + intercept
+        slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[self.selected_x_axis_variable],
+                                                                clean_df[self.selected_y_axis_variable])
+        line = slope * clean_df[self.selected_x_axis_variable] + intercept
 
         # Add regression line to the plot
-        sns.lineplot(x=clean_df[x_axis_variable], y=line, color='r', ax=ax)
+        sns.lineplot(x=clean_df[self.selected_x_axis_variable], y=line, color='r', ax=ax)
 
         # Add R-squared and p-value to the plot
-        plt.text(0.05, 0.95, f"R-squared: {r_value**2:.4f}\nP-value: {p_value:.4f}", transform=ax.transAxes)
+        ax.text(0.05, 0.95, f"R-squared: {r_value**2:.4f}\nP-value: {p_value:.4f}", transform=ax.transAxes)
 
         # Customize plot aesthetics (title, labels, etc.)
-        plt.title("")
-        plt.xlabel(x_axis_variable)
-        plt.ylabel(y_axis_variable)
-        plt.tight_layout()
+        ax.set_title("")
+        ax.set_xlabel(self.selected_x_axis_variable)
+        ax.set_ylabel(self.selected_y_axis_variable)
+        fig.tight_layout()
 
         return fig
 
 
+    def display_graph(self):
+        utils.remove_frame_widgets(self.graph_frame)
+
+        fig_canvas = FigureCanvasTkAgg(self.fig, master=self.graph_frame)
+        fig_canvas_widget = fig_canvas.get_tk_widget()
+        fig_canvas_widget.pack(fill=tk.Y, expand=True)
 
 
 
 
 
 
-def create_histogram(visualize_content_frame, df):
-    text_prompt1 = "Choose your VARIABLE for Histogram"
-    chosen_continuous_variable = utils.get_single_choice(visualize_content_frame, df.columns, text_prompt1)
-    if not chosen_continuous_variable:
-        utils.show_message("No Columns Selected", "No X-AXIS VARIABLE selected")
-        return
-    try:
-        df[chosen_continuous_variable] = df[chosen_continuous_variable].astype(float)
-    except:
-        utils.show_message("Error", "X-AXIS VARIABLE not a continuous variable. Pick Again")
-        return
+    # def create_histogram(visualize_content_frame, df):
+    #     text_prompt1 = "Choose your VARIABLE for Histogram"
+    #     chosen_continuous_variable = utils.get_single_choice(visualize_content_frame, df.columns, text_prompt1)
+    #     if not chosen_continuous_variable:
+    #         utils.show_message("No Columns Selected", "No X-AXIS VARIABLE selected")
+    #         return
+    #     try:
+    #         df[chosen_continuous_variable] = df[chosen_continuous_variable].astype(float)
+    #     except:
+    #         utils.show_message("Error", "X-AXIS VARIABLE not a continuous variable. Pick Again")
+    #         return
 
-    clean_df = df[chosen_continuous_variable].dropna()
+    #     clean_df = df[chosen_continuous_variable].dropna()
 
-    sns.set(style="ticks")
-    fig, ax = plt.subplots()
-    sns.histplot(data=clean_df, kde=True, ax=ax)
+    #     sns.set(style="ticks")
+    #     fig, ax = plt.subplots()
+    #     sns.histplot(data=clean_df, kde=True, ax=ax)
 
-    # Customize plot aesthetics (title, labels, etc.)
-    plt.xlabel(chosen_continuous_variable)
-    plt.ylabel("Frequency")
-    plt.tight_layout()
+    #     # Customize plot aesthetics (title, labels, etc.)
+    #     plt.xlabel(chosen_continuous_variable)
+    #     plt.ylabel("Frequency")
+    #     plt.tight_layout()
 
-    return fig
-
-
-
-
-
-
-
-def create_box_and_whisker_plot(visualize_content_frame, df):
-    return
+    #     return fig
 
 
 
@@ -3058,6 +3060,60 @@ def create_box_and_whisker_plot(visualize_content_frame, df):
 
 
 
+    # def create_box_and_whisker_plot(visualize_content_frame, df):
+    #     return
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+    def switch_to_plot_selection_frame(self):
+
+        self.plot_settings_frame.pack_forget()
+        self.plot_display_frame.pack_forget()
+        self.plot_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        self.visualize_content_frame.update_idletasks()
+        self.plot_var_search_entry.focus_set()
+
+
+
+    def switch_to_plot_settings_frame(self):
+        if self.selected_plot == None:
+            return
+
+        utils.remove_frame_widgets(self.plot_settings_subframe)
+
+        if self.selected_plot == "Scatter Plot":
+            self.display_scatter_plot_settings()
+
+        self.plot_selection_frame.pack_forget()
+        self.plot_display_frame.pack_forget()
+        self.plot_settings_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True)
+        self.visualize_content_frame.update_idletasks()
+
+
+    def switch_to_plot_display_frame(self):
+
+        if self.selected_plot == "Scatter Plot":
+            self.fig = self.create_scatter_plot()
+            self.plot_display_label.config(text="Scatter Plot")
+
+        
+        self.display_graph()
+
+
+        self.plot_selection_frame.pack_forget()
+        self.plot_settings_frame.pack_forget()
+        self.plot_display_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        utils.bind_mousewheel_to_frame(self.plot_display_inner_frame, self.plot_display_canvas, True)
+        self.visualize_content_frame.update_idletasks()
 
 
 
@@ -5023,3 +5079,15 @@ class MachineLearningClass:
             return True
         else:
             return False
+
+
+
+
+
+
+
+
+
+
+
+
