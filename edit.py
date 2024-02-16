@@ -1122,13 +1122,16 @@ class EditDataClass():
             self.data_display_menu_frame_label.configure(text=f"Selected Variable: {self.selected_column}")
 
         self.new_df = self.temp_df.copy()
-        try:
-            self.new_df[self.selected_column] = self.new_df[self.selected_column].astype(float)
-        except:
-            utils.show_message("error", "Please make sure all values are numerical")
-            return
-        
+
+
         if self.selected_variable_type == "Continuous":
+
+            try:
+                self.new_df[self.selected_column] = self.new_df[self.selected_column].astype(float)
+            except:
+                utils.show_message("error", "Please make sure all values are numerical")
+                return
+        
             if self.remove_values_of_zero_var.get() == "Yes":
                 self.remove_values_of_zero()
             if self.remove_negative_values_var.get() == "Yes":
