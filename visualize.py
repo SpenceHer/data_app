@@ -2336,7 +2336,8 @@ class RegressionAnalysisClass:
         coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
         for i in range(len(coefs['Characteristic'])):
             variable_string = coefs['Characteristic'].iloc[i]
-            if variable_string[0] == "C":
+            print(variable_string)
+            if variable_string[0:1] == "C(":
                 column_string = re.search(r'C\((.*?),', variable_string).group(1)
                 reference_value = re.search(r"\[T\.(.*?)\]", variable_string).group(1)
                 new_value = column_string + f" ({reference_value})"
@@ -3964,6 +3965,7 @@ class MachineLearningClass:
                 for value in non_numeric_values:
 
                     input_var = self.non_numeric_input_var_dict[variable][value]
+                    print(input_var)
 
                     try:
                         self.temp_df.loc[self.temp_df[variable] == value, variable] = float(input_var)
@@ -4888,6 +4890,7 @@ class MachineLearningClass:
             except:
                 utils.show_message("error", "Make sure all values are NUMERICAL")
                 return
+            
         if len(input_data) < 1:
             return
 
