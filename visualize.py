@@ -285,7 +285,6 @@ class ComparisonTableClass:
 
 ################################################################################################################
 
-
         # DEPENDENT VARIABLE SELECTION
 
         self.dependent_variable_selection_subframe_border = tk.Frame(self.dependent_variable_inner_frame, bg=color_dict["sub_frame_border"])
