@@ -174,8 +174,8 @@ class SetupFileTabClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        self.file_path = filedialog.askopenfilename()
-        # self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+        # self.file_path = filedialog.askopenfilename()
+        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
@@ -678,17 +678,62 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
 
     utils.remove_frame_widgets(sub_button_frame)
 
-    style.configure("save_file_button.TButton", background="white", borderwidth=0, padding=0, font=("Arial", 36))
-    save_file_button = ttk.Button(sub_button_frame, text="Save File", style="save_file_button.TButton")
-    save_file_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
-    save_file_button.config(command=lambda: save_file(df))
+    style.configure("save_dataframe_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"], borderwidth=0, padding=0, font=styles.sub_tabs_font)
+    style.map(
+        "save_dataframe_button.TButton",
+        background=[("active", color_dict["hover_subtab_bg"])],
+        foreground=[("active", color_dict["hover_subtab_txt"])]
+    )
+    save_dataframe_button = ttk.Button(sub_button_frame, text="Save Dataframe", style="save_dataframe_button.TButton")
+    save_dataframe_button.pack(side="left", fill="both", expand=True)  # Set expand=True to fill the horizontal space
+    save_dataframe_button.config(command=lambda: save_file(df))
 
     def initialize_dataframe_view_tab():
         utils.remove_frame_widgets(dataframe_content_frame)
 
-        utils.create_table(dataframe_content_frame, df, style)
+        data_frame_border = tk.Frame(dataframe_content_frame, bg=color_dict["main_content_border"])
+        data_frame_border.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        data_inner_frame = tk.Frame(data_frame_border, bg=color_dict["main_content_bg"])
+        data_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+
+        # RAW DATA TABLE
+        
+        raw_data_table_subframe_border = tk.Frame(data_inner_frame, bg=color_dict["sub_frame_border"])
+        raw_data_table_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        raw_data_table_subframe = tk.Frame(raw_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
+        raw_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        raw_data_table_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        utils.create_table(raw_data_table_subframe, df, style)
+
+
+        # SUMMARY DATA TABLE
+
         summary_df = utils.create_summary_table(df)
-        utils.create_table(dataframe_content_frame, summary_df, style, title="COLUMN SUMMARY TABLE")
+
+        summary_data_table_subframe_border = tk.Frame(data_inner_frame, bg=color_dict["sub_frame_border"])
+        summary_data_table_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        summary_data_table_subframe = tk.Frame(summary_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
+        summary_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        summary_data_table_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        utils.create_table(summary_data_table_subframe, summary_df, style)
+
+
+
 
         editing_content_frame.pack_forget()
         visualize_content_frame.pack_forget()
