@@ -23,8 +23,8 @@ screen_width = main_window.winfo_screenwidth() // 3
 screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
 
-# main_window.geometry(f"{screen_width}x{screen_height}+0+0")
-main_window.wm_state('zoomed')
+main_window.geometry(f"{screen_width}x{screen_height}+0+0")
+# main_window.wm_state('zoomed')
 
 
 
@@ -137,21 +137,37 @@ style.map("nav_menu_button.TButton",
     background=[("active", color_dict["nav_menu_button_hover_bg"])],
     foreground=[("active", color_dict["nav_menu_button_hover_txt"])]
 )
-    
 
 
 
-        # self.style.configure('categorical_model.TCombobox', selectbackground="darkgray", selectforeground="black")
-        # self.style.map("categorical_model.TCombobox", fieldbackground=[("readonly", "darkgray"), ("disabled", "lightgray")])
+
+# BUTTONS
+style.configure("main_content_button.TButton", 
+                    font=styles.transfer_button_font,
+                    foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
+                    background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
+                    borderwidth=1,
+                    relief="raised",
+                    padding=6)
+
+# Apply a highlight effect for when the button is active
+style.map("main_content_button.TButton",
+            foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
+            background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
 
 
+style.configure("small_button.TButton", 
+                    font=styles.small_button_font,
+                    foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
+                    background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
+                    borderwidth=1,
+                    relief="raised",
+                    padding=6)
 
-        #     self.continuous_model_selection_combobox.configure(state="readonly")
-        #     self.style.configure("continuous_model.TCombobox", foreground='black', background='darkgray')
-
-
-        #     self.categorical_model_selection_combobox.configure(state="disabled")
-        #     self.style.configure("categorical_model.TCombobox", foreground='lightgray', background='lightgray')
+# Apply a highlight effect for when the button is active
+style.map("small_button.TButton",
+            foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
+            background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
 
 
 
