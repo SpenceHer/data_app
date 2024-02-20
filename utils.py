@@ -125,9 +125,6 @@ def bind_mousewheel_to_frame(scrollable_frame, main_canvas, bind=True):
 
 
 
-import tkinter as tk
-from tkinter import ttk
-import pandas as pd  # Assuming you're using pandas DataFrame for 'df'
 
 def create_table(parent, df, style, show_index=True, table_name="", graph_name="", title=""):
 
@@ -161,7 +158,7 @@ def create_table(parent, df, style, show_index=True, table_name="", graph_name="
                     troughcolor="#FADCE6", bordercolor="#E91E63", arrowcolor="#FFFFFF")
 
     table_frame = tk.Frame(parent, bg='beige')
-    table_frame.pack(fill=tk.BOTH, expand=True)
+    table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
     if title != "":
         label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'), bg='beige')
