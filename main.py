@@ -23,8 +23,8 @@ screen_width = main_window.winfo_screenwidth() // 3
 screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
 
-main_window.geometry(f"{screen_width}x{screen_height}+0+0")
-# main_window.wm_state('zoomed')
+# main_window.geometry(f"{screen_width}x{screen_height}+0+0")
+main_window.wm_state('zoomed')
 
 
 
@@ -60,7 +60,7 @@ visualize_content_frame = tk.Frame(content_frame, bg=color_dict["background_fram
 style.configure("file_button.TButton", background="white", borderwidth=0, padding=0, font=styles.main_tabs_font)
 file_button = ttk.Button(button_frame, text="File", style="file_button.TButton")
 file_button.pack(side="left", fill="x", expand=True)
-file_button.config(command=lambda: file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=False))
+file_button.config(command=lambda: file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
 
 style.configure("dataframe_view_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
 dataframe_view_button = ttk.Button(button_frame, text="Dataframe View", style="dataframe_view_button.TButton")
@@ -85,11 +85,7 @@ for button in ["file_button.TButton", "dataframe_view_button.TButton", "edit_but
     style.map(button, background=[("active", "#3E2723")])
 
 
-
 file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame)
-
-
-
 
 
 
