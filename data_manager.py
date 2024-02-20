@@ -63,6 +63,31 @@ def add_tab_to_tab_dict(tab_name, setting):
 def get_tab_dict():
     return tab_dict
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+# IMPORT EXPORT SELECTED VARIABLES
+
+exported_variables_list = []
+
+
+# COMPARISON TABLE INDEPENDENT VARIABLES LIST
+
+def clear_exported_variables_list():
+    global exported_variables_list
+    exported_variables_list = []
+
+def add_variable_to_exported_variables_list(variable):
+    global exported_variables_list
+    if variable not in exported_variables_list:
+        exported_variables_list.append(variable)
+
+def get_exported_variables_list():
+    return exported_variables_list
+
+
+
 
 ################################################################################################################
 ################################################################################################################
