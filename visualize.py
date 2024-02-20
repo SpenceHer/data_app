@@ -434,39 +434,38 @@ class ComparisonTableClass:
         for column in sorted(self.df.columns, key=str.lower):
             self.available_independent_variable_listbox.insert(tk.END, column)
 
-        # TRANSFER BUTTONS
-        self.style.configure("main_content_button.TButton", 
-                            font=styles.transfer_button_font,
-                            foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
-                            background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
-                            borderwidth=1,
-                            relief="raised",
-                            padding=6)
-
-        # Apply a highlight effect for when the button is active
-        self.style.map("main_content_button.TButton",
-                    foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
-                    background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
-
 
         # TRANSFER BUTTONS
-        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
-        self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.transfer_buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.transfer_buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        # Text buttons "Move All Right" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, style="main_content_button.TButton")
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, pady=10)
+
+        # Text buttons "Select All" and "Clear Selection"
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.transfer_buttons_frame, text="Move All Left", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
+
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
+
+        # Import and export selected variables
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
         # SELECTED INDEPENDENT VARIABLES FRAME
@@ -714,6 +713,26 @@ class ComparisonTableClass:
         if top_visible_index >= 0:
             index = items.index(top_visible_item)
             self.available_independent_variable_listbox.yview(index)
+
+
+    def import_variable_list(self):
+        imported_variable_list = data_manager.get_exported_variables_list()
+
+        for var in imported_variable_list:
+            if var in self.df.columns:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.selected_independent_variables.append(var)
+
+    def export_variable_list(self):
+        data_manager.clear_exported_variables_list()
+        for var in self.selected_independent_variables:
+            data_manager.add_variable_to_exported_variables_list(var)
+        
+
+
+
+
+
 
 ################################################################################################################
 ################################################################################################################
@@ -1590,39 +1609,38 @@ class RegressionAnalysisClass:
         for column in sorted(self.df.columns, key=str.lower):
             self.available_independent_variable_listbox.insert(tk.END, column)
 
-        # TRANSFER BUTTONS
-        self.style.configure("main_content_button.TButton", 
-                            font=styles.transfer_button_font,
-                            foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
-                            background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
-                            borderwidth=1,
-                            relief="raised",
-                            padding=6)
-
-        # Apply a highlight effect for when the button is active
-        self.style.map("main_content_button.TButton",
-                    foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
-                    background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
-
 
         # TRANSFER BUTTONS
-        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
-        self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.transfer_buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.transfer_buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        # Text buttons "Move All Right" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, style="main_content_button.TButton")
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, pady=10)
+
+        # Text buttons "Select All" and "Clear Selection"
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.transfer_buttons_frame, text="Move All Left", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
+
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
+
+        # Import and export selected variables
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
         # SELECTED INDEPENDENT VARIABLES FRAME
@@ -1821,7 +1839,18 @@ class RegressionAnalysisClass:
             self.selected_regression = "Linear Regression"
             data_manager.set_reg_tab_selected_regression(self.selected_regression)
 
+    def import_variable_list(self):
+        imported_variable_list = data_manager.get_exported_variables_list()
 
+        for var in imported_variable_list:
+            if var in self.df.columns:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.selected_independent_variables.append(var)
+
+    def export_variable_list(self):
+        data_manager.clear_exported_variables_list()
+        for var in self.selected_independent_variables:
+            data_manager.add_variable_to_exported_variables_list(var)
 
 ################################################################################################################
 ################################################################################################################
@@ -3436,39 +3465,38 @@ class MachineLearningClass:
         for column in sorted(self.df.columns, key=str.lower):
             self.available_independent_variable_listbox.insert(tk.END, column)
 
-        # TRANSFER BUTTONS
-        self.style.configure("main_content_button.TButton", 
-                            font=styles.transfer_button_font,
-                            foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
-                            background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
-                            borderwidth=1,
-                            relief="raised",
-                            padding=6)
-
-        # Apply a highlight effect for when the button is active
-        self.style.map("main_content_button.TButton",
-                    foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
-                    background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
-
 
         # TRANSFER BUTTONS
-        self.transfer_buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
-        self.transfer_buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.buttons_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.transfer_buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.transfer_buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        # Text buttons "Move All Right" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.transfer_buttons_frame, text="Move All Right", command=self.transfer_all_right, style="main_content_button.TButton")
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, pady=10)
+
+        # Text buttons "Select All" and "Clear Selection"
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.transfer_buttons_frame, text="Move All Left", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
+
+        separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
+
+        # Import and export selected variables
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
+
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
         # SELECTED INDEPENDENT VARIABLES FRAME
@@ -3739,6 +3767,18 @@ class MachineLearningClass:
             self.continuous_model_selection_combobox.configure(state="readonly")
             self.categorical_model_selection_combobox.configure(state="disabled")
 
+    def import_variable_list(self):
+        imported_variable_list = data_manager.get_exported_variables_list()
+
+        for var in imported_variable_list:
+            if var in self.df.columns:
+                self.selected_independent_variable_listbox.insert(tk.END, var)
+                self.selected_independent_variables.append(var)
+
+    def export_variable_list(self):
+        data_manager.clear_exported_variables_list()
+        for var in self.selected_independent_variables:
+            data_manager.add_variable_to_exported_variables_list(var)
             
 ################################################################################################################
 ################################################################################################################
