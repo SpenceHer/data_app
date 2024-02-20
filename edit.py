@@ -52,6 +52,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     utils.remove_frame_widgets(sub_button_frame)
 
 
+
     # SUBHEADING BUTTONS
     edit_data_button = ttk.Button(sub_button_frame, text="Edit Data", style="edit_data_button.TButton")
     edit_data_button.pack(side="left", fill="x", expand=True)
@@ -1659,7 +1660,6 @@ class CreateNewVariableClass:
                     separation_label = tk.Label(separation_frame, text=label, bg=color_dict["sub_frame_bg"])
                     separation_label.pack(side=tk.TOP)
                     label = 'Where'
-
 
 
             condition_frame = tk.Frame(new_value_frame, bg=color_dict["sub_frame_bg"])
