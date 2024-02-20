@@ -96,6 +96,8 @@ main_content_regular_text_font = ("Arial Rounded MT Bold", 18)  # A clean, moder
 main_content_large_button_font = ("Comic Sans MS", 22, "bold")  # A larger, bold version of the playful font for important buttons to stand out
 
 listbox_font = ("Arial Rounded MT Bold", 36, "bold")
+entrybox_font = ("Arial Rounded MT Bold", 36, "bold")
+small_button_font = ("Arial Rounded MT Bold", 16, "bold")
 
 radio_button_font = ("Arial Rounded MT Bold", 24)  # Playful and legible font
 
