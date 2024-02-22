@@ -293,7 +293,7 @@ class ComparisonTableClass:
         self.dependent_variable_selection_subframe = tk.Frame(self.dependent_variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dependent_variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dependent_variable_frame_label = tk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.dependent_variable_frame_label = ttk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", style="sub_frame_header.TLabel")
         self.dependent_variable_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dependent_variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -333,7 +333,7 @@ class ComparisonTableClass:
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
-        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.dependent_frame_dependent_label = ttk.Label(self.dependent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -397,7 +397,7 @@ class ComparisonTableClass:
         self.independent_variables_selection_subframe = tk.Frame(self.independent_variables_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.independent_variables_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.independent_variables_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -439,20 +439,20 @@ class ComparisonTableClass:
         self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="large_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="large_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, pady=10)
 
         # Text buttons "Select All" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="large_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="large_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -460,10 +460,10 @@ class ComparisonTableClass:
         separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
 
         # Import and export selected variables
-        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="large_button.TButton")
         self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="large_button.TButton")
         self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -471,7 +471,7 @@ class ComparisonTableClass:
         self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_independent_variables_label = tk.Label(self.selected_independent_variables_frame, text="Selected Variables", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.selected_independent_variables_label = ttk.Label(self.selected_independent_variables_frame, text="Selected Variables", style="sub_frame_sub_header.TLabel")
         self.selected_independent_variables_label.pack(side=tk.TOP, pady=10)
 
 
@@ -511,7 +511,7 @@ class ComparisonTableClass:
         self.table_options_subframe = tk.Frame(self.table_options_subframe_border, bg=color_dict["sub_frame_bg"])
         self.table_options_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.table_options_subframe, text="Percent Type and Data Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.table_options_subframe, text="Percent Type and Data Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.table_options_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -529,8 +529,9 @@ class ComparisonTableClass:
         self.percentage_type_selection_frame = tk.Frame(self.table_options_frame, bg=color_dict["sub_frame_bg"])
         self.percentage_type_selection_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=5)
 
-        self.percent_type_label = tk.Label(self.percentage_type_selection_frame, text="Table Percent Selection", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
-        self.percent_type_label.pack(side=tk.TOP, fill=tk.X, padx=10)
+        self.percent_type_label = ttk.Label(self.percentage_type_selection_frame, text="Table Percent Selection", style="sub_frame_sub_header.TLabel")
+        self.percent_type_label.pack(side=tk.TOP, padx=10)
+
 
         separator = ttk.Separator(self.percentage_type_selection_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=10)
@@ -561,8 +562,8 @@ class ComparisonTableClass:
         self.data_choice_frame = tk.Frame(self.table_options_frame, bg=color_dict["sub_frame_bg"])
         self.data_choice_frame.grid(row=0, column=2, sticky="nsew", padx=10, pady=5)
 
-        self.data_choice_label = tk.Label(self.data_choice_frame, text="Data Selection", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
-        self.data_choice_label.pack(side=tk.TOP, fill=tk.X, padx=10)
+        self.data_choice_label = ttk.Label(self.data_choice_frame, text="Data Selection", style="sub_frame_sub_header.TLabel")
+        self.data_choice_label.pack(side=tk.TOP, padx=10)
 
         separator = ttk.Separator(self.data_choice_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=10)
@@ -596,7 +597,7 @@ class ComparisonTableClass:
         self.advance_to_variable_handling_frame_button = ttk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text='Next', style='nav_menu_button.TButton')
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
-        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.independent_frame_dependent_label = ttk.Label(self.independent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 ################################################################################################################
@@ -753,7 +754,7 @@ class ComparisonTableClass:
         self.variable_handling_subframe = tk.Frame(self.variable_handling_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_handling_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_handling_label = tk.Label(self.variable_handling_subframe, text="Variable Type Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.variable_handling_label = ttk.Label(self.variable_handling_subframe, text="Variable Type Selection", style="sub_frame_header.TLabel")
         self.variable_handling_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_handling_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -780,9 +781,8 @@ class ComparisonTableClass:
         self.view_results_button = ttk.Button(self.variable_handling_menu_frame, command=self.switch_to_results_frame, text='View Results', style='nav_menu_button.TButton')
         self.view_results_button.pack(side=tk.RIGHT)
 
-        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.variable_handling_menu_frame_dependent_label = ttk.Label(self.variable_handling_menu_frame, text="", style="nav_menu_label.TLabel")
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
-
 
 
 ################################################################################################################
@@ -796,7 +796,7 @@ class ComparisonTableClass:
 
             value_string = value[0:19] + "..." if len(value) >= 20 else value
 
-            value_label = tk.Label(options_frame, text=value_string, font=styles.listbox_font, bg=color_dict["sub_frame_bg"], fg=color_dict["listbox_fg"])
+            value_label = ttk.Label(options_frame, text=value_string, font=styles.listbox_font, bg=color_dict["sub_frame_bg"], fg=color_dict["listbox_fg"])
             value_label.pack(side=tk.LEFT, padx=5, pady=5, anchor="w")
 
 
@@ -870,7 +870,7 @@ class ComparisonTableClass:
         self.results_table_subframe = tk.Frame(self.results_table_subframe_border, bg=color_dict["sub_frame_bg"])
         self.results_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.results_table_label = tk.Label(self.results_table_subframe, text="Comparison Table Display", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.results_table_label = ttk.Label(self.results_table_subframe, text="Comparison Table Display", style="sub_frame_header.TLabel")
         self.results_table_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.results_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -890,7 +890,7 @@ class ComparisonTableClass:
         self.return_to_variable_handling_frame_button = ttk.Button(self.results_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', style='nav_menu_button.TButton')
         self.return_to_variable_handling_frame_button.pack(side=tk.LEFT)
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.results_frame_dependent_label = ttk.Label(self.results_menu_frame, text="", style="nav_menu_label.TLabel")
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 ################################################################################################################
@@ -1238,7 +1238,7 @@ class ComparisonTableClass:
 
         utils.create_table(self.results_display_frame, self.summary_df, self.style)
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), style="main_content_button.TButton")
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), style="large_button.TButton")
         save_summary_button.pack(side=tk.BOTTOM, pady=10)
 
 
@@ -1470,7 +1470,7 @@ class RegressionAnalysisClass:
         self.dependent_variable_selection_subframe = tk.Frame(self.dependent_variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dependent_variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dependent_variable_frame_label = tk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.dependent_variable_frame_label = ttk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", style="sub_frame_header.TLabel")
         self.dependent_variable_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dependent_variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1510,7 +1510,7 @@ class RegressionAnalysisClass:
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
-        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.dependent_frame_dependent_label = ttk.Label(self.dependent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1572,7 +1572,7 @@ class RegressionAnalysisClass:
         self.independent_variables_selection_subframe = tk.Frame(self.independent_variables_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.independent_variables_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.independent_variables_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1614,20 +1614,20 @@ class RegressionAnalysisClass:
         self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="large_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="large_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, pady=10)
 
         # Text buttons "Select All" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="large_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="large_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -1635,10 +1635,10 @@ class RegressionAnalysisClass:
         separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
 
         # Import and export selected variables
-        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="large_button.TButton")
         self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="large_button.TButton")
         self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -1646,7 +1646,7 @@ class RegressionAnalysisClass:
         self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_independent_variables_label = tk.Label(self.selected_independent_variables_frame, text="Selected Variables", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.selected_independent_variables_label = ttk.Label(self.selected_independent_variables_frame, text="Selected Variables", style="sub_frame_sub_header.TLabel")
         self.selected_independent_variables_label.pack(side=tk.TOP, pady=10)
 
 
@@ -1682,7 +1682,7 @@ class RegressionAnalysisClass:
         self.model_options_subframe = tk.Frame(self.model_options_subframe_border, bg=color_dict["sub_frame_bg"])
         self.model_options_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.model_options_subframe, text="Regression Model Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.model_options_subframe, text="Regression Model Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.model_options_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1729,7 +1729,7 @@ class RegressionAnalysisClass:
         self.advance_to_variable_handling_frame_button = ttk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text="Next", style='nav_menu_button.TButton')
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
-        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.independent_frame_dependent_label = ttk.Label(self.independent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1875,7 +1875,7 @@ class RegressionAnalysisClass:
         self.view_results_button = ttk.Button(self.variable_handling_menu_frame, command=self.switch_to_results_frame, text='View Results', style='nav_menu_button.TButton')
         self.view_results_button.pack(side=tk.RIGHT)
 
-        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.variable_handling_menu_frame_dependent_label = ttk.Label(self.variable_handling_menu_frame, text="", style="nav_menu_label.TLabel")
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -1894,7 +1894,7 @@ class RegressionAnalysisClass:
         self.linear_regression_variable_handling_subframe = tk.Frame(self.linear_regression_variable_handling_subframe_border, bg=color_dict["sub_frame_bg"])
         self.linear_regression_variable_handling_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.value_entry_frame_label = tk.Label(self.linear_regression_variable_handling_subframe, text="Change Non-Numeric Values in The Following Independent Variables", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.value_entry_frame_label = ttk.Label(self.linear_regression_variable_handling_subframe, text="Change Non-Numeric Values in The Following Independent Variables", style="sub_frame_header.TLabel")
         self.value_entry_frame_label.pack(side=tk.TOP, pady=10)
         
         separator = ttk.Separator(self.linear_regression_variable_handling_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1917,7 +1917,7 @@ class RegressionAnalysisClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+            proceed_to_results_label = ttk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", style="sub_frame_sub_header.TLabel")
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=10, padx=20)
 
         # HANDLE NON-NUMERIC VARIABLES
@@ -1932,7 +1932,7 @@ class RegressionAnalysisClass:
             else:
                 variable_string = variable
 
-            variable_label = tk.Label(options_frame, text=variable_string, font=styles.sub_tabs_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+            variable_label = ttk.Label(options_frame, text=variable_string, font=styles.sub_tabs_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
             variable_label.pack(side=tk.TOP)
 
 
@@ -1967,7 +1967,7 @@ class RegressionAnalysisClass:
                 input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.main_content_regular_text_font, width=10)
                 input_entry.pack(side=tk.LEFT)
 
-                value_label = tk.Label(value_frame, text=value, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
+                value_label = ttk.Label(value_frame, text=value, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
                 value_label.pack(side=tk.LEFT)
 
                 # Bind the entry widget to an event
@@ -2028,7 +2028,7 @@ class RegressionAnalysisClass:
         self.target_value_subframe = tk.Frame(self.target_value_subframe_border, bg=color_dict["sub_frame_bg"])
         self.target_value_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.target_value_label = tk.Label(self.target_value_subframe, text="Target Value Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.target_value_label = ttk.Label(self.target_value_subframe, text="Target Value Selection", style="sub_frame_header.TLabel")
         self.target_value_label.pack(side=tk.TOP, pady=10)
         
         separator = ttk.Separator(self.target_value_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2071,7 +2071,7 @@ class RegressionAnalysisClass:
         self.variable_type_subframe = tk.Frame(self.variable_type_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_type_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.target_value_label = tk.Label(self.variable_type_subframe, text="Variable Type and Reference Value Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.target_value_label = ttk.Label(self.variable_type_subframe, text="Variable Type and Reference Value Selection", style="sub_frame_header.TLabel")
         self.target_value_label.pack(side=tk.TOP, pady=10)
         
         separator = ttk.Separator(self.variable_type_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2083,13 +2083,13 @@ class RegressionAnalysisClass:
         self.variable_type_selection_frame = tk.Frame(self.variable_type_subframe, bg=color_dict["sub_frame_bg"])
         self.variable_type_selection_frame.pack(side=tk.TOP)
 
-        self.variable_name_label = tk.Label(self.variable_type_selection_frame, text='Variable', font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.variable_name_label = ttk.Label(self.variable_type_selection_frame, text='Variable', style="sub_frame_sub_header.TLabel")
         self.variable_name_label.grid(row=0, column=0, padx=5, pady=5)
 
-        self.variable_type_label = tk.Label(self.variable_type_selection_frame, text='Variable Type', font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.variable_type_label = ttk.Label(self.variable_type_selection_frame, text='Variable Type', style="sub_frame_sub_header.TLabel")
         self.variable_type_label.grid(row=0, column=1, columnspan=2, padx=5, pady=5)
 
-        self.reference_variable_label = tk.Label(self.variable_type_selection_frame, text='Reference Value', font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.reference_variable_label = ttk.Label(self.variable_type_selection_frame, text='Reference Value', style="sub_frame_sub_header.TLabel")
         self.reference_variable_label.grid(row=0, column=3, padx=5, pady=5)
 
         separator = ttk.Separator(self.variable_type_selection_frame, orient="horizontal", style="Separator.TSeparator")
@@ -2109,7 +2109,7 @@ class RegressionAnalysisClass:
 
             variable_string = variable[0:19] + "..." if len(variable) >= 20 else variable
 
-            variable_label = tk.Label(self.variable_type_selection_frame, text=variable_string, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
+            variable_label = ttk.Label(self.variable_type_selection_frame, text=variable_string, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
             variable_label.grid(row=row_count+1, column=0, padx=10, pady=5)
 
 
@@ -2136,7 +2136,7 @@ class RegressionAnalysisClass:
 
 
 
-            reference_value_combobox = ttk.Combobox(self.variable_type_selection_frame, state=tk.DISABLED, font=styles.radio_button_font)
+            reference_value_combobox = ttk.Combobox(self.variable_type_selection_frame, state=tk.DISABLED, font=styles.large_button_font)
             values = [str(val) for val in self.clean_df[variable].unique()]
             reference_value_combobox['values'] = values
             reference_value_combobox.grid(row=row_count+1, column=3, padx=10, pady=5)
@@ -2279,7 +2279,7 @@ class RegressionAnalysisClass:
         self.results_table_subframe = tk.Frame(self.results_table_subframe_border, bg=color_dict["sub_frame_bg"])
         self.results_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.results_table_label = tk.Label(self.results_table_subframe, text="", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.results_table_label = ttk.Label(self.results_table_subframe, text="", style="sub_frame_header.TLabel")
         self.results_table_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.results_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2299,7 +2299,7 @@ class RegressionAnalysisClass:
         self.return_to_variable_handling_frame_button = ttk.Button(self.results_menu_frame, command=self.switch_to_variable_handling_frame, text='Back', style='nav_menu_button.TButton')
         self.return_to_variable_handling_frame_button.pack(side=tk.LEFT)
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.results_frame_dependent_label = ttk.Label(self.results_menu_frame, text="", style="nav_menu_label.TLabel")
         self.results_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 ################################################################################################################
@@ -2382,7 +2382,7 @@ class RegressionAnalysisClass:
 
         utils.create_table(self.results_display_frame, coefs, self.style)
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="main_content_button.TButton")
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="large_button.TButton")
         save_summary_button.pack(side=tk.TOP)
 
 
@@ -2441,10 +2441,10 @@ class RegressionAnalysisClass:
         utils.create_table(self.results_display_frame, coefs, self.style)
 
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="main_content_button.TButton")
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="large_button.TButton")
         save_summary_button.pack()
 
-        view_correlation_matrix_button = ttk.Button(self.results_display_frame, text="View Correlation Matrix", command=lambda: plot_correlation_matrix(), style="main_content_button.TButton")
+        view_correlation_matrix_button = ttk.Button(self.results_display_frame, text="View Correlation Matrix", command=lambda: plot_correlation_matrix(), style="large_button.TButton")
         view_correlation_matrix_button.pack()
 
         def plot_correlation_matrix():
@@ -2688,7 +2688,7 @@ class CreatePlotClass():
         self.plot_selection_subframe = tk.Frame(self.plot_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.plot_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.plot_selection_frame_label = tk.Label(self.plot_selection_subframe, text="Plot Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_selection_frame_label = ttk.Label(self.plot_selection_subframe, text="Plot Selection", style="sub_frame_header.TLabel")
         self.plot_selection_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.plot_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2811,7 +2811,7 @@ class CreatePlotClass():
 
     def display_scatter_plot_settings(self):
 
-        self.plot_settings_frame_label = tk.Label(self.plot_settings_subframe, text="Scatter Plot Settings", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Scatter Plot Settings", style="sub_frame_header.TLabel")
         self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2828,7 +2828,7 @@ class CreatePlotClass():
         self.x_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.x_axis_frame_label = tk.Label(self.x_axis_frame, text="X-Axis Selection", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.x_axis_frame_label = ttk.Label(self.x_axis_frame, text="X-Axis Selection", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.x_axis_frame_label.pack(side=tk.TOP)
 
 
@@ -2853,7 +2853,7 @@ class CreatePlotClass():
 
         self.x_axis_variable_listbox.bind("<<ListboxSelect>>", self.on_x_axis_variable_listbox_select)
 
-        self.x_axis_variable_label = tk.Label(self.x_axis_frame, text="No Variable Selected", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.x_axis_variable_label = ttk.Label(self.x_axis_frame, text="No Variable Selected", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.x_axis_variable_label.pack(side=tk.TOP, pady=10)
 
         if self.selected_x_axis_variable:
@@ -2872,7 +2872,7 @@ class CreatePlotClass():
         self.y_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.y_axis_frame_label = tk.Label(self.y_axis_frame, text="Y-Axis Selection", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.y_axis_frame_label = ttk.Label(self.y_axis_frame, text="Y-Axis Selection", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.y_axis_frame_label.pack(side=tk.TOP)
 
 
@@ -2896,7 +2896,7 @@ class CreatePlotClass():
 
         self.y_axis_variable_listbox.bind("<<ListboxSelect>>", self.on_y_axis_variable_listbox_select)
 
-        self.y_axis_variable_label = tk.Label(self.y_axis_frame, text="No Variable Selected", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.y_axis_variable_label = ttk.Label(self.y_axis_frame, text="No Variable Selected", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.y_axis_variable_label.pack(side=tk.TOP, pady=10)
 
         if self.selected_y_axis_variable:
@@ -2978,7 +2978,7 @@ class CreatePlotClass():
         self.plot_display_subframe = tk.Frame(self.plot_display_subframe_border, bg=color_dict["sub_frame_bg"])
         self.plot_display_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.plot_display_label = tk.Label(self.plot_display_subframe, text="", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.plot_display_label = ttk.Label(self.plot_display_subframe, text="", style="sub_frame_header.TLabel")
         self.plot_display_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.plot_display_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3325,7 +3325,7 @@ class MachineLearningClass:
         self.dependent_variable_selection_subframe = tk.Frame(self.dependent_variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dependent_variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dependent_variable_frame_label = tk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.dependent_variable_frame_label = ttk.Label(self.dependent_variable_selection_subframe, text="Dependent Variable Selection", style="sub_frame_header.TLabel")
         self.dependent_variable_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dependent_variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3365,7 +3365,7 @@ class MachineLearningClass:
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
         self.advance_to_independent_variables_button.pack(side=tk.RIGHT)
 
-        self.dependent_frame_dependent_label = tk.Label(self.dependent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.dependent_frame_dependent_label = ttk.Label(self.dependent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.dependent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -3428,7 +3428,7 @@ class MachineLearningClass:
         self.independent_variables_selection_subframe = tk.Frame(self.independent_variables_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.independent_variables_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.independent_variables_selection_subframe, text="Independent Variable Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.independent_variables_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3470,20 +3470,20 @@ class MachineLearningClass:
         self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="large_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="large_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, pady=10)
 
         # Text buttons "Select All" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="large_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="large_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -3491,10 +3491,10 @@ class MachineLearningClass:
         separator.pack(side=tk.TOP, fill=tk.X, padx=20, pady=10)
 
         # Import and export selected variables
-        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="main_content_button.TButton")
+        self.import_variable_list_button = ttk.Button(self.buttons_frame, text="Import Variable List", command=self.import_variable_list, style="large_button.TButton")
         self.import_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="main_content_button.TButton")
+        self.export_variable_list_button = ttk.Button(self.buttons_frame, text="Export Variable List", command=self.export_variable_list, style="large_button.TButton")
         self.export_variable_list_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -3502,7 +3502,7 @@ class MachineLearningClass:
         self.selected_independent_variables_frame = tk.Frame(self.indedependent_variables_selection_frame, bg=color_dict["sub_frame_bg"])
         self.selected_independent_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_independent_variables_label = tk.Label(self.selected_independent_variables_frame, text="Selected Variables", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.selected_independent_variables_label = ttk.Label(self.selected_independent_variables_frame, text="Selected Variables", style="sub_frame_sub_header.TLabel")
         self.selected_independent_variables_label.pack(side=tk.TOP, pady=10)
 
 
@@ -3540,7 +3540,7 @@ class MachineLearningClass:
         self.model_options_subframe = tk.Frame(self.model_options_subframe_border, bg=color_dict["sub_frame_bg"])
         self.model_options_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.choose_independent_variables_label = tk.Label(self.model_options_subframe, text="Machine Learning Model Selection", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.choose_independent_variables_label = ttk.Label(self.model_options_subframe, text="Machine Learning Model Selection", style="sub_frame_header.TLabel")
         self.choose_independent_variables_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.model_options_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3570,7 +3570,7 @@ class MachineLearningClass:
             self.selected_model = self.categorical_model_selection_combobox.get()
             data_manager.set_mach_learn_tab_selected_cat_model(self.selected_model)
 
-        self.categorical_model_selection_combobox = ttk.Combobox(self.categorical_model_selection_frame, values=list(self.available_categorical_models_dict.keys()), font=styles.radio_button_font, state="disabled", style="TCombobox")
+        self.categorical_model_selection_combobox = ttk.Combobox(self.categorical_model_selection_frame, values=list(self.available_categorical_models_dict.keys()), font=styles.large_button_font, state="disabled", style="TCombobox")
         self.categorical_model_selection_combobox.bind("<<ComboboxSelected>>", on_categorical_model_combobox_selected)
         self.categorical_model_selection_combobox.pack(side=tk.TOP, pady=10)
         self.categorical_model_selection_combobox.current(0)
@@ -3594,7 +3594,7 @@ class MachineLearningClass:
             self.selected_model = self.continuous_model_selection_combobox.get()
             data_manager.set_mach_learn_tab_selected_cont_model(self.selected_model)
 
-        self.continuous_model_selection_combobox = ttk.Combobox(self.continuous_model_selection_frame, values=list(self.available_continuous_models_dict.keys()), font=styles.radio_button_font, state="disabled", style="TCombobox")
+        self.continuous_model_selection_combobox = ttk.Combobox(self.continuous_model_selection_frame, values=list(self.available_continuous_models_dict.keys()), font=styles.large_button_font, state="disabled", style="TCombobox")
         self.continuous_model_selection_combobox.bind("<<ComboboxSelected>>", on_continuous_model_combobox_selected)
         self.continuous_model_selection_combobox.pack(side=tk.TOP, pady=10)
         self.continuous_model_selection_combobox.current(0)
@@ -3649,7 +3649,7 @@ class MachineLearningClass:
         self.advance_to_variable_handling_frame_button = ttk.Button(self.independent_variable_menu_frame, command=self.switch_to_variable_handling_frame, text="Next", style='nav_menu_button.TButton')
         self.advance_to_variable_handling_frame_button.pack(side=tk.RIGHT)
 
-        self.independent_frame_dependent_label = tk.Label(self.independent_variable_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.independent_frame_dependent_label = ttk.Label(self.independent_variable_menu_frame, text="", style="nav_menu_label.TLabel")
         self.independent_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -3803,7 +3803,7 @@ class MachineLearningClass:
         self.advance_to_settings_frame_button = ttk.Button(self.variable_handling_menu_frame, command=self.switch_to_settings_frame, text="Next ->", style='nav_menu_button.TButton')
         self.advance_to_settings_frame_button.pack(side=tk.RIGHT)
 
-        self.variable_handling_menu_frame_dependent_label = tk.Label(self.variable_handling_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.variable_handling_menu_frame_dependent_label = ttk.Label(self.variable_handling_menu_frame, text="", style="nav_menu_label.TLabel")
         self.variable_handling_menu_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -3830,7 +3830,7 @@ class MachineLearningClass:
         self.target_value_subframe = tk.Frame(self.target_value_subframe_border, bg=color_dict["sub_frame_bg"])
         self.target_value_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.target_value_label = tk.Label(self.target_value_subframe, text="Target Value Selection", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.target_value_label = ttk.Label(self.target_value_subframe, text="Target Value Selection", style="sub_frame_header.TLabel")
         self.target_value_label.pack(side=tk.TOP, pady=10)
         
         separator = ttk.Separator(self.target_value_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3868,7 +3868,7 @@ class MachineLearningClass:
         self.variable_handling_subframe = tk.Frame(self.variable_handling_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_handling_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_handling_frame_label = tk.Label(self.variable_handling_subframe, text="Change Non-Numeric Values in The Following Independent Variables", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.variable_handling_frame_label = ttk.Label(self.variable_handling_subframe, text="Change Non-Numeric Values in The Following Independent Variables", style="sub_frame_header.TLabel")
         self.variable_handling_frame_label.pack(side=tk.TOP, pady=10)
         
         separator = ttk.Separator(self.variable_handling_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3890,7 +3890,7 @@ class MachineLearningClass:
                 self.non_numeric_columns.append(independent_variable)
 
         if len(self.non_numeric_columns) == 0:
-            proceed_to_results_label = tk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click NEXT", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+            proceed_to_results_label = ttk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click NEXT", style="sub_frame_sub_header.TLabel")
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
         else:
@@ -3909,7 +3909,7 @@ class MachineLearningClass:
                 else:
                     variable_string = variable
 
-                variable_label = tk.Label(options_frame, text=variable_string, font=styles.sub_tabs_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+                variable_label = ttk.Label(options_frame, text=variable_string, font=styles.sub_tabs_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
                 variable_label.pack(side=tk.TOP)
 
 
@@ -3944,7 +3944,7 @@ class MachineLearningClass:
                     input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.main_content_regular_text_font, width=10)
                     input_entry.pack(side=tk.LEFT)
 
-                    value_label = tk.Label(value_frame, text=value, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
+                    value_label = ttk.Label(value_frame, text=value, font=styles.main_content_regular_text_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_regular_text"])
                     value_label.pack(side=tk.LEFT)
 
                     # Bind the entry widget to an event
@@ -4040,7 +4040,7 @@ class MachineLearningClass:
         self.settings_subframe = tk.Frame(self.settings_subframe_border, bg=color_dict["sub_frame_bg"])
         self.settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.settings_subframe_label = tk.Label(self.settings_subframe, text="", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.settings_subframe_label = ttk.Label(self.settings_subframe, text="", style="sub_frame_header.TLabel")
         self.settings_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.settings_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -4061,7 +4061,7 @@ class MachineLearningClass:
             self.null_value_option_var = tk.StringVar(value="REMOVE null values")
 
 
-        self.null_value_handling_option_label = tk.Label(self.null_value_handling_frame, text="MISSING/NULL values", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.null_value_handling_option_label = ttk.Label(self.null_value_handling_frame, text="MISSING/NULL values", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.null_value_handling_option_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.null_value_handling_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4110,7 +4110,7 @@ class MachineLearningClass:
         self.number_of_folds_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.number_of_folds_frame.pack(side=tk.TOP, fill=tk.BOTH)
 
-        self.number_of_folds_label = tk.Label(self.number_of_folds_frame, text="TRAIN/TEST Folds", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.number_of_folds_label = ttk.Label(self.number_of_folds_frame, text="TRAIN/TEST Folds", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.number_of_folds_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.number_of_folds_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4151,13 +4151,13 @@ class MachineLearningClass:
 
         self.train_fold_percent_frame = tk.Frame(self.number_of_folds_combobox_selection_frame, bg=color_dict["sub_frame_bg"])
 
-        self.train_fold_percent_label_1 = tk.Label(self.train_fold_percent_frame, text="Train model on ", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
+        self.train_fold_percent_label_1 = ttk.Label(self.train_fold_percent_frame, text="Train model on ", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
         self.train_fold_percent_label_1.pack(side=tk.LEFT,padx=5)
 
         self.train_fold_percent_entry = tk.Entry(self.train_fold_percent_frame, textvariable=self.train_percent_var, font=("Arial", 24), width=5)
         self.train_fold_percent_entry.pack(side=tk.LEFT,padx=5)
 
-        self.train_fold_percent_label_2 = tk.Label(self.train_fold_percent_frame, text="% of the dataframe", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
+        self.train_fold_percent_label_2 = ttk.Label(self.train_fold_percent_frame, text="% of the dataframe", font=("Arial", 24), bg=color_dict["sub_frame_bg"])
         self.train_fold_percent_label_2.pack(side=tk.LEFT,padx=5)
 
 
@@ -4179,7 +4179,7 @@ class MachineLearningClass:
         self.hypertune_parameters_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.hypertune_parameters_frame.pack(side=tk.TOP, fill=tk.BOTH)
 
-        self.hypertune_parameters_label = tk.Label(self.hypertune_parameters_frame, text="Hypertune Model Parameters", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.hypertune_parameters_label = ttk.Label(self.hypertune_parameters_frame, text="Hypertune Model Parameters", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.hypertune_parameters_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.hypertune_parameters_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4216,7 +4216,7 @@ class MachineLearningClass:
         self.plot_settings_frame = tk.Frame(self.settings_subframe, bg=color_dict["sub_frame_bg"])
         self.plot_settings_frame.pack(side=tk.TOP, padx=5, pady=10, fill=tk.BOTH)
 
-        self.plot_settings_label = tk.Label(self.plot_settings_frame, text="Select plot features to include", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.plot_settings_label = ttk.Label(self.plot_settings_frame, text="Select plot features to include", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.plot_settings_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.plot_settings_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4257,7 +4257,7 @@ class MachineLearningClass:
         self.advance_to_results_frame_button = ttk.Button(self.model_settings_menu_frame, command=self.switch_to_results_frame, text='View Results', style='nav_menu_button.TButton')
         self.advance_to_results_frame_button.pack(side=tk.RIGHT)
 
-        self.model_settings_frame_dependent_label = tk.Label(self.model_settings_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.model_settings_frame_dependent_label = ttk.Label(self.model_settings_menu_frame, text="", style="nav_menu_label.TLabel")
         self.model_settings_frame_dependent_label.pack(side=tk.RIGHT, expand=True)
 
 ################################################################################################################
@@ -4312,7 +4312,7 @@ class MachineLearningClass:
         self.auc_results_frame = tk.Frame(self.results_display_frame, bg=color_dict["sub_frame_bg"])
         self.auc_results_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.auc_graph_label = tk.Label(self.auc_results_frame, text="AUC Graph", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.auc_graph_label = ttk.Label(self.auc_results_frame, text="AUC Graph", style="sub_frame_header.TLabel")
         self.auc_graph_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.auc_results_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4326,7 +4326,7 @@ class MachineLearningClass:
 
         self.feature_importance_results_frame = tk.Frame(self.results_display_frame, bg=color_dict["sub_frame_bg"])
 
-        self.feature_importance_label = tk.Label(self.feature_importance_results_frame, text="Feature Importances", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.feature_importance_label = ttk.Label(self.feature_importance_results_frame, text="Feature Importances", style="sub_frame_header.TLabel")
         self.feature_importance_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.feature_importance_results_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4373,7 +4373,7 @@ class MachineLearningClass:
         self.return_to_settings_frame_button = ttk.Button(self.results_menu_frame, command=self.switch_to_settings_frame, text='<- Back', style='nav_menu_button.TButton')
         self.return_to_settings_frame_button.pack(side=tk.LEFT)
 
-        self.results_frame_dependent_label = tk.Label(self.results_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.results_frame_dependent_label = ttk.Label(self.results_menu_frame, text="", style="nav_menu_label.TLabel")
         self.results_frame_dependent_label.pack(side=tk.LEFT, expand=True)
 
         self.advance_to_prediction_tool_buton = ttk.Button(self.results_menu_frame, command=self.switch_to_prediction_tool, text='Prediction Tool ->', style='nav_menu_button.TButton')
@@ -4808,7 +4808,7 @@ class MachineLearningClass:
         self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["sub_frame_bg"])
         self.prediction_tool_main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.prediction_tool_header_label = tk.Label(self.prediction_tool_main_content_frame, text="Predict Dependent Variable", font=("Arial", 36, "bold"), bg=color_dict["sub_frame_bg"])
+        self.prediction_tool_header_label = ttk.Label(self.prediction_tool_main_content_frame, text="Predict Dependent Variable", font=("Arial", 36, "bold"), bg=color_dict["sub_frame_bg"])
         self.prediction_tool_header_label.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
         separator = ttk.Separator(self.prediction_tool_main_content_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4857,21 +4857,21 @@ class MachineLearningClass:
         self.prediction_outcome_frame = tk.Frame(self.prediction_results_frame, bg=color_dict["sub_frame_bg"])
         self.prediction_outcome_frame.pack(side=tk.TOP, anchor="center", fill=tk.BOTH, expand=True, padx=100, pady=100)
 
-        self.prediction_outcome_percent_label = tk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 48, "bold"))
+        self.prediction_outcome_percent_label = ttk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 48, "bold"))
         self.prediction_outcome_percent_label.pack(side=tk.TOP)
 
-        self.prediction_outcome_outcome_label = tk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 28))
+        self.prediction_outcome_outcome_label = ttk.Label(self.prediction_outcome_frame, text="", bg=color_dict["sub_frame_bg"],font=("Arial", 28))
         self.prediction_outcome_outcome_label.pack(side=tk.TOP)
 
 
         # NAVIGATION MENU FRAME
-        self.prediction_tool_menu_frame = tk.Frame(self.prediction_tool_frame, bg='lightgray')
+        self.prediction_tool_menu_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["nav_banner_bg"])
         self.prediction_tool_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.return_to_results_frame_button = tk.Button(self.prediction_tool_menu_frame, command=self.switch_to_results_frame, text='<- Back', font=("Arial", 36))
         self.return_to_results_frame_button.pack(side=tk.LEFT)
 
-        self.prediction_tool_frame_dependent_label = tk.Label(self.prediction_tool_menu_frame, text="", font=("Arial", 36), bg='lightgray', fg='black')
+        self.prediction_tool_frame_dependent_label = ttk.Label(self.prediction_tool_menu_frame, text="", style="nav_menu_label.TLabel")
         self.prediction_tool_frame_dependent_label.pack(side=tk.LEFT, expand=True)
 
 
@@ -4879,7 +4879,7 @@ class MachineLearningClass:
 
         utils.remove_frame_widgets(self.user_input_scrollable_frame)
 
-        self.input_values_label = tk.Label(self.user_input_scrollable_frame, text="Input Values for Each Variable", font=("Arial", 36), bg=color_dict["sub_frame_bg"])
+        self.input_values_label = ttk.Label(self.user_input_scrollable_frame, text="Input Values for Each Variable", font=("Arial", 36), bg=color_dict["sub_frame_bg"])
         self.input_values_label.pack(side=tk.TOP, fill=tk.X)
 
         separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
@@ -4901,7 +4901,7 @@ class MachineLearningClass:
             input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
             input_entry.pack(side=tk.LEFT)
 
-            variable_label = tk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg=color_dict["sub_frame_bg"], fg='black')
+            variable_label = ttk.Label(variable_frame, text=variable_string, font=("Arial", 28), bg=color_dict["sub_frame_bg"], fg='black')
             variable_label.pack(side=tk.LEFT)
 
             separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
