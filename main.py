@@ -88,21 +88,28 @@ for button in ["file_button.TButton", "dataframe_view_button.TButton", "edit_but
 file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame)
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 # STYLING
 
+################################################################################################################
+
 style.configure("Separator.TSeparator", background="#E91E63")
+
+################################################################################################################
+
 # RADIO BUTTONS
 style.configure("inactive_radio_button.TButton", 
-                    font=styles.radio_button_font, 
+                    font=styles.large_button_font, 
                     foreground=color_dict["radio_button_inactive_text"],
                     background=color_dict["radio_button_inactive_background"],
                     bordercolor=color_dict["radio_button_inactive_border"],
                     relief="flat")
 
-# Style for the active (selected) state
 style.configure("active_radio_button.TButton", 
-                    font=styles.radio_button_font, 
+                    font=styles.large_button_font, 
                     foreground=color_dict["radio_button_active_text"],
                     background=color_dict["radio_button_active_background"],
                     bordercolor=color_dict["radio_button_active_border"],
@@ -112,60 +119,94 @@ style.map("inactive_radio_button.TButton",
                 foreground=[("pressed", color_dict["radio_button_pressed_text"]), ("active", color_dict["radio_button_pressed_text"])],
                 background=[("pressed", color_dict["radio_button_pressed_background"]), ("active", color_dict["radio_button_pressed_background"])],
                 bordercolor=[("pressed", color_dict["radio_button_pressed_border"]), ("active", color_dict["radio_button_pressed_border"])])
+
 style.map("active_radio_button.TButton",
                 foreground=[("pressed", color_dict["radio_button_hover_text"]), ("active", color_dict["radio_button_hover_text"])],
                 background=[("pressed", color_dict["radio_button_hover_background"]), ("active", color_dict["radio_button_hover_background"])],
                 bordercolor=[("pressed", color_dict["radio_button_hover_border"]), ("active", color_dict["radio_button_hover_border"])])
 
+################################################################################################################
 
-
-
-
-style.map("TCombobox",  # Style for active ComboBoxes
+# COMBOBOXES
+style.map("TCombobox",
     fieldbackground=[("readonly", color_dict["active_combobox_background"]), ("disabled", color_dict["inactive_combobox_background"])],
     background=[("readonly", color_dict["active_combobox_background"]), ("disabled", color_dict["inactive_combobox_background"])],
     foreground = [("readonly", color_dict["listbox_fg"]), ("disabled", color_dict["inactive_combobox_text"])],
 )
 
+################################################################################################################
 
+# NAV MENU
 style.configure('nav_menu_button.TButton', font=styles.nav_menu_button_font, background=color_dict["nav_menu_button_bg"], foreground=color_dict["nav_menu_button_txt"])
 style.map("nav_menu_button.TButton",
     background=[("active", color_dict["nav_menu_button_hover_bg"])],
     foreground=[("active", color_dict["nav_menu_button_hover_txt"])]
 )
 
+style.configure("nav_menu_label.TLabel",
+               foreground=color_dict["nav_banner_txt"],
+               background=color_dict["nav_banner_bg"],
+               font=styles.nav_menu_label_font)
 
 
+################################################################################################################
 
-# BUTTONS
-style.configure("main_content_button.TButton", 
-                    font=styles.transfer_button_font,
-                    foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
-                    background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
+# LARGE BUTTONS
+style.configure("large_button.TButton", 
+                    font=styles.large_button_font,
+                    foreground=color_dict["action_button_text_color"], 
+                    background=color_dict["action_button_bg"],
                     borderwidth=1,
                     relief="raised",
                     padding=6)
 
-# Apply a highlight effect for when the button is active
-style.map("main_content_button.TButton",
-            foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
-            background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
+style.map("large_button.TButton",
+            foreground=[("pressed", color_dict["action_button_text_color"]), ("active", color_dict["action_button_text_color"])],
+            background=[("pressed", color_dict["action_button_pressed_bg"]), ("active", color_dict["action_button_active_bg"])])
 
+################################################################################################################
 
+# SMALL BUTTONS
 style.configure("small_button.TButton", 
                     font=styles.small_button_font,
-                    foreground=color_dict["transfer_button_text_color"],  # Referencing dictionary for text color
-                    background=color_dict["transfer_button_bg"],  # Referencing dictionary for background color
+                    foreground=color_dict["action_button_text_color"],
+                    background=color_dict["action_button_bg"],
                     borderwidth=1,
                     relief="raised",
                     padding=6)
 
-# Apply a highlight effect for when the button is active
 style.map("small_button.TButton",
-            foreground=[("pressed", color_dict["transfer_button_text_color"]), ("active", color_dict["transfer_button_text_color"])],  # Keep text white, using dictionary
-            background=[("pressed", color_dict["transfer_button_pressed_bg"]), ("active", color_dict["transfer_button_active_bg"])])  # Referencing dictionary for background variations
+            foreground=[("pressed", color_dict["action_button_text_color"]), ("active", color_dict["action_button_text_color"])],
+            background=[("pressed", color_dict["action_button_pressed_bg"]), ("active", color_dict["action_button_active_bg"])]) 
+
+################################################################################################################
+
+# SUB FRAME HEADER LABELS
+style.configure("sub_frame_header.TLabel", 
+                foreground=color_dict["sub_frame_header"], 
+                background=color_dict["sub_frame_bg"], 
+                font=styles.sub_frame_header_font)
 
 
+################################################################################################################
+
+# SUB FRAME SUB-HEADER LABELS
+style.configure("sub_frame_sub_header.TLabel", 
+                foreground=color_dict["sub_frame_sub_header"], 
+                background=color_dict["sub_frame_bg"], 
+                font=styles.sub_frame_sub_header_font)
+
+################################################################################################################
+
+# SUB FRAME TEXT FONT
+style.configure("sub_frame_text.TLabel", 
+                foreground=color_dict["sub_frame_sub_header"], 
+                background=color_dict["sub_frame_bg"], 
+                font=styles.sub_frame_text_font)
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
 
 # Start the GUI event loop
 main_window.mainloop()
