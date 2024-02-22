@@ -1,117 +1,101 @@
-color_dict = {
-    # Main Tabs
-    "active_main_tab_bg": "#E91E63",  # Barbie Pink for active main tabs
-    "active_main_tab_txt": "#FFFFFF",  # White text for contrast
-    "inactive_main_tab_bg": "#F8BBD0",  # Lighter pink for inactive main tabs
-    "inactive_main_tab_txt": "#4A2C4E",  # Dark purple for text
-    "hover_main_tab_bg": "#AD1457",  # Deeper pink for hover states
-    "hover_main_tab_txt": "#FFFFFF",  # White text for hover states
 
-    # Sub Tabs
-    "active_subtab_bg": "#F06292",  # Bright pink for active subtabs
-    "active_subtab_txt": "#FFFFFF",  # White text for active subtabs
-    "inactive_subtab_bg": "#FCE4EC",  # Very light pink for inactive subtabs
-    "inactive_subtab_txt": "#4A2C4E",  # Dark purple for inactive subtabs text
-    "hover_subtab_bg": "#EC407A",  # Medium pink for hover states on subtabs
-    "hover_subtab_txt": "#FFFFFF",  # White text for hover states
+theme = "Barbie"
 
-    # Background Frame
-    "background_frame_bg": "#FCE4EC",  # Very light pink for the background frame. Match with inactive subtabs
+if theme == "Barbie":
+    color_dict = {
+        # Main Tabs
+        "active_main_tab_bg": "#E91E63",  # Barbie Pink for active main tabs
+        "active_main_tab_txt": "#FFFFFF",  # White text for contrast
+        "inactive_main_tab_bg": "#F8BBD0",  # Lighter pink for inactive main tabs
+        "inactive_main_tab_txt": "#4A2C4E",  # Dark purple for text
+        "hover_main_tab_bg": "#AD1457",  # Deeper pink for hover states
+        "hover_main_tab_txt": "#FFFFFF",  # White text for hover states
 
-    # Main Content Frame
-    "main_content_bg": "#FAFAFA",  # Off-white for main content background
-    "main_content_border": "#F8BBD0",  # Light pink for borders
+        # Sub Tabs
+        "active_subtab_bg": "#F06292",  # Bright pink for active subtabs
+        "active_subtab_txt": "#FFFFFF",  # White text for active subtabs
+        "inactive_subtab_bg": "#FCE4EC",  # Very light pink for inactive subtabs
+        "inactive_subtab_txt": "#4A2C4E",  # Dark purple for inactive subtabs text
+        "hover_subtab_bg": "#EC407A",  # Medium pink for hover states on subtabs
+        "hover_subtab_txt": "#FFFFFF",  # White text for hover states
 
-    # Sub Content Frame - Several within every Main Content Frame
-    "sub_frame_bg": "#FADCE6",  # Pastel pink for sub-frame backgrounds, providing a soft, thematic contrast
-    "sub_frame_border": "#E1BEE7",  # Pastel purple for sub-frame borders, adding a pop of color and definition
+        # Background Frame
+        "background_frame_bg": "#FCE4EC",  # Very light pink for the background frame. Match with inactive subtabs
 
-    "sub_frame_header": "#AD1457",  # A deeper shade of pink for main headers, providing contrast and emphasis
-    "sub_frame_sub_header": "#E91E63",  # A slightly lighter Barbie pink for sub-headers to differentiate from the main headers but maintain the theme
-    "sub_frame_text": "#4A2C4E",  # A dark purple or almost black for regular text, ensuring readability against lighter backgrounds
+        # Main Content Frame
+        "main_content_bg": "#FAFAFA",  # Off-white for main content background
+        "main_content_border": "#F8BBD0",  # Light pink for borders
 
-    # Navigation Banner - at the bottom of every main_content frame
-    "nav_banner_bg": "#E91E63",  # Barbie Pink for navigation banner
-    "nav_banner_txt": "#FFFFFF",  # White for navigation text
-    "nav_banner_hover_bg": "#C2185B",  # Darker pink for hover states
-    "nav_banner_hover_txt": "#FFFFFF",  # White for hover state text
+        # Sub Content Frame - Several within every Main Content Frame
+        "sub_frame_bg": "#FADCE6",  # Pastel pink for sub-frame backgrounds, providing a soft, thematic contrast
+        "sub_frame_border": "#E1BEE7",  # Pastel purple for sub-frame borders, adding a pop of color and definition
 
-    # Navigation Menu Buttons
-    "nav_menu_button_bg": "#F06292",  # Bright pink for menu buttons
-    "nav_menu_button_txt": "#FFFFFF",  # White text for buttons
-    "nav_menu_button_hover_bg": "#E91E63",  # Barbie Pink for button hover states
-    "nav_menu_button_hover_txt": "#FFFFFF",  # White text for hover states
+        "sub_frame_header": "#AD1457",  # A deeper shade of pink for main headers, providing contrast and emphasis
+        "sub_frame_sub_header": "#E91E63",  # A slightly lighter Barbie pink for sub-headers to differentiate from the main headers but maintain the theme
+        "sub_frame_text": "#4A2C4E",  # A dark purple or almost black for regular text, ensuring readability against lighter backgrounds
 
-    # Listboxes
-    "listbox_bg": "#FAFAFA",  # Off-white for listbox background
-    "listbox_fg": "#AD1457",  # Deep pink for listbox foreground text
-    "listbox_highlight_bg": "#F8BBD0",  # Light pink for listbox highlight background
-    "listbox_highlight_color": "#EC407A",  # Medium pink for highlight color
-    "listbox_select_bg": "#FCE4EC",  # Very light pink for selected item background
-    "listbox_select_fg": "#4A2C4E",  # Dark purple for selected item text
+        # Navigation Banner - at the bottom of every main_content frame
+        "nav_banner_bg": "#E91E63",  # Barbie Pink for navigation banner
+        "nav_banner_txt": "#FFFFFF",  # White for navigation text
+        "nav_banner_hover_bg": "#C2185B",  # Darker pink for hover states
+        "nav_banner_hover_txt": "#FFFFFF",  # White for hover state text
 
-    # Radio Buttons
-    "radio_button_inactive_text": "#4A2C4E",
-    "radio_button_inactive_background": "#FAFAFA",
-    "radio_button_inactive_border": "#E91E63",
-    "radio_button_active_text": "#FFFFFF",
-    "radio_button_active_background": "#E91E63",
-    "radio_button_active_border": "#AD1457",
-    "radio_button_pressed_text": "#4A2C4E",
-    "radio_button_pressed_background": "#F8BBD0",
-    "radio_button_pressed_border": "#C2185B",
-    "radio_button_hover_text": "#FFFFFF",
-    "radio_button_hover_background": "#AD1457",
-    "radio_button_hover_border": "#991846",
+        # Navigation Menu Buttons
+        "nav_menu_button_bg": "#F06292",  # Bright pink for menu buttons
+        "nav_menu_button_txt": "#FFFFFF",  # White text for buttons
+        "nav_menu_button_hover_bg": "#E91E63",  # Barbie Pink for button hover states
+        "nav_menu_button_hover_txt": "#FFFFFF",  # White text for hover states
 
-    # Large Buttons
-    "action_button_text_color": "#FFFFFF",
-    "action_button_bg": "#E91E63",
-    "action_button_pressed_bg": "#C2185B",
-    "action_button_active_bg": "#AD1457",
+        # Listboxes
+        "listbox_bg": "#FAFAFA",  # Off-white for listbox background
+        "listbox_fg": "#AD1457",  # Deep pink for listbox foreground text
+        "listbox_highlight_bg": "#F8BBD0",  # Light pink for listbox highlight background
+        "listbox_highlight_color": "#EC407A",  # Medium pink for highlight color
+        "listbox_select_bg": "#FCE4EC",  # Very light pink for selected item background
+        "listbox_select_fg": "#4A2C4E",  # Dark purple for selected item text
 
-    # Comboboxes
-    "active_combobox_background": "#FFB6C1",  # Light Pink
-    "active_combobox_text": "#FF69B4",        # Hot Pink
-    "inactive_combobox_background": "#E6E6E6", # Light Gray
-    "inactive_combobox_text": "#E6E6E6"       # Light Gray
+        # Radio Buttons
+        "radio_button_inactive_text": "#4A2C4E",
+        "radio_button_inactive_background": "#FAFAFA",
+        "radio_button_inactive_border": "#E91E63",
+        "radio_button_active_text": "#FFFFFF",
+        "radio_button_active_background": "#E91E63",
+        "radio_button_active_border": "#AD1457",
+        "radio_button_pressed_text": "#4A2C4E",
+        "radio_button_pressed_background": "#F8BBD0",
+        "radio_button_pressed_border": "#C2185B",
+        "radio_button_hover_text": "#FFFFFF",
+        "radio_button_hover_background": "#AD1457",
+        "radio_button_hover_border": "#991846",
 
+        # Large Buttons
+        "action_button_text_color": "#FFFFFF",
+        "action_button_bg": "#E91E63",
+        "action_button_pressed_bg": "#C2185B",
+        "action_button_active_bg": "#AD1457",
 
-}
-
-# FONTS
-main_tabs_font = ("Brush Script MT", 36, "bold")  # Playful script font for main tabs
-sub_tabs_font = ("Comic Sans MS", 28)  # Fun and casual font for sub tabs
-
-nav_menu_label_font = ("Brush Script MT", 24)  # A playful, cursive font that's still legible for menu labels
-nav_menu_button_font = ("Comic Sans MS", 22, "bold")  # A casual, friendly font for button text to keep the interface light-hearted
-
-sub_frame_header_font = ("American Typewriter", 30, "bold")  # A stylish, impactful font for main headers to draw attention
-sub_frame_sub_header_font = ("Chalkboard SE", 26, "bold")  # A more playful, yet readable font for sub-headers
-sub_frame_text_font = ("Arial Rounded MT Bold", 20)  # A clean, modern font that's versatile and readable
-
-listbox_font = ("Arial Rounded MT Bold", 24, "bold")
-entrybox_font = ("Arial Rounded MT Bold", 24, "bold")
-
-large_button_font = ("Arial Rounded MT Bold", 28)  # Bold and fun for standout buttons
-small_button_font = ("Arial Rounded MT Bold", 24)  # Bold and fun for standout buttons
+        # Comboboxes
+        "active_combobox_background": "#FFB6C1",  # Light Pink
+        "active_combobox_text": "#FF69B4",        # Hot Pink
+        "inactive_combobox_background": "#E6E6E6", # Light Gray
+        "inactive_combobox_text": "#E6E6E6"       # Light Gray
 
 
+    }
 
+    # FONTS
+    main_tabs_font = ("Brush Script MT", 36, "bold")  # Playful script font for main tabs
+    sub_tabs_font = ("Comic Sans MS", 28)  # Fun and casual font for sub tabs
 
-# # FONTS - Updated for better readability and thematic consistency
-# main_tabs_font = ("Barbie MediumItalic", 36, "italic")  # Stylish and thematic for main tabs
-# sub_tabs_font = ("Barbie MediumItalic", 28, "italic")  # Consistent with main tabs but slightly smaller
+    nav_menu_label_font = ("Brush Script MT", 24)  # A playful, cursive font that's still legible for menu labels
+    nav_menu_button_font = ("Comic Sans MS", 22, "bold")  # A casual, friendly font for button text to keep the interface light-hearted
 
-# nav_menu_label_font = ("Barbie Medium", 24)  # Clear and thematic for menu labels
-# nav_menu_button_font = ("Barbie Medium", 22, "bold")  # Bold for emphasis on interactive elements
+    sub_frame_header_font = ("American Typewriter", 30, "bold")  # A stylish, impactful font for main headers to draw attention
+    sub_frame_sub_header_font = ("Chalkboard SE", 26, "bold")  # A more playful, yet readable font for sub-headers
+    sub_frame_text_font = ("Arial Rounded MT Bold", 24)  # A clean, modern font that's versatile and readable
 
-# sub_frame_header_font = ("Barbie Medium", 30, "bold")  # Bold for attention to main headers
-# sub_frame_sub_header_font = ("Barbie MediumItalic", 26, "italic")  # Italicized for differentiation from main headers
-# sub_frame_text_font = ("Arial", 20)  # Simple and readable for content text
+    listbox_font = ("Arial Rounded MT Bold", 24, "bold")
+    entrybox_font = ("Arial Rounded MT Bold", 24, "bold")
 
-# listbox_font = ("Arial", 24, "bold")  # Bold for readability in list selections
-# entrybox_font = ("Arial", 24)  # Consistent with listbox font for coherence
-
-# large_button_font = ("Barbie Medium", 28, "bold")  # Bold and thematic for prominent buttons
-# small_button_font = ("Barbie Medium", 24, "bold")  # Slightly smaller but maintains boldness for importance
+    large_button_font = ("Arial Rounded MT Bold", 28)  # Bold and fun for standout buttons
+    small_button_font = ("Arial Rounded MT Bold", 24)  # Bold and fun for standout buttons
