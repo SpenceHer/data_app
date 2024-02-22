@@ -23,8 +23,8 @@ screen_width = main_window.winfo_screenwidth() // 3
 screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
 
-# main_window.geometry(f"{screen_width}x{screen_height}+0+0")
-main_window.wm_state('zoomed')
+main_window.geometry(f"{screen_width}x{screen_height}+0+0")
+# main_window.wm_state('zoomed')
 
 
 
@@ -185,8 +185,8 @@ style.map("small_button.TButton",
 style.configure("sub_frame_header.TLabel", 
                 foreground=color_dict["sub_frame_header"], 
                 background=color_dict["sub_frame_bg"], 
-                font=styles.sub_frame_header_font)
-
+                font=styles.sub_frame_header_font,
+                )
 
 ################################################################################################################
 
@@ -194,7 +194,8 @@ style.configure("sub_frame_header.TLabel",
 style.configure("sub_frame_sub_header.TLabel", 
                 foreground=color_dict["sub_frame_sub_header"], 
                 background=color_dict["sub_frame_bg"], 
-                font=styles.sub_frame_sub_header_font)
+                font=styles.sub_frame_sub_header_font
+                )
 
 ################################################################################################################
 
@@ -203,6 +204,13 @@ style.configure("sub_frame_text.TLabel",
                 foreground=color_dict["sub_frame_sub_header"], 
                 background=color_dict["sub_frame_bg"], 
                 font=styles.sub_frame_text_font)
+
+################################################################################################################
+
+# LARGE ENTRY BOX
+
+
+
 
 ################################################################################################################
 ################################################################################################################
