@@ -219,7 +219,7 @@ class EditDataClass():
         self.variable_selection_subframe = tk.Frame(self.variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_frame_label = tk.Label(self.variable_selection_subframe, text="Select A Variable to Edit", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.variable_frame_label = tk.Label(self.variable_selection_subframe, text="Select A Variable to Edit", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.variable_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -310,7 +310,7 @@ class EditDataClass():
         self.variable_type_selection_subframe = tk.Frame(self.variable_type_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_type_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_type_frame_label = tk.Label(self.variable_type_selection_subframe, text="Choose Variable Type", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.variable_type_frame_label = tk.Label(self.variable_type_selection_subframe, text="Choose Variable Type", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.variable_type_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_type_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -389,7 +389,7 @@ class EditDataClass():
         self.value_handling_subframe = tk.Frame(self.value_handling_subframe_border, bg=color_dict["sub_frame_bg"])
         self.value_handling_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.value_handling_frame_label = tk.Label(self.value_handling_subframe, text="", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.value_handling_frame_label = tk.Label(self.value_handling_subframe, text="", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.value_handling_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.value_handling_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -453,7 +453,7 @@ class EditDataClass():
         self.unique_categorical_values = [value for value in self.unique_categorical_values if value != 'nan']
 
         # Listbox label
-        self.value_listbox_frame_label = tk.Label(self.value_listbox_frame, text="Unique Values", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.value_listbox_frame_label = tk.Label(self.value_listbox_frame, text="Unique Values", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.value_listbox_frame_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.value_listbox_frame, orient="horizontal", style="Separator.TSeparator")
@@ -489,18 +489,18 @@ class EditDataClass():
         self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.remove_change_value_action_frame, orient="horizontal", style="Separator.TSeparator")
         separator.grid(row=1, column=0, columnspan=2, padx=100, pady=10, sticky="nsew")
 
         # Remove Value
-        self.remove_button = ttk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), style="main_content_button.TButton")
+        self.remove_button = ttk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_categorical_value(), style="large_button.TButton")
         self.remove_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
         # Change Value
-        self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), style="main_content_button.TButton")
+        self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), style="large_button.TButton")
         self.change_value_button.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
         self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
@@ -514,7 +514,7 @@ class EditDataClass():
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.rename_column_frame, orient="horizontal", style="Separator.TSeparator")
@@ -632,7 +632,7 @@ class EditDataClass():
         self.value_listbox_frame.pack(side=tk.LEFT, fill=tk.Y, expand=True)
         
         # Listbox label
-        self.value_listbox_frame_label = tk.Label(self.value_listbox_frame, text="Non-Numeric Values", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.value_listbox_frame_label = tk.Label(self.value_listbox_frame, text="Non-Numeric Values", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.value_listbox_frame_label.pack(side=tk.TOP)
 
         self.value_selection = tk.StringVar()
@@ -672,18 +672,18 @@ class EditDataClass():
         self.remove_change_value_action_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.remove_change_value_action_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=styles.main_content_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
+        self.handle_non_numeric_value_label = tk.Label(self.remove_change_value_action_frame, text="Handle Selected Value", font=styles.sub_frame_sub_header_font, fg=color_dict["main_content_sub_header"], bg=color_dict["sub_frame_bg"])
         self.handle_non_numeric_value_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.remove_change_value_action_frame, orient="horizontal", style="Separator.TSeparator")
         separator.grid(row=1, column=0, columnspan=2, padx=100, pady=10, sticky="nsew")
 
         # Remove Value
-        self.remove_button = ttk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), style="main_content_button.TButton")
+        self.remove_button = ttk.Button(self.remove_change_value_action_frame, text="Remove Value", command=lambda: self.remove_non_numeric_value(), style="large_button.TButton")
         self.remove_button.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
         # Change Value
-        self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), style="main_content_button.TButton")
+        self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), style="large_button.TButton")
         self.change_value_button.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
         self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
@@ -699,7 +699,7 @@ class EditDataClass():
         self.remove_negative_values_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.remove_negative_values_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.remove_negative_values_label = tk.Label(self.remove_negative_values_frame, text="Remove Negative Values", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.remove_negative_values_label = tk.Label(self.remove_negative_values_frame, text="Remove Negative Values", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.remove_negative_values_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.remove_negative_values_frame, orient="horizontal", style="Separator.TSeparator")
@@ -723,7 +723,7 @@ class EditDataClass():
         self.remove_values_of_zero_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.remove_values_of_zero_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.remove_values_of_zero_label = tk.Label(self.remove_values_of_zero_frame, text="Remove Values of Zero", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.remove_values_of_zero_label = tk.Label(self.remove_values_of_zero_frame, text="Remove Values of Zero", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.remove_values_of_zero_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.remove_values_of_zero_frame, orient="horizontal", style="Separator.TSeparator")
@@ -748,7 +748,7 @@ class EditDataClass():
         self.rename_column_frame = tk.Frame(self.value_action_frame, bg=color_dict["sub_frame_bg"])
         self.rename_column_frame.pack(side=tk.TOP, fill=tk.X, pady=25)
 
-        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.rename_column_label = tk.Label(self.rename_column_frame, text="Rename Column", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.rename_column_label.grid(row=0, column=0, padx=5, pady=5, sticky="nsew", columnspan=2)
 
         separator = ttk.Separator(self.rename_column_frame, orient="horizontal", style="Separator.TSeparator")
@@ -906,7 +906,7 @@ class EditDataClass():
         self.display_frame_subframe = tk.Frame(self.display_frame_subframe_border, bg=color_dict["sub_frame_bg"])
         self.display_frame_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.display_frame_subframe_label = tk.Label(self.display_frame_subframe, text="", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.display_frame_subframe_label = tk.Label(self.display_frame_subframe, text="", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.display_frame_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.display_frame_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1096,7 +1096,7 @@ class EditDataClass():
             raw_data_table_subframe = tk.Frame(raw_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
             raw_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-            raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+            raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
             raw_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
             separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1115,7 +1115,7 @@ class EditDataClass():
             summary_data_table_subframe = tk.Frame(summary_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
             summary_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-            summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+            summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
             summary_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
             separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1347,7 +1347,7 @@ class CreateNewVariableClass:
         self.variable_selection_subframe = tk.Frame(self.variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_selection_frame_label = tk.Label(self.variable_selection_subframe, text="Choose Variables to Use for New Variable", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.variable_selection_frame_label = tk.Label(self.variable_selection_subframe, text="Choose Variables to Use for New Variable", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.variable_selection_frame_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1391,20 +1391,20 @@ class CreateNewVariableClass:
         self.buttons_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         # Larger buttons with ">>>" and "<<<" symbols
-        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="main_content_button.TButton")
+        self.transfer_right_button = ttk.Button(self.buttons_frame, text="Transfer Right >>>", command=self.transfer_right, style="large_button.TButton")
         self.transfer_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="main_content_button.TButton")
+        self.transfer_left_button = ttk.Button(self.buttons_frame, text="<<< Transfer Left", command=self.transfer_left, style="large_button.TButton")
         self.transfer_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         separator = ttk.Separator(self.buttons_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, pady=10)
 
         # Text buttons "Move All Right" and "Clear Selection"
-        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="main_content_button.TButton")
+        self.transfer_all_right_button = ttk.Button(self.buttons_frame, text="Select All", command=self.transfer_all_right, style="large_button.TButton")
         self.transfer_all_right_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
-        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="main_content_button.TButton")
+        self.transfer_all_left_button = ttk.Button(self.buttons_frame, text="Clear Selection", command=self.transfer_all_left, style="large_button.TButton")
         self.transfer_all_left_button.pack(side=tk.TOP, pady=10, padx=10, fill=tk.X)
 
 
@@ -1413,7 +1413,7 @@ class CreateNewVariableClass:
         self.selected_variables_frame = tk.Frame(self.variables_selection_frame, bg=color_dict["sub_frame_bg"])
         self.selected_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=styles.main_content_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
         self.selected_variables_label.pack(side=tk.TOP, pady=10)
 
         self.selected_variables_listbox = tk.Listbox(self.selected_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -1556,7 +1556,7 @@ class CreateNewVariableClass:
         self.variable_name_frame_subframe = tk.Frame(self.variable_name_frame_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_name_frame_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_name_frame_subframe_label = tk.Label(self.variable_name_frame_subframe, text="Name of New Variable:", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.variable_name_frame_subframe_label = tk.Label(self.variable_name_frame_subframe, text="Name of New Variable:", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.variable_name_frame_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_name_frame_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1577,7 +1577,7 @@ class CreateNewVariableClass:
         self.conditions_subframe = tk.Frame(self.conditions_subframe_border, bg=color_dict["sub_frame_bg"])
         self.conditions_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.conditions_subframe_label = tk.Label(self.conditions_subframe, text="Add Values to New Variable", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+        self.conditions_subframe_label = tk.Label(self.conditions_subframe, text="Add Values to New Variable", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
         self.conditions_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.conditions_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1587,10 +1587,10 @@ class CreateNewVariableClass:
         self.condition_buttons_frame = tk.Frame(self.conditions_subframe, bg=color_dict["sub_frame_bg"])
         self.condition_buttons_frame.pack(side=tk.TOP, fill=tk.X)
 
-        self.add_new_value_button = ttk.Button(self.condition_buttons_frame, text='Add New Value', command=self.add_value_frame, style="main_content_button.TButton")
+        self.add_new_value_button = ttk.Button(self.condition_buttons_frame, text='Add New Value', command=self.add_value_frame, style="large_button.TButton")
         self.add_new_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.remove_value_button = ttk.Button(self.condition_buttons_frame, text='Remove Value', command=self.remove_value_frame, style="main_content_button.TButton")
+        self.remove_value_button = ttk.Button(self.condition_buttons_frame, text='Remove Value', command=self.remove_value_frame, style="large_button.TButton")
         self.remove_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         separator = ttk.Separator(self.conditions_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1923,7 +1923,7 @@ class CreateNewVariableClass:
         self.finalize_display_subframe = tk.Frame(self.finalize_display_subframe_border, bg=color_dict["sub_frame_bg"])
         self.finalize_display_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.finalize_display_label = tk.Label(self.finalize_display_subframe, text="", font=styles.main_content_header_font, fg=color_dict["main_content_header"], bg=color_dict["sub_frame_bg"])
+        self.finalize_display_label = tk.Label(self.finalize_display_subframe, text="", font=styles.sub_frame_header_font, fg=color_dict["sub_frame_header"], bg=color_dict["sub_frame_bg"])
         self.finalize_display_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.finalize_display_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2047,7 +2047,7 @@ class CreateNewVariableClass:
             raw_data_table_subframe = tk.Frame(raw_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
             raw_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-            raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+            raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
             raw_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
             separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -2066,7 +2066,7 @@ class CreateNewVariableClass:
             summary_data_table_subframe = tk.Frame(summary_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
             summary_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-            summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.main_content_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_header"])
+            summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
             summary_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
             separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
