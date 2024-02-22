@@ -186,8 +186,8 @@ class ManageDataframesClass():
         self.dataframe_managing_subframe = tk.Frame(self.dataframe_managing_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dataframe_managing_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dataframe_managing_label = tk.Label(self.dataframe_managing_subframe, text="List of Available Data Files", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
-        self.dataframe_managing_label.pack(side=tk.TOP, pady=10)
+        self.dataframe_managing_menu_label = ttk.Label(self.dataframe_managing_subframe, text="List of Available Data Files", style="sub_frame_header.TLabel")
+        self.dataframe_managing_menu_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dataframe_managing_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200)
@@ -226,11 +226,11 @@ class ManageDataframesClass():
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.dataframe_managing_menu_frame = tk.Frame(self.dataframe_managing_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.dataframe_managing_menu_frame = tk.Frame(self.dataframe_managing_frame, bg=color_dict["nav_banner_bg"])
         self.dataframe_managing_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.dataframe_managing_label = tk.Label(self.dataframe_managing_menu_frame, text="Current Dataframe: None", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
-        self.dataframe_managing_label.pack(side=tk.LEFT, expand=True)
+        self.dataframe_managing_menu_label = ttk.Label(self.dataframe_managing_menu_frame, text="Current Dataframe: None", style="nav_menu_label.TLabel")
+        self.dataframe_managing_menu_label.pack(side=tk.LEFT, expand=True)
 
 
         if self.dataframe_name:
@@ -239,7 +239,7 @@ class ManageDataframesClass():
             index = items.index(self.dataframe_name)
             self.dataframe_listbox.selection_set(index)
             self.dataframe_listbox.yview(index)
-            self.dataframe_managing_label.config(text=f"Current Dataframe: {self.dataframe_name}")
+            self.dataframe_managing_menu_label.config(text=f"Current Dataframe: {self.dataframe_name}")
 
 
 ################################################################################################################
@@ -256,6 +256,12 @@ class ManageDataframesClass():
         result = messagebox.askyesno("Confirmation", "WARNING: changing dataframes will reset all other tabs. Are you sure you want to continue?")
 
         if result:
+            if self.dataframe_listbox.curselection():
+                self.selected_dataframe = self.dataframe_listbox.get(self.dataframe_listbox.curselection()[0])
+            else:
+                return
+
+
             data_manager.set_dataframe_name(self.selected_dataframe)
             data_manager.set_dataframe(data_manager.get_dataframe_name())
 
@@ -265,7 +271,7 @@ class ManageDataframesClass():
             utils.create_table(self.dataframe_content_frame, data_manager.get_dataframe(), self.style)
             summary_df = utils.create_summary_table(data_manager.get_dataframe())
             utils.create_table(self.dataframe_content_frame, summary_df, self.style, title="COLUMN SUMMARY TABLE")
-            setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=False)
+            setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=True)
             utils.remove_frame_widgets(self.editing_content_frame)
             utils.remove_frame_widgets(self.visualize_content_frame)
         else:
@@ -275,8 +281,8 @@ class ManageDataframesClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        self.file_path = filedialog.askopenfilename()
-        # self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+        # self.file_path = filedialog.askopenfilename()
+        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
@@ -315,7 +321,7 @@ class ManageDataframesClass():
         index = items.index(dataframe_name)
         self.dataframe_listbox.selection_set(index)
         self.dataframe_listbox.yview(index)
-        self.dataframe_managing_label.configure(text=f"Current Dataframe: {dataframe_name}")
+        self.dataframe_managing_menu_label.configure(text=f"Current Dataframe: {dataframe_name}")
 
 
     def update_dataframe_listbox(self):
@@ -367,7 +373,7 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
         raw_data_table_subframe = tk.Frame(raw_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
         raw_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        raw_data_table_subframe_label = tk.Label(raw_data_table_subframe, text="Raw Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        raw_data_table_subframe_label = ttk.Label(raw_data_table_subframe, text="Raw Data", style="sub_frame_header.TLabel")
         raw_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -386,7 +392,7 @@ def setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, f
         summary_data_table_subframe = tk.Frame(summary_data_table_subframe_border, bg=color_dict["sub_frame_bg"])
         summary_data_table_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        summary_data_table_subframe_label = tk.Label(summary_data_table_subframe, text="Summary Data", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        summary_data_table_subframe_label = ttk.Label(summary_data_table_subframe, text="Summary Data", style="sub_frame_header.TLabel")
         summary_data_table_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -564,7 +570,7 @@ class CreateDataframeClass():
         self.dataframe_selection_subframe = tk.Frame(self.dataframe_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dataframe_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dataframe_selection_label = tk.Label(self.dataframe_selection_subframe, text="Choose a Dataframe to Use", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        self.dataframe_selection_label = ttk.Label(self.dataframe_selection_subframe, text="Choose a Dataframe to Use", style="sub_frame_header.TLabel")
         self.dataframe_selection_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dataframe_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -599,7 +605,7 @@ class CreateDataframeClass():
         self.advance_to_variable_selection_button = ttk.Button(self.dataframe_selection_menu_frame, text="Next", command=self.switch_to_variable_selection_frame, style='nav_menu_button.TButton')
         self.advance_to_variable_selection_button.pack(side=tk.RIGHT)
 
-        self.dataframe_selection_menu_label = tk.Label(self.dataframe_selection_menu_frame, text="Selected Dataframe: None", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.dataframe_selection_menu_label = ttk.Label(self.dataframe_selection_menu_frame, text="Selected Dataframe: None", style="nav_menu_label.TLabel")
         self.dataframe_selection_menu_label.pack(side=tk.LEFT, expand=True)
 
 
@@ -647,7 +653,7 @@ class CreateDataframeClass():
         self.variable_selection_subframe = tk.Frame(self.variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
         self.variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.variable_selection_subframe_label = tk.Label(self.variable_selection_subframe, text="Variable Selection", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        self.variable_selection_subframe_label = ttk.Label(self.variable_selection_subframe, text="Variable Selection", style="sub_frame_header.TLabel")
         self.variable_selection_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -713,7 +719,7 @@ class CreateDataframeClass():
         self.selected_variables_frame = tk.Frame(self.selection_frame, bg=color_dict["sub_frame_bg"])
         self.selected_variables_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.selected_variables_label = tk.Label(self.selected_variables_frame, text="Selected Variables", font=styles.sub_frame_sub_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["main_content_sub_header"])
+        self.selected_variables_label = ttk.Label(self.selected_variables_frame, text="Selected Variables", style="sub_frame_sub_header.TLabel")
         self.selected_variables_label.pack(side=tk.TOP, pady=10)
 
 
@@ -744,7 +750,7 @@ class CreateDataframeClass():
         self.advance_to_dataframe_settings_frame_button = ttk.Button(self.variable_selection_menu_frame, command=self.switch_to_dataframe_settings_frame, text="Next", style='nav_menu_button.TButton')
         self.advance_to_dataframe_settings_frame_button.pack(side=tk.RIGHT)
 
-        self.variable_selection_menu_label = tk.Label(self.variable_selection_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.variable_selection_menu_label = ttk.Label(self.variable_selection_menu_frame, text="", style="nav_menu_label.TLabel")
         self.variable_selection_menu_label.pack(side=tk.RIGHT, expand=True)
 
 
@@ -858,7 +864,7 @@ class CreateDataframeClass():
         self.dataframe_name_frame_subframe = tk.Frame(self.dataframe_name_frame_subframe_border, bg=color_dict["sub_frame_bg"])
         self.dataframe_name_frame_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.dataframe_name_frame_subframe_label = tk.Label(self.dataframe_name_frame_subframe, text="Name of New Dataframe:", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        self.dataframe_name_frame_subframe_label = ttk.Label(self.dataframe_name_frame_subframe, text="Name of New Dataframe:", style="sub_frame_header.TLabel")
         self.dataframe_name_frame_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.dataframe_name_frame_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -878,7 +884,7 @@ class CreateDataframeClass():
         self.condition_options_subframe = tk.Frame(self.condition_options_subframe_border, bg=color_dict["sub_frame_bg"])
         self.condition_options_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.condition_options_subframe_label = tk.Label(self.condition_options_subframe, text="Settings", font=styles.sub_frame_header_font, bg=color_dict["sub_frame_bg"], fg=color_dict["sub_frame_header"])
+        self.condition_options_subframe_label = ttk.Label(self.condition_options_subframe, text="Settings", style="sub_frame_header.TLabel")
         self.condition_options_subframe_label.pack(side=tk.TOP, pady=10)
 
         separator = ttk.Separator(self.condition_options_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -904,14 +910,14 @@ class CreateDataframeClass():
         self.condition_handling_frame = tk.Frame(self.condition_options_frame)
         self.condition_handling_frame.pack(side=tk.TOP)
 
-        add_simple_and_button = tk.Button(self.condition_handling_frame, text='and', command=lambda: self.add_condition(label='and'))
-        add_simple_and_button.pack(side=tk.LEFT)
+        self.add_simple_and_button = ttk.Button(self.condition_handling_frame, text='and', command=lambda: self.add_condition(label='and'), style="small_button.TButton")
+        self.add_simple_and_button.pack(side=tk.LEFT)
 
-        add_simple_or_button = tk.Button(self.condition_handling_frame, text='or', command=lambda: self.add_condition(label='or'))
-        add_simple_or_button.pack(side=tk.LEFT)
+        self.add_simple_or_button = ttk.Button(self.condition_handling_frame, text='or', command=lambda: self.add_condition(label='or'), style="small_button.TButton")
+        self.add_simple_or_button.pack(side=tk.LEFT)
 
-        add_remove_button = tk.Button(self.condition_handling_frame, text='Remove Condition', command=self.remove_condition)
-        add_remove_button.pack(side=tk.LEFT)
+        self.add_remove_button = ttk.Button(self.condition_handling_frame, text='Remove Condition', command=self.remove_condition, style="small_button.TButton")
+        self.add_remove_button.pack(side=tk.LEFT)
 
 
         # FRAME WHERE THE CONDITIONS GO
@@ -932,7 +938,7 @@ class CreateDataframeClass():
         self.return_to_column_selection_button = ttk.Button(self.dataframe_settings_menu_frame, text="Back", command=self.switch_to_variable_selection_frame, style='nav_menu_button.TButton')
         self.return_to_column_selection_button.pack(side=tk.LEFT)
 
-        self.dataframe_settings_menu_label = tk.Label(self.dataframe_settings_menu_frame, text="", font=styles.nav_menu_label_font, bg=color_dict["nav_banner_bg"], fg=color_dict["nav_banner_txt"])
+        self.dataframe_settings_menu_label = ttk.Label(self.dataframe_settings_menu_frame, text="", style="nav_menu_label.TLabel")
         self.dataframe_settings_menu_label.pack(side=tk.LEFT, expand=True)
 
         self.submit_settings_button = ttk.Button(self.dataframe_settings_menu_frame, text="SUBMIT", command=self.submit_dataframe_settings, style='nav_menu_button.TButton')
@@ -958,12 +964,12 @@ class CreateDataframeClass():
     # ADD NEW CONDITION LINE
     def add_condition(self, label=''):
 
-        condition_frame = tk.Frame(self.conditions_frame)
+        condition_frame = tk.Frame(self.conditions_frame, bg=color_dict["sub_frame_bg"])
         condition_frame.pack(side=tk.TOP)
 
         self.condition_frames.append(condition_frame)
 
-        condition_label = tk.Label(condition_frame, text=label)
+        condition_label = ttk.Label(condition_frame, text=label, style="sub_frame_text.TLabel")
         condition_label.pack(side=tk.LEFT)
 
 
