@@ -164,9 +164,17 @@ class ManageDataframesClass():
         self.dataframe_managing_frame = tk.Frame(self.file_handling_content_frame, bg=color_dict["main_content_border"])
 
         self.create_dataframe_managing_frame()
-        self.dataframe_managing_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        self.switch_to_dataframe_managing_frame()
+        
 
         
+
+    def switch_to_dataframe_managing_frame(self):
+        self.dataframe_managing_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+        utils.bind_mousewheel_to_frame(self.dataframe_managing_inner_frame, self.dataframe_managing_canvas, True)
+
+
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
@@ -175,8 +183,7 @@ class ManageDataframesClass():
 
         # MAIN CONTENT FRAME
         self.dataframe_managing_inner_frame, self.dataframe_managing_canvas = utils.create_scrollable_frame(self.dataframe_managing_frame)
-        utils.bind_mousewheel_to_frame(self.dataframe_managing_inner_frame, self.dataframe_managing_canvas, True)
-
+        
 ################################################################################################################
 
         # DATAFRAME MANAGING
@@ -678,7 +685,8 @@ class CreateDataframeClass():
                                                                 highlightbackground=color_dict["listbox_highlight_bg"],
                                                                 highlightcolor=color_dict["listbox_highlight_color"],
                                                                 selectbackground=color_dict["listbox_select_bg"],
-                                                                selectforeground=color_dict["listbox_select_fg"]
+                                                                selectforeground=color_dict["listbox_select_fg"],
+                                                                height=20
                                                                 )
         self.available_variables_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
         self.available_variables_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, False))
