@@ -1477,7 +1477,8 @@ class CreateNewVariableClass:
         self.available_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
             if search_term in column.lower():
-                self.available_variable_listbox.insert(tk.END, column)
+                if column not in self.selected_variables:
+                    self.available_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -1551,7 +1552,8 @@ class CreateNewVariableClass:
 
         self.available_variable_listbox.delete(0, tk.END)  # Clear the Listbox
         for item in items:
-            self.available_variable_listbox.insert(tk.END, item)
+            if item not in self.selected_variables:
+                self.available_variable_listbox.insert(tk.END, item)
 
         if top_visible_index >= 0:
             index = items.index(top_visible_item)
