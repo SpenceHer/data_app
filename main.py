@@ -33,7 +33,7 @@ main_window.geometry(f"{screen_width}x{screen_height}+0+0")
 
 style = ttk.Style()
 style.theme_use("clam")
-style.configure("Separator.Separator", background="#E91E63")
+
 
 # Create frames
 banner_frame = tk.Frame(main_window)
@@ -96,7 +96,7 @@ file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, f
 
 ################################################################################################################
 
-style.configure("Separator.TSeparator", background="#E91E63")
+style.configure("Separator.Separator", background=color_dict["separator"])
 
 ################################################################################################################
 
@@ -207,9 +207,33 @@ style.configure("sub_frame_text.TLabel",
 
 ################################################################################################################
 
-# LARGE ENTRY BOX
+# TREE TABLES
 
+style.configure("Treeview",
+                background=color_dict["treeview_bg"],
+                foreground=color_dict["treeview_fg"],
+                rowheight=25,
+                fieldbackground=color_dict["treeview_field_bg"])
+style.map("Treeview",
+            background=[('selected', color_dict["treeview_selected_bg"])],
+            foreground=[('selected', color_dict["treeview_selected_fg"])])
 
+# Treeview Heading style (for columns)
+style.configure("Treeview.Heading",
+                background=color_dict["treeview_heading_bg"],
+                foreground=color_dict["treeview_heading_fg"],
+                font=('Arial Rounded MT Bold', 12, 'bold'))
+style.map("Treeview.Heading",
+            background=[('active', color_dict["treeview_heading_active_bg"])],
+            foreground=[('active', color_dict["treeview_heading_active_fg"])])
+
+# Scrollbar style
+style.configure("Vertical.TScrollbar", gripcount=0,
+                background=color_dict["scrollbar_bg"], darkcolor=color_dict["scrollbar_bg"], lightcolor=color_dict["scrollbar_bg"],
+                troughcolor=color_dict["scrollbar_troughcolor"], bordercolor=color_dict["scrollbar_bg"], arrowcolor=color_dict["scrollbar_arrowcolor"])
+style.configure("Horizontal.TScrollbar", gripcount=0,
+                background=color_dict["scrollbar_bg"], darkcolor=color_dict["scrollbar_bg"], lightcolor=color_dict["scrollbar_bg"],
+                troughcolor=color_dict["scrollbar_troughcolor"], bordercolor=color_dict["scrollbar_bg"], arrowcolor=color_dict["scrollbar_arrowcolor"])
 
 
 ################################################################################################################
