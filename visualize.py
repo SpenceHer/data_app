@@ -431,7 +431,8 @@ class ComparisonTableClass:
 
 
         for column in sorted(self.df.columns, key=str.lower):
-            self.available_independent_variable_listbox.insert(tk.END, column)
+            if column not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, column)
 
 
         # TRANSFER BUTTONS
@@ -634,7 +635,8 @@ class ComparisonTableClass:
         self.available_independent_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
             if search_term in column.lower():
-                self.available_independent_variable_listbox.insert(tk.END, column)
+                if column not in self.selected_independent_variables:
+                    self.available_independent_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -708,7 +710,8 @@ class ComparisonTableClass:
 
         self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
         for item in items:
-            self.available_independent_variable_listbox.insert(tk.END, item)
+            if item not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, item)
 
         if top_visible_index >= 0:
             index = items.index(top_visible_item)
@@ -722,6 +725,7 @@ class ComparisonTableClass:
             if var in self.df.columns:
                 self.selected_independent_variable_listbox.insert(tk.END, var)
                 self.selected_independent_variables.append(var)
+
 
     def export_variable_list(self):
         data_manager.clear_exported_variables_list()
@@ -898,11 +902,10 @@ class ComparisonTableClass:
     def apply_comparison_table_variable_selection(self):
         self.selected_variable_types = {}
 
-        for value, variable_type in self.variable_type_dict.items():
-            if value in self.selected_independent_variables:
+        for var in self.selected_independent_variables:
+            if var in self.variable_type_dict:
+                self.selected_variable_types[var] = self.variable_type_dict[var]
 
-                option = variable_type
-                self.selected_variable_types[value] = option
 
 
     def create_comparison_table(self):
@@ -1291,6 +1294,10 @@ class ComparisonTableClass:
 
 
     def switch_to_variable_handling_frame(self):
+
+        self.selected_independent_variables = [self.selected_independent_variable_listbox.get(index) for index in range(self.selected_independent_variable_listbox.size())]
+        print(self.selected_independent_variables)
+
         if (self.selected_percent_type not in ["Row", "Column"]):
             utils.show_message("Error", "Please select either Row or Column Percentages")
             return
@@ -1606,7 +1613,8 @@ class RegressionAnalysisClass:
 
 
         for column in sorted(self.df.columns, key=str.lower):
-            self.available_independent_variable_listbox.insert(tk.END, column)
+            if column not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, column)
 
 
         # TRANSFER BUTTONS
@@ -1670,6 +1678,7 @@ class RegressionAnalysisClass:
             selections = self.available_independent_variable_listbox.curselection()
             for index in reversed(selections):
                 self.available_independent_variable_listbox.delete(index)
+
 
 
 ################################################################################################################
@@ -1743,7 +1752,8 @@ class RegressionAnalysisClass:
         self.available_independent_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
             if search_term in column.lower():
-                self.available_independent_variable_listbox.insert(tk.END, column)
+                if column not in self.selected_independent_variables:
+                    self.available_independent_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -1755,6 +1765,7 @@ class RegressionAnalysisClass:
                 self.selected_independent_variable_listbox.insert(tk.END, item)
                 self.selected_independent_variables.append(item)
                 data_manager.add_variable_to_reg_tab_ind_var_list(item)
+
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
@@ -1817,7 +1828,8 @@ class RegressionAnalysisClass:
 
         self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
         for item in items:
-            self.available_independent_variable_listbox.insert(tk.END, item)
+            if item not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, item)
 
         if top_visible_index >= 0:
             index = items.index(top_visible_item)
@@ -3463,7 +3475,8 @@ class MachineLearningClass:
 
 
         for column in sorted(self.df.columns, key=str.lower):
-            self.available_independent_variable_listbox.insert(tk.END, column)
+            if column not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, column)
 
 
         # TRANSFER BUTTONS
@@ -3664,7 +3677,8 @@ class MachineLearningClass:
         self.available_independent_variable_listbox.delete(0, tk.END)
         for column in sorted(self.df.columns, key=str.lower):
             if search_term in column.lower():
-                self.available_independent_variable_listbox.insert(tk.END, column)
+                if column not in self.selected_independent_variables:
+                    self.available_independent_variable_listbox.insert(tk.END, column)
 
 
     def transfer_right(self):
@@ -3738,7 +3752,8 @@ class MachineLearningClass:
 
         self.available_independent_variable_listbox.delete(0, tk.END)  # Clear the Listbox
         for item in items:
-            self.available_independent_variable_listbox.insert(tk.END, item)
+            if item not in self.selected_independent_variables:
+                self.available_independent_variable_listbox.insert(tk.END, item)
 
         if top_visible_index >= 0:
             index = items.index(top_visible_item)
@@ -4806,46 +4821,34 @@ class MachineLearningClass:
     def create_prediction_tool_frame(self):
 
         # MAIN CONTENT FRAME
-        self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["sub_frame_bg"])
-        self.prediction_tool_main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["main_content_bg"])
+        self.prediction_tool_main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
 
-        self.prediction_tool_header_label = ttk.Label(self.prediction_tool_main_content_frame, text="Predict Dependent Variable", style="sub_frame_header.TLabel")
+################################################################################################################
+
+        self.prediction_tool_subframe_border = tk.Frame(self.prediction_tool_main_content_frame, bg=color_dict["sub_frame_bg"])
+        self.prediction_tool_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
+
+        self.prediction_tool_subframe = tk.Frame(self.prediction_tool_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.prediction_tool_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
+
+        self.prediction_tool_header_label = ttk.Label(self.prediction_tool_subframe, text="Predict Dependent Variable", style="sub_frame_header.TLabel")
         self.prediction_tool_header_label.pack(side=tk.TOP, padx=5, pady=5)
 
-        separator = ttk.Separator(self.prediction_tool_main_content_frame, orient="horizontal", style="Separator.TSeparator")
+        separator = ttk.Separator(self.prediction_tool_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
-        self.prediction_frame = tk.Frame(self.prediction_tool_main_content_frame)
+        self.prediction_frame = tk.Frame(self.prediction_tool_subframe)
         self.prediction_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # USER INPUT FRAME
         self.user_input_frame = tk.Frame(self.prediction_frame, bg=color_dict["sub_frame_bg"])
         self.user_input_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        def on_mousewheel(event):
-            self.user_input_canvas.yview_scroll(-1 * (event.delta // 120), "units")
+        self.user_input_scrollable_frame, self.user_input_canvas = utils.create_scrollable_frame(self.user_input_frame, color=color_dict["sub_frame_bg"])
 
-        self.user_input_canvas = tk.Canvas(self.user_input_frame, bg=color_dict["sub_frame_bg"])
-        self.user_input_scrollbar = tk.Scrollbar(self.user_input_frame, orient="vertical", command=self.user_input_canvas.yview)
-        self.user_input_scrollable_frame = tk.Frame(self.user_input_canvas, bg=color_dict["sub_frame_bg"])
 
-        self.user_input_canvas.create_window((0, 0), window=self.user_input_scrollable_frame, anchor="nw")
-        self.user_input_canvas.configure(yscrollcommand=self.user_input_scrollbar.set)
-
-        self.user_input_canvas.pack(side=tk.LEFT, fill="both", expand=True, padx=5, pady=5)
-        self.user_input_scrollbar.pack(side=tk.RIGHT, fill="y")
-        self.user_input_scrollable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.TRUE)
-
-        # Bind mouse wheel event to the canvas
-        self.user_input_canvas.bind("<MouseWheel>", on_mousewheel)
-
-        self.user_input_scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.user_input_canvas.configure(
-                scrollregion=self.user_input_canvas.bbox("all")
-            )
-        )
-
+################################################################################################################
 
 
         # PREDICTION RESULTS FRAME
@@ -4865,7 +4868,7 @@ class MachineLearningClass:
         self.prediction_outcome_percent_label.pack(side=tk.TOP)
 
 
-
+################################################################################################################
 
         # NAVIGATION MENU FRAME
         self.prediction_tool_menu_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["nav_banner_bg"])
@@ -4883,10 +4886,13 @@ class MachineLearningClass:
         utils.remove_frame_widgets(self.user_input_scrollable_frame)
 
         self.input_values_label = ttk.Label(self.user_input_scrollable_frame, text="Input Values for Each Variable", style="sub_frame_header.TLabel")
-        self.input_values_label.pack(side=tk.TOP, fill=tk.X)
+        self.input_values_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
+
+        variables_frame = tk.Frame(self.user_input_scrollable_frame, bg=color_dict["sub_frame_bg"])
+        variables_frame.pack(side=tk.TOP, padx=5, pady=5)
 
         self.prediction_input_dict = {}
 
@@ -4898,7 +4904,7 @@ class MachineLearningClass:
             else:
                 variable_string = variable
 
-            variable_frame = tk.Frame(self.user_input_scrollable_frame, bg=color_dict["sub_frame_bg"])
+            variable_frame = tk.Frame(variables_frame, bg=color_dict["sub_frame_bg"])
             variable_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
             input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
@@ -4907,7 +4913,7 @@ class MachineLearningClass:
             variable_label = ttk.Label(variable_frame, text=variable_string, style="sub_frame_sub_header.TLabel")
             variable_label.pack(side=tk.LEFT)
 
-            separator = ttk.Separator(self.user_input_scrollable_frame, orient="horizontal", style="Separator.TSeparator")
+            separator = ttk.Separator(variables_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
 
             input_entry.bind("<KeyRelease>", lambda event, var=variable: self.on_key_release_prediction(event, var))
@@ -5107,6 +5113,8 @@ class MachineLearningClass:
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.prediction_tool_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        utils.bind_mousewheel_to_frame(self.user_input_frame, self.user_input_canvas, True)
 
         self.visualize_content_frame.update_idletasks()
 
