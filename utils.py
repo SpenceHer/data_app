@@ -62,11 +62,11 @@ def create_scrollable_frame(root, color=color_dict["main_content_bg"]):
 
     # SCROLLABLE FRAME
     container_frame = tk.Frame(root)
-    container_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
+    container_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
 
     # Canvas for scrollable content
     main_canvas = tk.Canvas(container_frame, bg=color, highlightthickness=0)
-    main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    main_canvas.pack(fill=tk.BOTH, expand=True)
 
     # Scrollbar for the canvas
     scrollbar = tk.Scrollbar(container_frame, command=main_canvas.yview)
@@ -130,32 +130,7 @@ def create_table(parent, df, style, show_index=True, table_name="", graph_name="
 
 
 
-    # Define the Barbie-themed color scheme for the Treeview
-    style.configure("Treeview",
-                    background="#FCE4EC",
-                    foreground="#4A2C4E",
-                    rowheight=25,
-                    fieldbackground="#FCE4EC")
-    style.map("Treeview",
-              background=[('selected', '#E91E63')],
-              foreground=[('selected', '#FFFFFF')])
 
-    # Treeview Heading style (for columns)
-    style.configure("Treeview.Heading",
-                    background="#AD1457",
-                    foreground="#FFFFFF",
-                    font=('Arial Rounded MT Bold', 12, 'bold'))
-    style.map("Treeview.Heading",
-              background=[('active', '#EC407A')],
-              foreground=[('active', '#FFFFFF')])
-
-    # Scrollbar style
-    style.configure("Vertical.TScrollbar", gripcount=0,
-                    background="#E91E63", darkcolor="#E91E63", lightcolor="#E91E63",
-                    troughcolor="#FADCE6", bordercolor="#E91E63", arrowcolor="#FFFFFF")
-    style.configure("Horizontal.TScrollbar", gripcount=0,
-                    background="#E91E63", darkcolor="#E91E63", lightcolor="#E91E63",
-                    troughcolor="#FADCE6", bordercolor="#E91E63", arrowcolor="#FFFFFF")
 
     table_frame = tk.Frame(parent, bg='beige')
     table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
