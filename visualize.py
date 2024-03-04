@@ -21,7 +21,7 @@ import pandas as pd
 import seaborn as sns
 from scipy import stats
 from scipy.stats import randint
-from xgboost import XGBClassifier
+# from xgboost import XGBClassifier
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from matplotlib.figure import Figure
@@ -3268,7 +3268,7 @@ class MachineLearningClass:
 
         self.available_categorical_models_dict = {
             "Random Forest":RandomForestClassifier(random_state=69),
-            "XGBoost":XGBClassifier(random_state=69),
+            # "XGBoost":XGBClassifier(random_state=69),
             "Logistic Regression":LogisticRegression(max_iter=100000000, random_state=69)
         }
 
@@ -3284,7 +3284,7 @@ class MachineLearningClass:
         self.verify_saved_columns()
 
         self.machine_learning_model_options = ['cat_rf', 'cat_xgb', 'cat_logreg', 'cont_linreg']
-        self.model_dict = {'cat_rf':'Random Forest', 'cat_xgb':'XGBoost', 'cat_logreg':'Logistic Regression', 'cont_linreg':'Linear Regression'}
+        self.model_dict = {'cat_rf':'Random Forest', 'cat_logreg':'Logistic Regression', 'cont_linreg':'Linear Regression'}
         # self.model_function_dict = {'cat_rf':self.create_random_forest_classifier_model()}
 
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -4761,15 +4761,15 @@ class MachineLearningClass:
                 'min_samples_split': [2, 5, 10],
                 'min_samples_leaf': [1, 2, 4]
             }
-        elif self.selected_model == 'XGBoost':
-            model = XGBClassifier()
-            param_grid = {
-                'n_estimators': [100, 200, 300],
-                'max_depth': [3, 4, 5, 6],
-                'learning_rate': [0.01, 0.1, 0.2],
-                'subsample': [0.8, 0.9, 1.0],
-                'min_child_weight': [1, 2, 3]
-            }
+        # elif self.selected_model == 'XGBoost':
+        #     model = XGBClassifier()
+        #     param_grid = {
+        #         'n_estimators': [100, 200, 300],
+        #         'max_depth': [3, 4, 5, 6],
+        #         'learning_rate': [0.01, 0.1, 0.2],
+        #         'subsample': [0.8, 0.9, 1.0],
+        #         'min_child_weight': [1, 2, 3]
+        #     }
         elif self.selected_model == 'Logistic Regression':
             model = LogisticRegression()
             param_grid = {
