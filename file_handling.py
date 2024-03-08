@@ -281,6 +281,8 @@ class ManageDataframesClass():
             setup_dataframe_view_tab(self.style, self.sub_button_frame, self.dataframe_content_frame, self.file_handling_content_frame, self.editing_content_frame, self.visualize_content_frame, initialize=True)
             utils.remove_frame_widgets(self.editing_content_frame)
             utils.remove_frame_widgets(self.visualize_content_frame)
+
+            self.dataframe_managing_menu_label.configure(text=f"Current Dataframe: {data_manager.get_dataframe_name()}")
         else:
             return
 
@@ -568,6 +570,7 @@ class CreateDataframeClass():
         # MAIN CONTENT FRAME
         self.dataframe_selection_inner_frame, self.dataframe_selection_canvas = utils.create_scrollable_frame(self.dataframe_selection_frame)
 
+
 ################################################################################################################
 
         # DATAFRAME MANAGING
@@ -593,7 +596,8 @@ class CreateDataframeClass():
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"]
+                     )
         self.dataframe_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
         self.dataframe_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dataframe_selection_inner_frame, self.dataframe_selection_canvas, False))
         self.dataframe_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.dataframe_selection_inner_frame, self.dataframe_selection_canvas, True))
@@ -782,7 +786,7 @@ class CreateDataframeClass():
             if item not in self.selected_variables:
                 self.selected_variables_listbox.insert(tk.END, item)
                 self.selected_variables.append(item)
-                data_manager.add_variable_to_reg_tab_ind_var_list(item)
+
 
         for index in reversed(selections):
             self.available_variables_listbox.delete(index)
@@ -1040,7 +1044,7 @@ class CreateDataframeClass():
         self.dataframe_name = self.dataframe_name_entry.get()
         condition_list_total = []
         condition_strings = []
-        condition_syntax = {}
+
 
         for idx, frame in enumerate(self.condition_frames, start=1):
 
@@ -1091,10 +1095,20 @@ class CreateDataframeClass():
 
             else:
                 try:
-                    self.df[condition[1]] = self.df[condition[1]].astype(float)
-                    condition_string = condition_string + str(float(condition[3]))
+
+                    if condition[3] == self.q1_string:
+                        condition_string = condition_string + str(float(self.q1))
+                    elif condition[3] == self.q2_string:
+                        condition_string = condition_string + str(float(self.q2))
+                    elif condition[3] == self.q3_string:
+                        condition_string = condition_string + str(float(self.q3))
+                    else:
+                        self.new_df[condition[1]] = self.new_df[condition[1]].astype(float)
+                        condition_string = condition_string + str(float(condition[3]))
+
                 except:
-                    self.df[condition[1]] = self.df[condition[1]].astype(object)
+
+                    self.new_df[condition[1]] = self.new_df[condition[1]].astype(object)
                     condition_string = condition_string + "'" + condition[3] + "'"
 
             condition_string = condition_string + ')'
@@ -1102,7 +1116,7 @@ class CreateDataframeClass():
 
 
         final_condition_string = ''.join(condition_strings)
-
+        print(final_condition_string)
         self.new_df = self.df.loc[self.df.eval(final_condition_string)]
 
         data_manager.add_dataframe_to_dict(self.new_df, self.dataframe_name_entry.get())
