@@ -279,9 +279,7 @@ class ComparisonTableClass:
     def create_dependent_variable_frame(self):
 
         # MAIN CONTENT FRAME
-        self.dependent_variable_inner_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["main_content_bg"])
-        self.dependent_variable_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
-
+        self.dependent_variable_inner_frame, self.dependent_variable_canvas = utils.create_scrollable_frame(self.dependent_variable_frame)
 
 ################################################################################################################
 
@@ -313,8 +311,13 @@ class ComparisonTableClass:
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.dependent_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, False))
+        self.dependent_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True))
+
+
 
         for column in sorted(self.df.columns, key=str.lower):
             self.dependent_variable_listbox.insert(tk.END, column)
@@ -327,7 +330,7 @@ class ComparisonTableClass:
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["nav_banner_bg"])
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
@@ -366,12 +369,23 @@ class ComparisonTableClass:
             # If search term is empty, insert all columns sorted alphabetically
             for column in sorted(self.df.columns, key=str.lower):
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
         else:
             # If there is a search term, filter and sort the columns based on the search term
             filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
             # Populate the Listbox with the sorted list
             for column in filtered_sorted_columns:
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable in filtered_sorted_columns:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
+
 
 
 
@@ -1264,6 +1278,8 @@ class ComparisonTableClass:
         self.visualize_content_frame.update_idletasks()
         self.dependent_var_search_entry.focus_set()
 
+        utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True)
+
 
 
 
@@ -1550,12 +1566,22 @@ class RegressionAnalysisClass:
             # If search term is empty, insert all columns sorted alphabetically
             for column in sorted(self.df.columns, key=str.lower):
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
         else:
             # If there is a search term, filter and sort the columns based on the search term
             filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
             # Populate the Listbox with the sorted list
             for column in filtered_sorted_columns:
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable in filtered_sorted_columns:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
 
 
 ################################################################################################################
@@ -3412,12 +3438,22 @@ class MachineLearningClass:
             # If search term is empty, insert all columns sorted alphabetically
             for column in sorted(self.df.columns, key=str.lower):
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
         else:
             # If there is a search term, filter and sort the columns based on the search term
             filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
             # Populate the Listbox with the sorted list
             for column in filtered_sorted_columns:
                 self.dependent_variable_listbox.insert(tk.END, column)
+            if self.selected_dependent_variable in filtered_sorted_columns:
+                self.dependent_variable_listbox.selection_clear(0, tk.END)
+                items = list(self.dependent_variable_listbox.get(0, tk.END))
+                index = items.index(self.selected_dependent_variable)
+                self.dependent_variable_listbox.selection_set(index)
 
 
 ################################################################################################################
