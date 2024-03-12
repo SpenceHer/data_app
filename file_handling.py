@@ -56,8 +56,6 @@ def setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handli
     create_dataframe_button.pack(side="left", fill="x", expand=True)  # Set expand=True to fill the horizontal space
     create_dataframe_button.config(command=lambda: CreateDataframeClass(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
 
-    
-    
 
     dataframe_content_frame.pack_forget()
     editing_content_frame.pack_forget()
@@ -209,7 +207,8 @@ class ManageDataframesClass():
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.dataframe_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
         self.dataframe_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dataframe_managing_inner_frame, self.dataframe_managing_canvas, False))
         self.dataframe_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.dataframe_managing_inner_frame, self.dataframe_managing_canvas, True))
@@ -290,8 +289,8 @@ class ManageDataframesClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        # self.file_path = filedialog.askopenfilename()
-        self.file_path = "/Users/spencersmith/Desktop/coding/OHSU_data.xlsx"
+        self.file_path = filedialog.askopenfilename()
+        # self.file_path = "/Users/spencersmith/Desktop/coding/data/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):
@@ -544,6 +543,7 @@ class CreateDataframeClass():
         self.style.configure("manage_dataframes_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"])
         self.style.configure("create_dataframe_button.TButton", background=color_dict["active_subtab_bg"], foreground=color_dict["active_subtab_txt"])
 
+
         data_manager.add_tab_to_tab_dict("current_file_handling_tab", "create_dataframe")
 
         self.selected_dataframe = None
@@ -596,7 +596,8 @@ class CreateDataframeClass():
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"]
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20
                      )
         self.dataframe_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
         self.dataframe_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dataframe_selection_inner_frame, self.dataframe_selection_canvas, False))
@@ -636,14 +637,6 @@ class CreateDataframeClass():
 
 
 
-
-################################################################################################################
-################################################################################################################
-################################################################################################################
-
-
-
-
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
@@ -680,7 +673,7 @@ class CreateDataframeClass():
 
         self.available_search_var = tk.StringVar()
         self.available_search_var.trace("w", self.update_available_variables_listbox)
-        self.available_var_search_entry = tk.Entry(self.available_variables_frame, textvariable=self.available_search_var, font=styles.listbox_font)
+        self.available_var_search_entry = tk.Entry(self.available_variables_frame, textvariable=self.available_search_var, font=styles.entrybox_small_font)
         self.available_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_variables_listbox = tk.Listbox(self.available_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -791,6 +784,8 @@ class CreateDataframeClass():
         for index in reversed(selections):
             self.available_variables_listbox.delete(index)
 
+        self.available_var_search_entry.focus_set()
+
 
     def transfer_all_right(self):
 
@@ -885,7 +880,7 @@ class CreateDataframeClass():
         self.dataframe_name_frame = tk.Frame(self.dataframe_name_frame_subframe, bg=color_dict["sub_frame_bg"])
         self.dataframe_name_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        self.dataframe_name_entry = tk.Entry(self.dataframe_name_frame, font=('Arial', 24))
+        self.dataframe_name_entry = tk.Entry(self.dataframe_name_frame, font=styles.entrybox_large_font)
         self.dataframe_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
 ################################################################################################################
@@ -920,7 +915,7 @@ class CreateDataframeClass():
 
         # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
         self.condition_handling_frame = tk.Frame(self.condition_options_frame)
-        self.condition_handling_frame.pack(side=tk.TOP)
+        self.condition_handling_frame.pack(side=tk.TOP, pady=10)
 
         self.add_simple_and_button = ttk.Button(self.condition_handling_frame, text='and', command=lambda: self.add_condition(label='and'), style="small_button.TButton")
         self.add_simple_and_button.pack(side=tk.LEFT)
@@ -933,7 +928,7 @@ class CreateDataframeClass():
 
 
         # FRAME WHERE THE CONDITIONS GO
-        self.conditions_frame = tk.Frame(self.condition_options_frame)
+        self.conditions_frame = tk.Frame(self.condition_options_frame, bg=color_dict["sub_frame_bg"])
         self.conditions_frame.pack(side=tk.TOP)
 
 
@@ -1028,7 +1023,7 @@ class CreateDataframeClass():
         column_values_dropdown.pack(side=tk.LEFT)
 
         # USER ENTRY VALUE
-        user_entry_value = tk.Entry(condition_frame)
+        user_entry_value = tk.Entry(condition_frame, font=styles.entrybox_small_font)
         user_entry_value.pack(side=tk.LEFT)
 
 
@@ -1116,7 +1111,7 @@ class CreateDataframeClass():
 
 
         final_condition_string = ''.join(condition_strings)
-        print(final_condition_string)
+
         self.new_df = self.df.loc[self.df.eval(final_condition_string)]
 
         data_manager.add_dataframe_to_dict(self.new_df, self.dataframe_name_entry.get())
@@ -1172,14 +1167,105 @@ class CreateDataframeClass():
 
 
 
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+########################################################################################                    ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+####                                                                                                        ####
+################################################################################################################
+################################################################################################################
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
+################################################################################################################
+################################################################################################################
+#                                                                                                              #
+#                                                  SETTINGS                                                    #
+#                                                                                                              #
+################################################################################################################
+################################################################################################################
 
 
 
 
 
 
+# class SettingsClass():
+#     def __init__(self, style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
+#         self.df_dict = data_manager.get_df_dict()
+#         self.selected_variables = []
 
+#         self.sub_button_frame = sub_button_frame
+#         self.dataframe_content_frame = dataframe_content_frame
+#         self.file_handling_content_frame = file_handling_content_frame
+#         self.editing_content_frame = editing_content_frame
+#         self.visualize_content_frame = visualize_content_frame
+#         self.style = style
 
+#         self.style.configure("manage_dataframes_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"])
+#         self.style.configure("create_dataframe_button.TButton", background=color_dict["inactive_subtab_bg"], foreground=color_dict["inactive_subtab_txt"])
+#         self.style.configure("settings_button.TButton", background=color_dict["active_subtab_bg"], foreground=color_dict["active_subtab_txt"])
+
+#         data_manager.add_tab_to_tab_dict("current_file_handling_tab", "settings")
+
+#         self.selected_dataframe = None
+
+#         utils.remove_frame_widgets(self.file_handling_content_frame)
+
+#         self.dataframe_selection_frame = tk.Frame(self.file_handling_content_frame, bg=color_dict["main_content_border"])
+#         self.variable_selection_frame = tk.Frame(self.file_handling_content_frame, bg=color_dict["main_content_border"])
+#         self.dataframe_settings_frame = tk.Frame(self.file_handling_content_frame, bg=color_dict["main_content_border"])
+
+#         self.create_dataframe_selection_frame()
+#         self.create_variable_selection_frame()
+#         self.create_dataframe_settings_frame()
+
+#         self.switch_to_dataframe_selection_frame()
 
 
 
