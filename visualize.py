@@ -26,6 +26,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import pingouin as pg
 
 # Sklearn imports
 from sklearn import model_selection
@@ -303,7 +304,7 @@ class ComparisonTableClass:
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
-        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.listbox_font)
+        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.entrybox_small_font)
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -427,7 +428,7 @@ class ComparisonTableClass:
 
         self.available_independent_search_var = tk.StringVar()
         self.available_independent_search_var.trace("w", self.update_available_independent_variable_listbox)
-        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.listbox_font)
+        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.entrybox_small_font)
         self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -665,6 +666,8 @@ class ComparisonTableClass:
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
+        
+        self.independent_var_search_entry.focus_set()
 
 
     def transfer_all_right(self):
@@ -875,9 +878,7 @@ class ComparisonTableClass:
     def create_results_frame(self):
 
         # MAIN CONTENT FRAME
-        self.results_inner_frame = tk.Frame(self.results_frame, bg=color_dict["main_content_bg"])
-        self.results_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
-
+        self.results_inner_frame, self.results_canvas = utils.create_scrollable_frame(self.results_frame)
 
 ################################################################################################################
 
@@ -953,32 +954,79 @@ class ComparisonTableClass:
                     row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
 
 
-                    # Run Stats for Continuous Variable
-                    f_values = []
-                    if len(self.unique_dependent_variable_values) > 2:
-                        # More than two unique values, perform ANOVA
-                        for value in self.unique_dependent_variable_values:
-                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            f_values.append(group)
-                        _, p_value = stats.f_oneway(*f_values)
-                        if p_value < 0.0001:
-                            p_value = '< 0.0001'
-                            row1.append(p_value)
-                        else:
-                            row1.append(f"{p_value:.4f}")
-                    else:
-                        for value in self.unique_dependent_variable_values:
-                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            f_values.append(group)
-                        _, p_value = stats.ttest_ind(*f_values)
+                    # # Run Stats for Continuous Variable
+                    # comparison_groups = []
 
-                        if p_value < 0.0001:
-                            p_value = '< 0.0001'
-                            row1.append(p_value)
-                            row1.append(np.nan)
+                    # if len(self.unique_dependent_variable_values) > 2:
+                    #     # More than two unique values, perform ANOVA
+                    #     for value in self.unique_dependent_variable_values:
+                    #         group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                    #         comparison_groups.append(group)
+
+                    #     _, p_value = stats.f_oneway(*comparison_groups)
+                    #     if p_value < 0.0001:
+                    #         p_value = '< 0.0001'
+                    #         row1.append(p_value)
+                    #     else:
+                    #         row1.append(f"{p_value:.4f}")
+                    # else:
+                    #     for value in self.unique_dependent_variable_values:
+                    #         group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                    #         comparison_groups.append(group)
+
+                    #     _, p_value = stats.ttest_ind(*comparison_groups)
+
+                    #     if p_value < 0.0001:
+                    #         p_value = '< 0.0001'
+                    #         row1.append(p_value)
+                    #         row1.append(np.nan)
+                    #     else:
+                    #         row1.append(f"{p_value:.4f}")
+                    #         row1.append(np.nan)
+
+                    comparison_groups = []
+
+                    for value in self.unique_dependent_variable_values:
+                        group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                        comparison_groups.append(group)
+
+                    if self.check_normality(comparison_groups):
+                        # Check for equal variances
+                        if self.check_variances(comparison_groups):
+                            if len(comparison_groups) == 2:
+                                _, p_value = stats.ttest_ind(comparison_groups)  # Independent two-sample t-test
+                            else:
+                                _, p_value = stats.f_oneway(*comparison_groups)  # ANOVA
                         else:
-                            row1.append(f"{p_value:.4f}")
-                            row1.append(np.nan)
+                            # Welch's t-test for two groups with unequal variances
+                            if len(comparison_groups) == 2:
+                                _, p_value = stats.ttest_ind(comparison_groups, equal_var=False)
+                            else:
+                                p_value = self.run_welchs_anova(comparison_groups)
+
+                    else:
+                        # Non-parametric tests
+                        if len(comparison_groups) == 2:
+                            _, p_value = stats.mannwhitneyu(*comparison_groups)
+
+                        else:
+                            _, p_value = stats.kruskal(*comparison_groups)
+
+                    if p_value < 0.0001:
+                        p_value = '< 0.0001'
+                        row1.append(p_value)
+                    else:
+                        row1.append(f"{p_value:.4f}")
+                
+
+
+
+
+
+
+
+
+
 
                     row2.append("  Mean (SD)")
                     for value in self.unique_dependent_variable_values:
@@ -1002,8 +1050,9 @@ class ComparisonTableClass:
 
                 except:
                     self.error = True
-                    utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
-                    return
+                    # utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
+                    # return
+                    raise
 
             elif option == 'Categorical':
  
@@ -1015,27 +1064,37 @@ class ComparisonTableClass:
                 try:
 
                     observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+
                     # Calculate the odds ratio
-                    odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
+                    numerator = observed.iloc[1, 1] * observed.iloc[0, 0]
+                    denominator = (observed.iloc[1, 0] * observed.iloc[0, 1])
 
-                    a = observed.iloc[0, 0]
-                    b = observed.iloc[0, 1]
-                    c = observed.iloc[1, 0]
-                    d = observed.iloc[1, 1]
+                    if denominator == 0:
+                        odds_ratio = np.nan
+                        ci_lower = np.nan
+                        ci_upper = np.nan
 
-                    # Calculate odds ratio
-                    odds_ratio = (a * d) / (b * c)
+                    else:
+                        odds_ratio = numerator / denominator
 
-                    # Calculate standard error of log odds ratio
-                    se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+                        a = observed.iloc[0, 0]
+                        b = observed.iloc[0, 1]
+                        c = observed.iloc[1, 0]
+                        d = observed.iloc[1, 1]
 
-                    # Calculate 95% confidence interval for log odds ratio
-                    ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
-                    ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+                        # Calculate odds ratio
+                        odds_ratio = (a * d) / (b * c)
 
-                    # Convert confidence interval back to odds ratio scale
-                    ci_lower = np.exp(ci_lower_ln)
-                    ci_upper = np.exp(ci_upper_ln)
+                        # Calculate standard error of log odds ratio
+                        se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+
+                        # Calculate 95% confidence interval for log odds ratio
+                        ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+                        ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+
+                        # Convert confidence interval back to odds ratio scale
+                        ci_lower = np.exp(ci_lower_ln)
+                        ci_upper = np.exp(ci_upper_ln)
 
            
 
@@ -1107,13 +1166,13 @@ class ComparisonTableClass:
 
 
                     # Run Stats for Continuous Variable
-                    f_values = []
+                    comparison_groups = []
                     if len(self.unique_dependent_variable_values) > 2:
                         # More than two unique values, perform ANOVA
                         for value in self.unique_dependent_variable_values:
                             group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            f_values.append(group)
-                        _, p_value = stats.f_oneway(*f_values)
+                            comparison_groups.append(group)
+                        _, p_value = stats.f_oneway(*comparison_groups)
                         if p_value < 0.0001:
                             p_value = '< 0.0001'
                             row1.append(p_value)
@@ -1122,8 +1181,8 @@ class ComparisonTableClass:
                     else:
                         for value in self.unique_dependent_variable_values:
                             group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            f_values.append(group)
-                        _, p_value = stats.ttest_ind(*f_values)
+                            comparison_groups.append(group)
+                        _, p_value = stats.ttest_ind(*comparison_groups)
 
                         if p_value < 0.0001:
                             p_value = '< 0.0001'
@@ -1253,12 +1312,49 @@ class ComparisonTableClass:
         self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
 
 
-        utils.create_table(self.results_display_frame, self.summary_df, self.style)
+        
+        height = int(len(self.summary_df) * 1.2)
+        if height > 20:
+            height = 20
+
+        utils.create_table(self.results_display_frame, self.summary_df, self.style, height=height)
 
         save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), style="large_button.TButton")
         save_summary_button.pack(side=tk.BOTTOM, pady=10)
 
 
+
+    def check_normality(self, groups):
+        normal = True
+        for group in groups:
+            stat, p = stats.shapiro(group)
+            if p < 0.05:  # Not normal
+                normal = False
+                break
+        return normal
+
+    # Function to check equal variances
+    def check_variances(self, groups):
+        stat, p = stats.levene(groups)
+        return p >= 0.05  # True if variances are equal
+
+    def run_welchs_anova(self, groups):
+        # Initialize an empty list for values and labels
+        values = []
+        labels = []
+
+        # Loop through each group, appending the values to the values list
+        # and the corresponding labels to the labels list
+        for i, group in enumerate(groups, start=1):
+            values.extend(group)
+            labels.extend([f'Group{i}'] * len(group))
+
+        # Create a DataFrame from the values and labels
+        data = pd.DataFrame({'Value': values, 'Group': labels})
+
+        # Perform Welch's ANOVA
+        res = pg.welch_anova(dv='Value', between='Group', data=data)
+        return res.loc[0, 'p-unc']  # Return the p-value from Welch's ANOVA
 
 
 ################################################################################################################
@@ -1312,7 +1408,7 @@ class ComparisonTableClass:
     def switch_to_variable_handling_frame(self):
 
         self.selected_independent_variables = [self.selected_independent_variable_listbox.get(index) for index in range(self.selected_independent_variable_listbox.size())]
-        print(self.selected_independent_variables)
+
 
         if (self.selected_percent_type not in ["Row", "Column"]):
             utils.show_message("Error", "Please select either Row or Column Percentages")
@@ -1346,6 +1442,8 @@ class ComparisonTableClass:
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
         self.visualize_content_frame.update_idletasks()
+
+        utils.bind_mousewheel_to_frame(self.results_inner_frame, self.results_canvas, True)
 
 
 ################################################################################################################
@@ -1478,9 +1576,7 @@ class RegressionAnalysisClass:
     def create_dependent_variable_frame(self):
 
         # MAIN CONTENT FRAME
-        self.dependent_variable_inner_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["main_content_bg"])
-        self.dependent_variable_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
-
+        self.dependent_variable_inner_frame, self.dependent_variable_canvas = utils.create_scrollable_frame(self.dependent_variable_frame)
 
 ################################################################################################################
 
@@ -1505,7 +1601,7 @@ class RegressionAnalysisClass:
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
-        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.listbox_font)
+        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.entrybox_small_font)
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -1513,8 +1609,11 @@ class RegressionAnalysisClass:
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.dependent_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, False))
+        self.dependent_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True))
 
         for column in sorted(self.df.columns, key=str.lower):
             self.dependent_variable_listbox.insert(tk.END, column)
@@ -1527,7 +1626,7 @@ class RegressionAnalysisClass:
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["nav_banner_bg"])
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
@@ -1621,7 +1720,7 @@ class RegressionAnalysisClass:
 
         self.available_independent_search_var = tk.StringVar()
         self.available_independent_search_var.trace("w", self.update_available_independent_variable_listbox)
-        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.listbox_font)
+        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.entrybox_small_font)
         self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -1811,6 +1910,8 @@ class RegressionAnalysisClass:
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
+
+        self.independent_var_search_entry.focus_set()
 
 
     def transfer_left(self):
@@ -2002,7 +2103,7 @@ class RegressionAnalysisClass:
 
 
 
-                input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.sub_frame_text_font, width=10)
+                input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.entrybox_large_font, width=10)
                 input_entry.pack(side=tk.LEFT)
 
                 value_label = ttk.Label(value_frame, text=value, style="sub_frame_text.TLabel")
@@ -2020,7 +2121,7 @@ class RegressionAnalysisClass:
 
 
     def apply_linear_regression_variable_selection(self):
-        print(self.clean_df)
+
         for variable in self.selected_independent_variables:
             if variable in self.non_numeric_columns:
 
@@ -2030,11 +2131,11 @@ class RegressionAnalysisClass:
                     if isinstance(value, str) and not value.isdigit():
                         non_numeric_values.append(value)
                     
-                print(non_numeric_values)
+
                 for value in non_numeric_values:
-                    print(value)
+
                     input_var = self.non_numeric_input_var_dict[variable][value]
-                    print(input_var)
+
                     try:
                         self.clean_df.loc[self.clean_df[variable] == value, variable] = int(input_var)
 
@@ -2403,7 +2504,7 @@ class RegressionAnalysisClass:
         coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
         for i in range(len(coefs['Characteristic'])):
             variable_string = coefs['Characteristic'].iloc[i]
-            print(variable_string)
+
             if variable_string[0:1] == "C(":
                 column_string = re.search(r'C\((.*?),', variable_string).group(1)
                 reference_value = re.search(r"\[T\.(.*?)\]", variable_string).group(1)
@@ -2513,6 +2614,7 @@ class RegressionAnalysisClass:
 
         self.dependent_var_search_entry.focus_set()
 
+        utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True)
         self.visualize_content_frame.update_idletasks()
 
     def switch_to_independent_variables_frame(self):
@@ -2714,8 +2816,8 @@ class CreatePlotClass():
     def create_plot_selection_frame(self):
 
         # MAIN CONTENT FRAME
-        self.plot_selection_inner_frame = tk.Frame(self.plot_selection_frame, bg=color_dict["main_content_bg"])
-        self.plot_selection_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+        self.plot_selection_inner_frame, self.plot_selection_canvas = utils.create_scrollable_frame(self.plot_selection_frame)
+
 
 ################################################################################################################
 
@@ -2739,7 +2841,7 @@ class CreatePlotClass():
 
         self.plot_search_var = tk.StringVar()
         self.plot_search_var.trace("w", self.update_plot_selection_listbox)
-        self.plot_var_search_entry = tk.Entry(self.plot_choice_frame, textvariable=self.plot_search_var, font=styles.listbox_font)
+        self.plot_var_search_entry = tk.Entry(self.plot_choice_frame, textvariable=self.plot_search_var, font=styles.entrybox_small_font)
         self.plot_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.plot_selection_listbox = tk.Listbox(self.plot_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -2747,8 +2849,11 @@ class CreatePlotClass():
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.plot_selection_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.plot_selection_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_selection_inner_frame, self.plot_selection_canvas, False))
+        self.plot_selection_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_selection_inner_frame, self.plot_selection_canvas, True))
 
         for plot in sorted(self.plot_options):
             self.plot_selection_listbox.insert(tk.END, plot)
@@ -2759,7 +2864,7 @@ class CreatePlotClass():
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.plot_selection_menu_frame = tk.Frame(self.plot_selection_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.plot_selection_menu_frame = tk.Frame(self.plot_selection_frame, bg=color_dict["nav_banner_bg"])
         self.plot_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.advance_to_plot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=self.switch_to_plot_settings_frame, style='nav_menu_button.TButton')
@@ -2917,7 +3022,7 @@ class CreatePlotClass():
 
         self.y_axis_search_var = tk.StringVar()
         self.y_axis_search_var.trace("w", self.update_y_axis_variable_listbox)
-        self.y_axis_var_search_entry = tk.Entry(self.y_axis_frame, textvariable=self.y_axis_search_var, font=styles.listbox_font)
+        self.y_axis_var_search_entry = tk.Entry(self.y_axis_frame, textvariable=self.y_axis_search_var, font=styles.entrybox_small_font)
         self.y_axis_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.y_axis_variable_listbox = tk.Listbox(self.y_axis_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -3026,6 +3131,11 @@ class CreatePlotClass():
         self.graph_frame = tk.Frame(self.plot_display_subframe, bg=color_dict["sub_frame_bg"])
         self.graph_frame.pack(side=tk.TOP, pady=10)
 
+
+
+        # Save button
+        self.save_graph_button = ttk.Button(self.plot_display_subframe, text="Save Graph", command=self.save_figure, style='large_button.TButton')
+        self.save_graph_button.pack(side=tk.BOTTOM, padx=10, pady=10)
 ################################################################################################################
 
         # NAVIGATION MENU
@@ -3042,6 +3152,22 @@ class CreatePlotClass():
 
 
 ################################################################################################################
+
+    def save_figure(self):
+
+        # Prompt the user to choose the save location
+        filetypes = [("JPEG files", "*.jpg"), ("PNG files", "*.png"), ("TIFF files", "*.tiff")]
+        save_path = filedialog.asksaveasfilename(filetypes=filetypes)
+
+        # Check if the user canceled the dialog
+        if not save_path:
+            return
+
+        # Save the figure with the specified DPI and path
+        self.fig.savefig(save_path, dpi=300)
+
+
+
 
 ################################################################################################################
 ################################################################################################################
@@ -3151,6 +3277,7 @@ class CreatePlotClass():
         self.plot_display_frame.pack_forget()
         self.plot_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+        utils.bind_mousewheel_to_frame(self.plot_selection_inner_frame, self.plot_selection_canvas, True)
         self.visualize_content_frame.update_idletasks()
         self.plot_var_search_entry.focus_set()
 
@@ -3349,9 +3476,7 @@ class MachineLearningClass:
     def create_dependent_variable_frame(self):
 
         # MAIN CONTENT FRAME
-        self.dependent_variable_inner_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["main_content_bg"])
-        self.dependent_variable_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
-
+        self.dependent_variable_inner_frame, self.dependent_variable_canvas = utils.create_scrollable_frame(self.dependent_variable_frame)
 
 ################################################################################################################
 
@@ -3376,7 +3501,7 @@ class MachineLearningClass:
 
         self.dependent_search_var = tk.StringVar()
         self.dependent_search_var.trace("w", self.update_dependent_variable_listbox)
-        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.listbox_font)
+        self.dependent_var_search_entry = tk.Entry(self.dependent_column_choice_frame, textvariable=self.dependent_search_var, font=styles.entrybox_small_font)
         self.dependent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.dependent_variable_listbox = tk.Listbox(self.dependent_column_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -3384,8 +3509,11 @@ class MachineLearningClass:
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.dependent_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.dependent_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, False))
+        self.dependent_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True))
 
         for column in sorted(self.df.columns, key=str.lower):
             self.dependent_variable_listbox.insert(tk.END, column)
@@ -3398,7 +3526,7 @@ class MachineLearningClass:
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.dependent_variable_menu_frame = tk.Frame(self.dependent_variable_frame, bg=color_dict["nav_banner_bg"])
         self.dependent_variable_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.advance_to_independent_variables_button = ttk.Button(self.dependent_variable_menu_frame, text="Next", command=self.switch_to_independent_variables_frame, style='nav_menu_button.TButton')
@@ -3493,7 +3621,7 @@ class MachineLearningClass:
 
         self.available_independent_search_var = tk.StringVar()
         self.available_independent_search_var.trace("w", self.update_available_independent_variable_listbox)
-        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.listbox_font)
+        self.independent_var_search_entry = tk.Entry(self.available_independent_variables_frame, textvariable=self.available_independent_search_var, font=styles.entrybox_small_font)
         self.independent_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_independent_variable_listbox = tk.Listbox(self.available_independent_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -3729,6 +3857,8 @@ class MachineLearningClass:
 
         for index in reversed(selections):
             self.available_independent_variable_listbox.delete(index)
+        
+        self.independent_var_search_entry.focus_set()
 
 
     def transfer_all_right(self):
@@ -3993,7 +4123,7 @@ class MachineLearningClass:
 
 
 
-                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.sub_frame_text_font, width=10)
+                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.entrybox_large_font, width=10)
                     input_entry.pack(side=tk.LEFT)
 
                     value_label = ttk.Label(value_frame, text=value, style="sub_frame_sub_header.TLabel")
@@ -4056,7 +4186,7 @@ class MachineLearningClass:
                 for value in non_numeric_values:
 
                     input_var = self.non_numeric_input_var_dict[variable][value]
-                    print(input_var)
+
 
                     try:
                         self.temp_df.loc[self.temp_df[variable] == value, variable] = float(input_var)
@@ -4143,7 +4273,7 @@ class MachineLearningClass:
         else:
             self.null_value_entry_var = tk.StringVar(value="")
 
-        self.null_value_user_choice_entry = tk.Entry(self.null_value_combobox_selection_frame, textvariable=self.null_value_entry_var, font=("Arial", 24))
+        self.null_value_user_choice_entry = tk.Entry(self.null_value_combobox_selection_frame, textvariable=self.null_value_entry_var, font=styles.entrybox_large_font)
 
         def on_null_value_entry_release(event):
             current_value = event.widget.get()
@@ -4206,7 +4336,7 @@ class MachineLearningClass:
         self.train_fold_percent_label_1 = ttk.Label(self.train_fold_percent_frame, text="Train model on ", style="sub_frame_text.TLabel")
         self.train_fold_percent_label_1.pack(side=tk.LEFT,padx=5)
 
-        self.train_fold_percent_entry = tk.Entry(self.train_fold_percent_frame, textvariable=self.train_percent_var, font=("Arial", 24), width=5)
+        self.train_fold_percent_entry = tk.Entry(self.train_fold_percent_frame, textvariable=self.train_percent_var, font=styles.entrybox_small_font, width=5)
         self.train_fold_percent_entry.pack(side=tk.LEFT,padx=5)
 
         self.train_fold_percent_label_2 = ttk.Label(self.train_fold_percent_frame, text="% of the dataframe", style="sub_frame_text.TLabel")
@@ -4857,12 +4987,12 @@ class MachineLearningClass:
     def create_prediction_tool_frame(self):
 
         # MAIN CONTENT FRAME
-        self.prediction_tool_main_content_frame = tk.Frame(self.prediction_tool_frame, bg=color_dict["main_content_bg"])
-        self.prediction_tool_main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
+        self.prediction_tool_inner_frame, self.prediction_tool_canvas = utils.create_scrollable_frame(self.prediction_tool_frame)
+
 
 ################################################################################################################
 
-        self.prediction_tool_subframe_border = tk.Frame(self.prediction_tool_main_content_frame, bg=color_dict["sub_frame_bg"])
+        self.prediction_tool_subframe_border = tk.Frame(self.prediction_tool_inner_frame, bg=color_dict["sub_frame_border"])
         self.prediction_tool_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=3, pady=3)
 
         self.prediction_tool_subframe = tk.Frame(self.prediction_tool_subframe_border, bg=color_dict["sub_frame_bg"])
@@ -4881,7 +5011,11 @@ class MachineLearningClass:
         self.user_input_frame = tk.Frame(self.prediction_frame, bg=color_dict["sub_frame_bg"])
         self.user_input_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.user_input_scrollable_frame, self.user_input_canvas = utils.create_scrollable_frame(self.user_input_frame, color=color_dict["sub_frame_bg"])
+        self.user_input_scrollable_frame, self.user_input_canvas = utils.create_scrollable_frame(self.user_input_frame, color=color_dict["sub_frame_bg"], scrollbar=True)
+
+        self.user_input_scrollable_frame.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.prediction_tool_inner_frame, self.prediction_tool_canvas, False))
+        self.user_input_scrollable_frame.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.user_input_scrollable_frame, self.user_input_canvas, True))
+        self.user_input_scrollable_frame.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.prediction_tool_inner_frame, self.prediction_tool_canvas, True))
 
 
 ################################################################################################################
@@ -4943,7 +5077,7 @@ class MachineLearningClass:
             variable_frame = tk.Frame(variables_frame, bg=color_dict["sub_frame_bg"])
             variable_frame.pack(side=tk.TOP, fill=tk.X, pady=5, padx=20)
 
-            input_entry = tk.Entry(variable_frame, font=("Arial", 28), width=10)
+            input_entry = tk.Entry(variable_frame, font=styles.entrybox_large_font, width=10)
             input_entry.pack(side=tk.LEFT)
 
             variable_label = ttk.Label(variable_frame, text=variable_string, style="sub_frame_sub_header.TLabel")
@@ -5006,6 +5140,8 @@ class MachineLearningClass:
         self.prediction_tool_frame.pack_forget()
         self.dependent_variable_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+
+        utils.bind_mousewheel_to_frame(self.dependent_variable_inner_frame, self.dependent_variable_canvas, True)
         self.dependent_var_search_entry.focus_set()
 
 
