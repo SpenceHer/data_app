@@ -47,8 +47,7 @@ def forget_frame_widgets(frame):
 
 
 
-
-def create_scrollable_frame(root, color=color_dict["main_content_bg"]):
+def create_scrollable_frame(root, color=color_dict["main_content_bg"], scrollbar=False):
     def on_variable_handling_canvas_configure(event):
         canvas_width = event.width
         main_canvas.itemconfig(scrollable_frame_window, width=canvas_width)
@@ -66,15 +65,17 @@ def create_scrollable_frame(root, color=color_dict["main_content_bg"]):
 
     # Canvas for scrollable content
     main_canvas = tk.Canvas(container_frame, bg=color, highlightthickness=0)
-    main_canvas.pack(fill=tk.BOTH, expand=True)
-
-    # Scrollbar for the canvas
-    scrollbar = tk.Scrollbar(container_frame, command=main_canvas.yview)
-    main_canvas.configure(yscrollcommand=scrollbar.set)
+    main_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)  # Adjusted to pack on the left to make room for scrollbar
 
     # Scrollable frame inside the canvas
     scrollable_frame = tk.Frame(main_canvas, bg=color)
     scrollable_frame_window = main_canvas.create_window((0, 0), window=scrollable_frame, anchor=tk.NW)
+
+    # Conditionally create and pack the scrollbar
+    if scrollbar:
+        scrollbar_widget = tk.Scrollbar(container_frame, orient="vertical", command=main_canvas.yview)
+        scrollbar_widget.pack(side=tk.RIGHT, fill=tk.Y)  # Pack the scrollbar on the right side
+        main_canvas.configure(yscrollcommand=scrollbar_widget.set)
 
     # Bind events
     main_canvas.bind("<Configure>", on_variable_handling_canvas_configure)
@@ -86,6 +87,7 @@ def create_scrollable_frame(root, color=color_dict["main_content_bg"]):
     scrollable_frame.bind_all("<Button-5>", on_variable_handling_mousewheel)
 
     return scrollable_frame, main_canvas
+
 
 
 
@@ -126,11 +128,7 @@ def bind_mousewheel_to_frame(scrollable_frame, main_canvas, bind=True):
 
 
 
-def create_table(parent, df, style, show_index=True, table_name="", graph_name="", title=""):
-
-
-
-
+def create_table(parent, df, style, show_index=True, table_name="", graph_name="", title="", height=None):
 
     table_frame = tk.Frame(parent, bg='beige')
     table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -142,13 +140,13 @@ def create_table(parent, df, style, show_index=True, table_name="", graph_name="
     treeview_frame = tk.Frame(table_frame)
     treeview_frame.pack(fill=tk.BOTH, expand=True)
 
-    yscrollbar = ttk.Scrollbar(treeview_frame, orient="vertical", style="Vertical.TScrollbar")
+    yscrollbar = tk.Scrollbar(treeview_frame, orient="vertical")
     yscrollbar.pack(side="right", fill="y")
 
-    xscrollbar = ttk.Scrollbar(table_frame, orient="horizontal", style="Horizontal.TScrollbar")
+    xscrollbar = tk.Scrollbar(table_frame, orient="horizontal")
     xscrollbar.pack(side="bottom", fill="x")
 
-    table_treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview", yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set)
+    table_treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview", yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set, height=height)
 
     yscrollbar.config(command=table_treeview.yview)
     xscrollbar.config(command=table_treeview.xview)
@@ -256,3 +254,14 @@ def create_summary_table(df):
     summary = pd.concat(summary_list, ignore_index=True)
 
     return summary
+
+
+
+
+
+
+
+
+
+
+
