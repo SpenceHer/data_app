@@ -1,5 +1,5 @@
 
-theme = "Professional"
+theme = "Barbie"
 
 
 ################################################################################################################
@@ -108,21 +108,23 @@ if theme == "Barbie":
     }
 
     # FONTS
-    main_tabs_font = ("Brush Script MT", 36, "bold")  # Playful script font for main tabs
-    sub_tabs_font = ("Comic Sans MS", 28)  # Fun and casual font for sub tabs
+    main_tabs_font = ("Brush Script MT", 22, "bold")  # Playful script font for main tabs
+    sub_tabs_font = ("Comic Sans MS", 20)  # Fun and casual font for sub tabs
 
-    nav_menu_label_font = ("Brush Script MT", 24)  # A playful, cursive font that's still legible for menu labels
-    nav_menu_button_font = ("Comic Sans MS", 22, "bold")  # A casual, friendly font for button text to keep the interface light-hearted
+    nav_menu_label_font = ("Brush Script MT", 18)  # A playful, cursive font that's still legible for menu labels
+    nav_menu_button_font = ("Comic Sans MS", 18, "bold")  # A casual, friendly font for button text to keep the interface light-hearted
 
-    sub_frame_header_font = ("American Typewriter", 30, "bold")  # A stylish, impactful font for main headers to draw attention
-    sub_frame_sub_header_font = ("Chalkboard SE", 26, "bold")  # A more playful, yet readable font for sub-headers
-    sub_frame_text_font = ("Arial Rounded MT Bold", 24)  # A clean, modern font that's versatile and readable
+    sub_frame_header_font = ("American Typewriter", 22, "bold")  # A stylish, impactful font for main headers to draw attention
+    sub_frame_sub_header_font = ("Chalkboard SE", 20, "bold")  # A more playful, yet readable font for sub-headers
+    sub_frame_text_font = ("Arial Rounded MT Bold", 18)  # A clean, modern font that's versatile and readable
 
-    listbox_font = ("Arial Rounded MT Bold", 24, "bold")
-    entrybox_font = ("Arial Rounded MT Bold", 24, "bold")
+    listbox_font = ("Arial Rounded MT Bold", 18, "bold")
+    entrybox_small_font = ("Arial Rounded MT Bold", 18, "bold")
+    entrybox_large_font = ("Arial Rounded MT Bold", 22, "bold")
 
-    large_button_font = ("Arial Rounded MT Bold", 28)  # Bold and fun for standout buttons
-    small_button_font = ("Arial Rounded MT Bold", 24)  # Bold and fun for standout buttons
+
+    large_button_font = ("Arial Rounded MT Bold", 20)  # Bold and fun for standout buttons
+    small_button_font = ("Arial Rounded MT Bold", 18)  # Bold and fun for standout buttons
 
 
 ################################################################################################################
@@ -252,3 +254,4 @@ if theme == "Professional":
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
+
