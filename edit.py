@@ -204,9 +204,7 @@ class EditDataClass():
     def create_variable_selection_frame(self):
 
         # MAIN CONTENT FRAME
-        self.variable_selection_inner_frame = tk.Frame(self.variable_selection_frame, bg=color_dict["main_content_bg"])
-        self.variable_selection_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
-
+        self.variable_selection_inner_frame, self.variable_selection_canvas = utils.create_scrollable_frame(self.variable_selection_frame)
 
 ################################################################################################################
 
@@ -231,7 +229,7 @@ class EditDataClass():
 
         self.column_search_var = tk.StringVar()
         self.column_search_var.trace("w", self.update_variable_listbox)
-        self.column_var_search_entry = tk.Entry(self.column_choice_frame, textvariable=self.column_search_var, font=styles.listbox_font)
+        self.column_var_search_entry = tk.Entry(self.column_choice_frame, textvariable=self.column_search_var, font=styles.entrybox_small_font)
         self.column_var_search_entry.pack(side=tk.TOP, pady=10)
 
         self.variable_listbox = tk.Listbox(self.column_choice_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
@@ -239,8 +237,11 @@ class EditDataClass():
                      highlightbackground=color_dict["listbox_highlight_bg"],
                      highlightcolor=color_dict["listbox_highlight_color"],
                      selectbackground=color_dict["listbox_select_bg"],
-                     selectforeground=color_dict["listbox_select_fg"])
+                     selectforeground=color_dict["listbox_select_fg"],
+                     height=20)
         self.variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, False))
+        self.variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True))
 
         for column in sorted(self.df.columns, key=str.lower):
             self.variable_listbox.insert(tk.END, column)
@@ -252,7 +253,7 @@ class EditDataClass():
 ################################################################################################################
 
         # NAVIGATION MENU
-        self.variable_selection_menu_frame = tk.Frame(self.variable_selection_inner_frame, bg=color_dict["nav_banner_bg"])
+        self.variable_selection_menu_frame = tk.Frame(self.variable_selection_frame, bg=color_dict["nav_banner_bg"])
         self.variable_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
         self.advance_to_variable_type_choice_frame = ttk.Button(self.variable_selection_menu_frame, text="Next", command=self.switch_to_variable_type_choice_frame, style='nav_menu_button.TButton')
@@ -298,8 +299,8 @@ class EditDataClass():
     def create_variable_type_choice_frame(self):
 
         # MAIN CONTENT FRAME
-        self.variable_type_inner_frame = tk.Frame(self.variable_type_choice_frame, bg=color_dict["main_content_bg"])
-        self.variable_type_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+        self.variable_type_inner_frame, self.variable_type_canvas = utils.create_scrollable_frame(self.variable_type_choice_frame)
+
 
 ################################################################################################################
 
@@ -323,14 +324,14 @@ class EditDataClass():
         self.variable_type_choice_button_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # CATEGORICAL VARIABLE BUTTON
-        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg=color_dict["sub_frame_bg"])
+        self.categorical_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg=color_dict["sub_frame_bg"], height=20)
         self.categorical_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.categorical_variable_button = ttk.Button(self.categorical_variable_frame, text='Categorical Variable', style="inactive_radio_button.TButton")
         self.categorical_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # CONTINUOUS VARIABLE BUTTON
-        self.continuous_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg=color_dict["sub_frame_bg"])
+        self.continuous_variable_frame = tk.Frame(self.variable_type_choice_button_frame, bg=color_dict["sub_frame_bg"], height=20)
         self.continuous_variable_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.continuous_variable_button = ttk.Button(self.continuous_variable_frame,text='Continuous Variable', style="inactive_radio_button.TButton")
@@ -510,7 +511,7 @@ class EditDataClass():
         self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_categorical_value(), style="large_button.TButton")
         self.change_value_button.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=styles.entrybox_large_font)
         self.new_value_entry.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
 
         self.remove_change_value_action_frame.columnconfigure(0, weight=1)
@@ -535,7 +536,7 @@ class EditDataClass():
         self.rename_column_no_button = ttk.Button(self.rename_column_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_rename_button_style("No"))
         self.rename_column_no_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 24), state=tk.DISABLED)
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=styles.entrybox_large_font, state=tk.DISABLED)
         self.rename_column_entry.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.toggle_rename_button_style("No")
@@ -704,7 +705,7 @@ class EditDataClass():
         self.change_value_button = ttk.Button(self.remove_change_value_action_frame, text="Change Value To:", command=lambda: self.change_non_numeric_value(), style="large_button.TButton")
         self.change_value_button.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=("Arial", 24))
+        self.new_value_entry = tk.Entry(self.remove_change_value_action_frame, font=styles.entrybox_large_font)
         self.new_value_entry.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
         self.new_value_entry.focus_set()
 
@@ -733,8 +734,6 @@ class EditDataClass():
         self.remove_negative_values_no_button = ttk.Button(self.remove_negative_values_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_remove_negatives_button_style("No"))
         self.remove_negative_values_no_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.remove_negative_values_entry = tk.Entry(self.remove_negative_values_frame, font=("Arial", 24))
-
         self.remove_negative_values_frame.columnconfigure(0, weight=1)
         self.remove_negative_values_frame.columnconfigure(1, weight=1)
 
@@ -756,8 +755,6 @@ class EditDataClass():
 
         self.remove_values_of_zero_no_button = ttk.Button(self.remove_values_of_zero_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_remove_zeros_button_style("No"))
         self.remove_values_of_zero_no_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
-
-        self.remove_values_of_zero_entry = tk.Entry(self.remove_values_of_zero_frame, font=("Arial", 24))
 
         self.remove_values_of_zero_frame.columnconfigure(0, weight=1)
         self.remove_values_of_zero_frame.columnconfigure(1, weight=1)
@@ -782,7 +779,7 @@ class EditDataClass():
         self.rename_column_no_button = ttk.Button(self.rename_column_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_rename_button_style("No"))
         self.rename_column_no_button.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=("Arial", 24), state=tk.DISABLED)
+        self.rename_column_entry = tk.Entry(self.rename_column_frame, font=styles.entrybox_large_font, state=tk.DISABLED)
         self.rename_column_entry.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
 
         self.toggle_rename_button_style("No")
@@ -1045,7 +1042,11 @@ class EditDataClass():
 
     def update_dataframe(self):
         if self.rename_column_selection == "Yes":
-
+            if self.rename_column_entry.get() in self.new_df.columns:
+                new_column_name = self.rename_column_entry.get()
+                while new_column_name in self.new_df.columns:
+                    result = messagebox.askyesno("Confirmation", f"WARNING: The column, '{new_column_name}' is already in the currrent dataframe. Are you sure you want to replace that")
+            
             self.new_df.rename(columns={self.selected_column:self.rename_column_entry.get()}, inplace=True)
 
         self.df = self.new_df.copy()
@@ -1176,6 +1177,7 @@ class EditDataClass():
         self.data_display_frame.pack_forget()
         self.variable_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+        utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
         self.editing_content_frame.update_idletasks()
 
 
@@ -1194,6 +1196,8 @@ class EditDataClass():
         self.data_display_frame.pack_forget()
         self.variable_type_choice_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+
+        utils.bind_mousewheel_to_frame(self.variable_type_inner_frame, self.variable_type_canvas, True)
         self.editing_content_frame.update_idletasks()
 
     def switch_to_value_handling_frame(self):
@@ -1359,8 +1363,8 @@ class CreateNewVariableClass:
     def create_variable_selection_frame(self):
 
         # MAIN CONTENT FRAME
-        self.variable_selection_inner_frame = tk.Frame(self.variable_selection_frame, bg=color_dict["main_content_bg"])
-        self.variable_selection_inner_frame.pack(fill=tk.BOTH, expand=True, padx=3, pady=3)
+        self.variable_selection_inner_frame, self.variable_selection_canvas = utils.create_scrollable_frame(self.variable_selection_frame)
+
 
 ################################################################################################################
 
@@ -1391,7 +1395,7 @@ class CreateNewVariableClass:
 
         self.available_variables_search_var = tk.StringVar()
         self.available_variables_search_var.trace("w", self.update_available_variables_listbox)
-        self.variable_search_entry = tk.Entry(self.available_variables_frame, textvariable=self.available_variables_search_var, font=("Arial", 24))
+        self.variable_search_entry = tk.Entry(self.available_variables_frame, textvariable=self.available_variables_search_var, font=styles.entrybox_small_font)
         self.variable_search_entry.pack(side=tk.TOP, pady=10)
 
         self.available_variable_listbox = tk.Listbox(self.available_variables_frame, selectmode=tk.MULTIPLE, font=styles.listbox_font,
@@ -1400,9 +1404,12 @@ class CreateNewVariableClass:
                                                                 highlightbackground=color_dict["listbox_highlight_bg"],
                                                                 highlightcolor=color_dict["listbox_highlight_color"],
                                                                 selectbackground=color_dict["listbox_select_bg"],
-                                                                selectforeground=color_dict["listbox_select_fg"]
+                                                                selectforeground=color_dict["listbox_select_fg"],
+                                                                height=20
                                                                 )
         self.available_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.available_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, False))
+        self.available_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True))
 
         for column in sorted(self.df.columns, key=str.lower):
             self.available_variable_listbox.insert(tk.END, column)
@@ -1445,9 +1452,12 @@ class CreateNewVariableClass:
                                                                 highlightbackground=color_dict["listbox_highlight_bg"],
                                                                 highlightcolor=color_dict["listbox_highlight_color"],
                                                                 selectbackground=color_dict["listbox_select_bg"],
-                                                                selectforeground=color_dict["listbox_select_fg"]
+                                                                selectforeground=color_dict["listbox_select_fg"],
+                                                                height=20
                                                                 )
         self.selected_variables_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.selected_variables_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, False))
+        self.selected_variables_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True))
 
         if len(self.selected_variables) > 0:
             for var in self.selected_variables:
@@ -1493,6 +1503,8 @@ class CreateNewVariableClass:
 
         for index in reversed(selections):
             self.available_variable_listbox.delete(index)
+        
+        self.variable_search_entry.focus_set()
 
 
     def transfer_all_right(self):
@@ -1588,9 +1600,9 @@ class CreateNewVariableClass:
         separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
 
         self.variable_name_frame = tk.Frame(self.variable_name_frame_subframe, bg=color_dict["sub_frame_bg"])
-        self.variable_name_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.variable_name_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
 
-        self.variable_name_entry = tk.Entry(self.variable_name_frame, font=('Arial', 24))
+        self.variable_name_entry = tk.Entry(self.variable_name_frame, font=styles.entrybox_large_font)
         self.variable_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
 
 ################################################################################################################
@@ -1749,7 +1761,7 @@ class CreateNewVariableClass:
 
 
             # USER ENTRY VALUE
-            user_entry_value = tk.Entry(condition_frame)
+            user_entry_value = tk.Entry(condition_frame, font=styles.entrybox_small_font)
             user_entry_value.pack(side=tk.LEFT)
 
 
@@ -1768,7 +1780,7 @@ class CreateNewVariableClass:
         label = ttk.Label(value_entry_frame, text="New Value:", style="sub_frame_text.TLabel")
         label.pack(side=tk.LEFT)
 
-        value_entry = tk.Entry(value_entry_frame)
+        value_entry = tk.Entry(value_entry_frame, font=styles.entrybox_large_font)
         value_entry.pack(side=tk.LEFT)
         value_entry.focus_set()
 
@@ -2125,6 +2137,7 @@ class CreateNewVariableClass:
         self.finalize_frame.pack_forget()
         self.variable_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
+        utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
         self.variable_search_entry.focus_set()
 
 
