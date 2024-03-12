@@ -98,8 +98,8 @@ def get_exported_variables_list():
 comp_tab_dep_var = None
 comp_tab_ind_var_list = []
 comp_tab_variable_type_dict = {}
-comp_tab_percent_type = ""
-comp_tab_data_type = ""
+comp_tab_percent_type = None
+comp_tab_data_type = None
 
 # COMPARISON TABLE DEPENDENT VARIABLE
 def set_comp_tab_dep_var(variable):
@@ -394,8 +394,6 @@ def get_mach_learn_tab_null_value_entry_value():
 ################################################################################################################
 ################################################################################################################
 ################################################################################################################
-
-
 
 create_var_tab_var_list = []
 
