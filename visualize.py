@@ -21,12 +21,12 @@ import pandas as pd
 import seaborn as sns
 from scipy import stats
 from scipy.stats import randint
+from scipy.stats import f
 # from xgboost import XGBClassifier
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import pingouin as pg
 
 # Sklearn imports
 from sklearn import model_selection
@@ -1012,6 +1012,7 @@ class ComparisonTableClass:
                         else:
                             _, p_value = stats.kruskal(*comparison_groups)
 
+
                     if p_value < 0.0001:
                         p_value = '< 0.0001'
                         row1.append(p_value)
@@ -1338,24 +1339,34 @@ class ComparisonTableClass:
         stat, p = stats.levene(groups)
         return p >= 0.05  # True if variances are equal
 
+    def welch_anova(self, *groups):
+        num_groups = len(groups)
+        ni = np.array([len(group) for group in groups])
+        yi_bar = np.array([np.mean(group) for group in groups])
+        si_squared = np.array([np.var(group, ddof=1) for group in groups])
+
+        ni_si_squared = ni * si_squared
+        wi = ni / si_squared
+
+        # Welch's ANOVA test statistic
+        numerator = (wi * yi_bar).sum()**2 / (wi).sum()
+        denominator = (wi**2 * (ni - 1) / ni_si_squared).sum()
+        test_statistic = numerator / denominator
+
+        # Degrees of freedom
+        df = (wi).sum()**2 / (wi**2 * (ni - 1) / ni_si_squared).sum()
+
+        # P-value from F-distribution
+        p_value = 1 - f.cdf(test_statistic, num_groups - 1, df)
+
+        return test_statistic, df, p_value
+
+
     def run_welchs_anova(self, groups):
-        # Initialize an empty list for values and labels
-        values = []
-        labels = []
-
-        # Loop through each group, appending the values to the values list
-        # and the corresponding labels to the labels list
-        for i, group in enumerate(groups, start=1):
-            values.extend(group)
-            labels.extend([f'Group{i}'] * len(group))
-
-        # Create a DataFrame from the values and labels
-        data = pd.DataFrame({'Value': values, 'Group': labels})
-
-        # Perform Welch's ANOVA
-        res = pg.welch_anova(dv='Value', between='Group', data=data)
-        return res.loc[0, 'p-unc']  # Return the p-value from Welch's ANOVA
-
+        # Loop through each group and perform Welch's ANOVA
+        _, _, p_value = self.welch_anova(*groups)
+        
+        return p_value
 
 ################################################################################################################
 ################################################################################################################
