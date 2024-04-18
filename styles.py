@@ -1,5 +1,5 @@
 
-theme = "Barbie"
+theme = "Professional"
 
 
 ################################################################################################################
@@ -231,23 +231,23 @@ if theme == "Professional":
         "separator": "#ADB5BD"  # Medium Gray for separators, subtle yet effective in dividing sections
     }
 
-    # FONTS
-    main_tabs_font = ("Helvetica", 22, "bold")  # Increased to 22 for greater prominence of main tabs
-    sub_tabs_font = ("Helvetica", 20)  # Increased to 20 for sub tabs, enhancing readability
+# FONTS
+    main_tabs_font = ("Helvetica", 22, "bold")  # Professional and clean font for main tabs
+    sub_tabs_font = ("Helvetica", 20)  # Clear and neutral font for sub tabs
 
-    nav_menu_label_font = ("Helvetica", 18)  # Increased to 18 for menu labels, improving visibility
-    nav_menu_button_font = ("Helvetica", 18, "bold")  # Increased to 18 and bold for buttons, making them more clickable
+    nav_menu_label_font = ("Helvetica", 18)  # Clean and simple font for menu labels, enhancing legibility
+    nav_menu_button_font = ("Helvetica", 18, "bold")  # Strong, bold Helvetica for button text to ensure clarity and visibility
 
-    sub_frame_header_font = ("Helvetica", 22, "bold")  # Increased to 22 and bold for main headers, to draw more attention
-    sub_frame_sub_header_font = ("Helvetica", 20, "bold")  # Increased to 20 for sub-headers, maintaining clear differentiation
-    sub_frame_text_font = ("Helvetica", 18)  # Increased to 18 for body text, for better readability
+    sub_frame_header_font = ("Helvetica", 22, "bold")  # Bold and impactful Helvetica for main headers to draw attention
+    sub_frame_sub_header_font = ("Helvetica", 20, "bold")  # Bold yet slightly smaller Helvetica for sub-headers, maintaining hierarchy
+    sub_frame_text_font = ("Helvetica", 18)  # Clean and versatile Helvetica for readable text throughout the interface
 
-    listbox_font = ("Helvetica", 18, "bold")  # Increased to 18 and bold for list items, ensuring they stand out clearly
-    entrybox_font = ("Helvetica", 18)  # Increased to 18 for text entry, enhancing user interaction
+    listbox_font = ("Helvetica", 18, "bold")  # Bold Helvetica for list items, ensuring they are prominently displayed
+    entrybox_small_font = ("Helvetica", 18, "bold")  # Bold Helvetica for small text entry, enhancing interaction
+    entrybox_large_font = ("Helvetica", 22, "bold")  # Larger, bold Helvetica for more important or prominent text entries
 
-    large_button_font = ("Helvetica", 20)  # Increased to 20 for important buttons, ensuring clear visibility
-    small_button_font = ("Helvetica", 18)  # Increased to 18 for standard buttons, maintaining usability
-
+    large_button_font = ("Helvetica", 20)  # Bold and clear Helvetica for important buttons, ensuring visibility
+    small_button_font = ("Helvetica", 18)  # Standard Helvetica, bold for general button usage, maintaining functionality
 
 
 
