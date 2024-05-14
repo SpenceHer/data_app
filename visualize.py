@@ -513,10 +513,6 @@ class ComparisonTableClass:
                 self.available_independent_variable_listbox.delete(index)
 
 
-
-
-
-
 ################################################################################################################
 
         # TABLE OPTIONS
@@ -990,19 +986,21 @@ class ComparisonTableClass:
                         group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
                         comparison_groups.append(group)
 
+
+
                     if self.check_normality(comparison_groups):
                         # Check for equal variances
                         if self.check_variances(comparison_groups):
                             if len(comparison_groups) == 2:
-                                _, p_value = stats.ttest_ind(comparison_groups)  # Independent two-sample t-test
+                                _, p_value = stats.ttest_ind(*comparison_groups)  # Independent two-sample t-test
                             else:
                                 _, p_value = stats.f_oneway(*comparison_groups)  # ANOVA
                         else:
                             # Welch's t-test for two groups with unequal variances
                             if len(comparison_groups) == 2:
-                                _, p_value = stats.ttest_ind(comparison_groups, equal_var=False)
+                                _, p_value = stats.ttest_ind(*comparison_groups, equal_var=False)
                             else:
-                                p_value = self.run_welchs_anova(comparison_groups)
+                                p_value = self.run_welchs_anova(*comparison_groups)
 
                     else:
                         # Non-parametric tests
@@ -1336,7 +1334,7 @@ class ComparisonTableClass:
 
     # Function to check equal variances
     def check_variances(self, groups):
-        stat, p = stats.levene(groups)
+        stat, p = stats.levene(*groups)
         return p >= 0.05  # True if variances are equal
 
     def welch_anova(self, *groups):
@@ -2606,6 +2604,7 @@ class RegressionAnalysisClass:
             plt.figure(figsize=(10, 8))
             sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
             plt.title('Correlation Matrix')
+            plt.tight_layout()
             plt.show()
 
 
