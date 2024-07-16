@@ -1066,9 +1066,9 @@ class EditDataClass():
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
 
-        utils.create_table(self.dataframe_content_frame, self.df, self.style)
+        utils.create_dataframe_table(self.dataframe_content_frame, self.df, self.style)
         summary_df = utils.create_summary_table(self.df)
-        utils.create_table(self.dataframe_content_frame, summary_df, self.style, title="COLUMN SUMMARY TABLE")
+        utils.create_dataframe_table(self.dataframe_content_frame, summary_df, self.style, title="COLUMN SUMMARY TABLE")
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
 
@@ -1126,7 +1126,7 @@ class EditDataClass():
             separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
             separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
-            utils.create_table(raw_data_table_subframe, df, self.style)
+            utils.create_dataframe_table(raw_data_table_subframe, df, self.style)
 
 
             # SUMMARY DATA TABLE
@@ -1145,7 +1145,7 @@ class EditDataClass():
             separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
             separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
-            utils.create_table(summary_data_table_subframe, summary_df, self.style)
+            utils.create_dataframe_table(summary_data_table_subframe, summary_df, self.style)
 
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)
@@ -2034,9 +2034,9 @@ class CreateNewVariableClass:
 
         utils.remove_frame_widgets(self.dataframe_content_frame)
 
-        utils.create_table(self.dataframe_content_frame, self.df, self.style)
+        utils.create_dataframe_table(self.dataframe_content_frame, self.df, self.style)
         summary_df = utils.create_summary_table(self.df)
-        utils.create_table(self.dataframe_content_frame, summary_df, self.style, title="COLUMN SUMMARY TABLE")
+        utils.create_dataframe_table(self.dataframe_content_frame, summary_df, self.style, title="COLUMN SUMMARY TABLE")
 
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
 
@@ -2090,7 +2090,7 @@ class CreateNewVariableClass:
             separator = ttk.Separator(raw_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
             separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
-            utils.create_table(raw_data_table_subframe, df, self.style)
+            utils.create_dataframe_table(raw_data_table_subframe, df, self.style)
 
 
             # SUMMARY DATA TABLE
@@ -2109,7 +2109,7 @@ class CreateNewVariableClass:
             separator = ttk.Separator(summary_data_table_subframe, orient="horizontal", style="Separator.TSeparator")
             separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
-            utils.create_table(summary_data_table_subframe, summary_df, self.style)
+            utils.create_dataframe_table(summary_data_table_subframe, summary_df, self.style)
 
             self.editing_content_frame.pack_forget()
             self.dataframe_content_frame.pack(fill=tk.BOTH, expand=True)

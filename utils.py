@@ -128,7 +128,7 @@ def bind_mousewheel_to_frame(scrollable_frame, main_canvas, bind=True):
 
 
 
-def create_table(parent, df, style, show_index=True, table_name="", graph_name="", title="", height=None):
+def create_dataframe_table(parent, df, style, show_index=True, table_name="", graph_name="", title="", height=None):
 
     table_frame = tk.Frame(parent, bg='beige')
     table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -167,6 +167,172 @@ def create_table(parent, df, style, show_index=True, table_name="", graph_name="
     if not hasattr(parent, "table_frames"):
         parent.table_frames = {}
     parent.table_frames[table_name] = table_frame
+
+
+
+
+
+def create_editable_table(parent, df, style, table_name="", title="", height=None):
+    table_frame = tk.Frame(parent, bg='beige')
+    table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    if title != "":
+        label = tk.Label(table_frame, text=title, font=('Arial', 32, 'bold'), bg='beige')
+        label.pack(pady=10)
+
+    treeview_frame = tk.Frame(table_frame)
+    treeview_frame.pack(fill=tk.BOTH, expand=True)
+
+    yscrollbar = tk.Scrollbar(treeview_frame, orient="vertical")
+    yscrollbar.pack(side="right", fill="y")
+
+    xscrollbar = tk.Scrollbar(table_frame, orient="horizontal")
+    xscrollbar.pack(side="bottom", fill="x")
+
+    table_treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview", yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set, height=height)
+
+    yscrollbar.config(command=table_treeview.yview)
+    xscrollbar.config(command=table_treeview.xview)
+
+    columns = df.columns.tolist()
+    table_treeview["columns"] = columns
+
+    for column in columns:
+        table_treeview.heading(column, text=column)
+        table_treeview.column(column, width=160, anchor="center")
+
+    for i, row in df.iterrows():
+        values = ["" if pd.isnull(val) else val for val in row.tolist()]
+        table_treeview.insert("", "end", values=values)
+
+    table_treeview.pack(side="left", fill="both", expand=True)
+
+    if not hasattr(parent, "table_frames"):
+        parent.table_frames = {}
+    parent.table_frames[table_name] = table_frame
+
+    def on_drag_start(event):
+        region = table_treeview.identify_region(event.x, event.y)
+        if region == "heading":
+            column = table_treeview.identify_column(event.x)
+            if column:
+                col_index = int(column.replace('#', '')) - 1
+                table_treeview._drag_data = {"type": "column", "index": col_index, "x": event.x}
+        elif region == "cell":
+            item = table_treeview.identify_row(event.y)
+            if item:
+                table_treeview.selection_set(item)
+                table_treeview._drag_data = {"type": "row", "item": item, "y": event.y}
+
+    def on_drag_motion(event):
+        if table_treeview._drag_data["type"] == "column":
+            x = event.x
+            dx = x - table_treeview._drag_data["x"]
+            if abs(dx) > 10:
+                from_col = table_treeview._drag_data["index"]
+                to_col = table_treeview.identify_column(event.x)
+                if to_col:
+                    to_index = int(to_col.replace('#', '')) - 1
+                    if from_col != to_index:
+                        # Rearrange columns
+                        columns.insert(to_index, columns.pop(from_col))
+                        table_treeview["columns"] = columns
+
+                        # Rearrange row values
+                        for item in table_treeview.get_children():
+                            values = list(table_treeview.item(item, "values"))
+                            values.insert(to_index, values.pop(from_col))
+                            table_treeview.item(item, values=values)
+
+                        for col in columns:
+                            table_treeview.heading(col, text=col)
+                            table_treeview.column(col, width=160, anchor="center")
+
+                        table_treeview._drag_data["x"] = x
+                        table_treeview._drag_data["index"] = to_index
+        elif table_treeview._drag_data["type"] == "row":
+            y = event.y
+            item = table_treeview.identify_row(y)
+            if item and item != table_treeview._drag_data["item"]:
+                idx1 = table_treeview.index(table_treeview._drag_data["item"])
+                idx2 = table_treeview.index(item)
+                table_treeview.move(table_treeview._drag_data["item"], "", idx2)
+                table_treeview.move(item, "", idx1)
+
+    def on_drag_end(event):
+        table_treeview._drag_data = {"type": None, "index": None, "x": 0, "item": None, "y": 0}
+
+    table_treeview._drag_data = {"type": None, "index": None, "x": 0, "item": None, "y": 0}
+
+    table_treeview.bind("<ButtonPress-1>", on_drag_start)
+    table_treeview.bind("<B1-Motion>", on_drag_motion)
+    table_treeview.bind("<ButtonRelease-1>", on_drag_end)
+
+    return table_treeview, columns
+
+
+def save_editable_table(treeview, columns):
+    rows = []
+    for child in treeview.get_children():
+        row = treeview.item(child)["values"]
+        rows.append(row)
+    new_df = pd.DataFrame(rows, columns=columns)
+
+    file_path = filedialog.asksaveasfilename(
+        defaultextension=".xlsx",
+        filetypes=[("Excel files", "*.xlsx"), ("CSV files", "*.csv"), ("All files", "*.*")]
+    )
+
+    # Check if the user canceled the file dialog
+    if not file_path:
+        return
+
+    # Get the selected file name and extension
+    file_name = file_path.split('/')[-1]
+
+    # Get the file extension
+    file_extension = file_name.split('.')[-1]
+
+    # Save the DataFrame to the chosen file path based on the selected file extension
+    if file_extension == 'csv':
+        new_df.to_csv(file_path, index=False)
+    elif file_extension == 'xlsx':
+        new_df.to_excel(file_path, index=False)
+    else:
+        return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

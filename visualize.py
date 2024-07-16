@@ -9,9 +9,7 @@ from statistics import LinearRegression
 from telnetlib import STATUS
 from tkinter import ANCHOR, Variable, filedialog, messagebox, simpledialog, ttk
 import tkinter as tk
-from tkinter import font
-import tkinter.font as tkFont
-from tkinter.font import Font
+
 
 # Third party imports
 import matplotlib.pyplot as plt
@@ -22,6 +20,7 @@ import seaborn as sns
 from scipy import stats
 from scipy.stats import randint
 from scipy.stats import f
+from scipy.stats import chi2_contingency, fisher_exact
 # from xgboost import XGBClassifier
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -234,6 +233,7 @@ class ComparisonTableClass:
         self.selected_percent_type = data_manager.get_comp_tab_percent_type()
         self.selected_data = data_manager.get_comp_tab_data_selection()
         self.variable_type_dict = data_manager.get_comp_tab_variable_type_dict()
+        self.variable_analysis_dict = data_manager.get_comp_tab_variable_analysis_dict()
 
         self.verify_saved_columns()
 
@@ -807,54 +807,64 @@ class ComparisonTableClass:
     def handle_variables(self):
         utils.remove_frame_widgets(self.variable_type_selection_frame)
 
-        for value in list(self.selected_independent_variables):
+        for var in list(self.selected_independent_variables):
             options_frame = tk.Frame(self.variable_type_selection_frame, bg=color_dict["sub_frame_bg"])
             options_frame.pack(side=tk.TOP, anchor="e")
 
-            value_string = value[0:19] + "..." if len(value) >= 20 else value
+            var_string = var[0:19] + "..." if len(var) >= 20 else var
 
-            value_label = ttk.Label(options_frame, text=value_string, style="sub_frame_sub_header.TLabel")
-            value_label.pack(side=tk.LEFT, padx=5, pady=5, anchor="w")
-
+            var_label = ttk.Label(options_frame, text=var_string, style="sub_frame_sub_header.TLabel")
+            var_label.pack(side=tk.LEFT, padx=5, pady=5, anchor="w")
 
             radio_button_frame = tk.Frame(options_frame, bg=color_dict["sub_frame_bg"])
             radio_button_frame.pack(side=tk.LEFT, anchor="w")
 
             continuous_button = ttk.Button(radio_button_frame, text="Continuous", style="inactive_radio_button.TButton")
             continuous_button.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=5)
-            
+
             categorical_button = ttk.Button(radio_button_frame, text="Categorical", style="inactive_radio_button.TButton")
             categorical_button.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=5)
 
             both_button = ttk.Button(radio_button_frame, text="Both", style="inactive_radio_button.TButton")
             both_button.pack(side=tk.LEFT, fill=tk.X, padx=10, pady=5)
 
+            analysis_type_dropdown = ttk.Combobox(options_frame, values=["Parametric", "Non-Parametric", "Auto"], state="readonly", width=10)
+            analysis_type_dropdown.pack(side=tk.LEFT, padx=10, pady=5)
 
-            continuous_button.configure(command=lambda value=value, cb=continuous_button, catb=categorical_button, bb=both_button: self.toggle_variable_type_button_style(value, "Continuous", cb, catb, bb))
-            categorical_button.configure(command=lambda value=value, cb=continuous_button, catb=categorical_button, bb=both_button: self.toggle_variable_type_button_style(value, "Categorical", cb, catb, bb))
-            both_button.configure(command=lambda value=value, cb=continuous_button, catb=categorical_button, bb=both_button: self.toggle_variable_type_button_style(value, "Both", cb, catb, bb))
+            continuous_button.configure(command=lambda value=var, cb=continuous_button, catb=categorical_button, bb=both_button, dd=analysis_type_dropdown: self.toggle_variable_type_button_style(value, "Continuous", cb, catb, bb, dd))
+            categorical_button.configure(command=lambda value=var, cb=continuous_button, catb=categorical_button, bb=both_button, dd=analysis_type_dropdown: self.toggle_variable_type_button_style(value, "Categorical", cb, catb, bb, dd))
+            both_button.configure(command=lambda value=var, cb=continuous_button, catb=categorical_button, bb=both_button, dd=analysis_type_dropdown: self.toggle_variable_type_button_style(value, "Both", cb, catb, bb, dd))
 
-
+            # Associate drop down selection with variable using a default argument
+            analysis_type_dropdown.bind("<<ComboboxSelected>>", lambda event, value=var, dropdown=analysis_type_dropdown: self.variable_analysis_dropdown_selected(value, dropdown))
 
             separator = ttk.Separator(self.variable_type_selection_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(fill=tk.X, pady=5)
 
-
-            if value in self.variable_type_dict:
-
-                selected_type = self.variable_type_dict[value]
-            
+            if var in self.variable_type_dict:
+                selected_type = self.variable_type_dict[var]
                 if selected_type == "Continuous":
                     continuous_button.configure(style="active_radio_button.TButton")
                 elif selected_type == "Categorical":
                     categorical_button.configure(style="active_radio_button.TButton")
+                    analysis_type_dropdown.configure(state="disabled")
                 elif selected_type == "Both":
                     both_button.configure(style="active_radio_button.TButton")
             else:
-                self.variable_type_dict[value] = "Continuous"
+                self.variable_type_dict[var] = "Continuous"
                 continuous_button.configure(style="active_radio_button.TButton")
 
-    def toggle_variable_type_button_style(self, value, selection, continuous_button, categorical_button, both_button):
+            if var in self.variable_analysis_dict:
+                analysis_type_dropdown.set(self.variable_analysis_dict[var])
+            else:
+                self.variable_analysis_dict[var] = "Parametric"
+                analysis_type_dropdown.set("Parametric")
+
+    def variable_analysis_dropdown_selected(self, value, dropdown):
+        self.variable_analysis_dict[value] = dropdown.get()
+
+
+    def toggle_variable_type_button_style(self, value, selection, continuous_button, categorical_button, both_button, analysis_type_dropdown):
         styles = {"Continuous": ("active_radio_button.TButton", "inactive_radio_button.TButton", "inactive_radio_button.TButton"),
                   "Categorical": ("inactive_radio_button.TButton", "active_radio_button.TButton", "inactive_radio_button.TButton"),
                   "Both": ("inactive_radio_button.TButton", "inactive_radio_button.TButton", "active_radio_button.TButton")}
@@ -863,6 +873,14 @@ class ComparisonTableClass:
         continuous_button.configure(style=cont_style)
         categorical_button.configure(style=cat_style)
         both_button.configure(style=both_style)
+
+        if selection == "Categorical":
+            # Make dropdown inactive
+            analysis_type_dropdown.configure(state="disabled")
+        else:
+            analysis_type_dropdown.configure(state="readonly")
+
+
         self.variable_type_dict[value] = selection
 
 ################################################################################################################
@@ -910,461 +928,321 @@ class ComparisonTableClass:
 
 ################################################################################################################
 
-    def apply_comparison_table_variable_selection(self):
+    def run_analysis(self):
+        try:
+            self.get_selected_variable_types()
+        except Exception as e:
+            print(f"Error in get_selected_variable_types: {e}")
+            
+        
+        try:
+            self.select_data()
+        except Exception as e:
+            print(f"Error in select_data: {e}")
+        
+        try:
+            self.run_individual_analyses()
+        except Exception as e:
+            print(f"Error in run_individual_analyses: {e}")
+
+    def get_selected_variable_types(self):
         self.selected_variable_types = {}
 
         for var in self.selected_independent_variables:
             if var in self.variable_type_dict:
                 self.selected_variable_types[var] = self.variable_type_dict[var]
 
+    def select_data(self):
+        try:
+            if self.selected_data == "All Data":
+                self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+                self.table_df = self.table_df.dropna(subset=[self.selected_dependent_variable])
+            elif self.selected_data == "Data Complete Only":
+                self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
+                self.table_df = self.table_df.dropna()
+        except Exception as e:
+            print(f"Error in select_data: {e}")
 
+    def run_individual_analyses(self):
+        try:
+            self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
+            self.summary_table = []
 
-    def create_comparison_table(self):
-        self.apply_comparison_table_variable_selection()
-        utils.remove_frame_widgets(self.results_display_frame)
-
-        if self.selected_data == "All Data":
-            self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-            self.table_df = self.table_df.dropna(subset=self.selected_dependent_variable)
-
-        if self.selected_data == "Data Complete Only":
-            self.table_df = self.df[self.selected_independent_variables + [self.selected_dependent_variable]].copy()
-            self.table_df = self.table_df.dropna()
-
-        self.unique_dependent_variable_values = sorted(self.table_df[self.selected_dependent_variable].unique())
-        self.summary_table = []
-        for independent_variable, option in self.selected_variable_types.items():
-            if option == 'Continuous':
-
-                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
-
+            for independent_variable, option in self.selected_variable_types.items():
                 try:
-                    self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
-                    self.error = False
+                    if option == "Continuous":
+                        self.analyze_continuous_variable(independent_variable)
+                    elif option == "Categorical":
+                        self.clean_df = self.table_df.copy()
+                        self.clean_df[self.selected_dependent_variable] = self.clean_df[self.selected_dependent_variable].astype(str)
+                        self.analyze_categorical_variable(independent_variable)
+                    elif option == "Both":
+                        self.analyze_continuous_variable(independent_variable)
+                        self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(str)
+                        self.analyze_categorical_variable(independent_variable)
+                except Exception as e:
+                    print(f"Error in run_individual_analyses for {independent_variable}: {e}")
+        except Exception as e:
+            print(f"Error in run_individual_analyses: {e}")
 
-                    row1 = []
-                    row2 = []
-                    row3 = []
+    def analyze_categorical_variable(self, independent_variable):
+        try:
+            self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
+            observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
+            odds_ratio, ci_lower, ci_upper = self.calculate_odds_ratio(observed)
+        except Exception as e:
+            print(f"Error in analyze_categorical_variable for {independent_variable}: {e}")
+            odds_ratio, ci_lower, ci_upper = np.nan, np.nan, np.nan
 
-                    row1.append(f"{independent_variable}")
-                    row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
+        try:
+            _, p_value, _, _ = stats.chi2_contingency(observed)
+        except Exception as e:
+            print(f"Error in chi2_contingency for {independent_variable}: {e}")
+            p_value = np.nan
 
+        try:
+            row1 = [independent_variable] + [np.nan] * len(self.unique_dependent_variable_values)
+            row1 = self.add_p_value_and_odds_ratio_to_row(row1, p_value, odds_ratio, ci_lower, ci_upper, self.unique_dependent_variable_values, self.clean_df, independent_variable)
+            self.summary_table.append(row1)
+            self.add_observed_rows_to_summary(self.summary_table, observed, self.selected_percent_type, self.unique_dependent_variable_values)
+        except Exception as e:
+            print(f"Error in adding rows to summary for {independent_variable}: {e}")
 
-                    # # Run Stats for Continuous Variable
-                    # comparison_groups = []
+    def calculate_odds_ratio(self, observed):
+        try:
+            numerator = observed.iloc[1, 1] * observed.iloc[0, 0]
+            denominator = observed.iloc[1, 0] * observed.iloc[0, 1]
 
-                    # if len(self.unique_dependent_variable_values) > 2:
-                    #     # More than two unique values, perform ANOVA
-                    #     for value in self.unique_dependent_variable_values:
-                    #         group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                    #         comparison_groups.append(group)
+            if denominator == 0:
+                return np.nan, np.nan, np.nan
 
-                    #     _, p_value = stats.f_oneway(*comparison_groups)
-                    #     if p_value < 0.0001:
-                    #         p_value = '< 0.0001'
-                    #         row1.append(p_value)
-                    #     else:
-                    #         row1.append(f"{p_value:.4f}")
-                    # else:
-                    #     for value in self.unique_dependent_variable_values:
-                    #         group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                    #         comparison_groups.append(group)
+            odds_ratio = numerator / denominator
+            a, b, c, d = observed.iloc[0, 0], observed.iloc[0, 1], observed.iloc[1, 0], observed.iloc[1, 1]
+            se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
+            ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
+            ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
+            ci_lower, ci_upper = np.exp(ci_lower_ln), np.exp(ci_upper_ln)
 
-                    #     _, p_value = stats.ttest_ind(*comparison_groups)
+            return odds_ratio, ci_lower, ci_upper
+        except Exception as e:
+            print(f"Error in calculate_odds_ratio: {e}")
+            return np.nan, np.nan, np.nan
 
-                    #     if p_value < 0.0001:
-                    #         p_value = '< 0.0001'
-                    #         row1.append(p_value)
-                    #         row1.append(np.nan)
-                    #     else:
-                    #         row1.append(f"{p_value:.4f}")
-                    #         row1.append(np.nan)
+    def add_p_value_and_odds_ratio_to_row(self, row, p_value, odds_ratio, ci_lower, ci_upper, unique_dependent_values, clean_df, independent_variable):
+        try:
+            if p_value < 0.0001:
+                row.append('< 0.0001')
+            else:
+                row.append(f"{p_value:.4f}")
 
-                    comparison_groups = []
+            if len(unique_dependent_values) == 2 and len(clean_df[independent_variable].unique()) == 2:
+                row.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
+            elif len(unique_dependent_values) == 2:
+                row.append(np.nan)
 
-                    for value in self.unique_dependent_variable_values:
-                        group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                        comparison_groups.append(group)
+            return row
+        except Exception as e:
+            print(f"Error in add_p_value_and_odds_ratio_to_row: {e}")
+            return row
 
+    def add_observed_rows_to_summary(self, summary_table, observed, percent_type, unique_dependent_values):
+        try:
+            for index, row in observed.iterrows():
+                new_row = [f"  {index}"]
+                row_sum = row.sum()
+                column_sums = observed.sum(axis=0)
 
+                if percent_type == "Row":
+                    new_row.extend([f"{value} ({int(round(value / row_sum * 100, 0))}%)" for value in row])
+                elif percent_type == "Column":
+                    new_row.extend([f"{value} ({int(round(value / column_sum * 100, 0))}%)" for value, column_sum in zip(row, column_sums)])
 
-                    if self.check_normality(comparison_groups):
-                        # Check for equal variances
-                        if self.check_variances(comparison_groups):
-                            if len(comparison_groups) == 2:
-                                _, p_value = stats.ttest_ind(*comparison_groups)  # Independent two-sample t-test
-                            else:
-                                _, p_value = stats.f_oneway(*comparison_groups)  # ANOVA
-                        else:
-                            # Welch's t-test for two groups with unequal variances
-                            if len(comparison_groups) == 2:
-                                _, p_value = stats.ttest_ind(*comparison_groups, equal_var=False)
-                            else:
-                                p_value = self.run_welchs_anova(*comparison_groups)
+                new_row.append(np.nan)
+                if len(unique_dependent_values) == 2:
+                    new_row.append(np.nan)
 
-                    else:
-                        # Non-parametric tests
+                summary_table.append(new_row)
+
+            summary_table.append([np.nan] * len(summary_table[0]))
+        except Exception as e:
+            print(f"Error in add_observed_rows_to_summary: {e}")
+
+    def analyze_continuous_variable(self, independent_variable):
+        try:
+            self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
+            self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
+
+            row1 = []
+            row2 = []
+            row3 = []
+
+            row1.append(f"{independent_variable}")
+            row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
+
+            comparison_groups = []
+
+            for value in self.unique_dependent_variable_values:
+                group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
+                comparison_groups.append(group)
+
+            analysis_type = self.variable_analysis_dict[independent_variable]
+
+            if analysis_type == "Parametric":
+                if len(comparison_groups) == 2:
+                    _, p_value = stats.ttest_ind(*comparison_groups)
+                elif len(comparison_groups) > 2:
+                    _, p_value = stats.f_oneway(*comparison_groups)
+                else:
+                    p_value = "error"
+            elif analysis_type == "Non-Parametric":
+                if len(comparison_groups) == 2:
+                    _, p_value = stats.mannwhitneyu(*comparison_groups)
+                elif len(comparison_groups) > 2:
+                    _, p_value = stats.kruskal(*comparison_groups)
+                else:
+                    p_value = "error"
+            elif analysis_type == "Auto":
+                if self.check_normality(comparison_groups):
+                    if self.check_variances(comparison_groups):
                         if len(comparison_groups) == 2:
-                            _, p_value = stats.mannwhitneyu(*comparison_groups)
-
+                            _, p_value = stats.ttest_ind(*comparison_groups)
+                        elif len(comparison_groups) > 2:
+                            _, p_value = stats.f_oneway(*comparison_groups)
                         else:
-                            _, p_value = stats.kruskal(*comparison_groups)
-
-
-                    if p_value < 0.0001:
-                        p_value = '< 0.0001'
-                        row1.append(p_value)
+                            p_value = "error"
                     else:
-                        row1.append(f"{p_value:.4f}")
-                
-
-
-
-
-
-
-
-
-
-
-                    row2.append("  Mean (SD)")
-                    for value in self.unique_dependent_variable_values:
-                        row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
-                    row2.append(np.nan)
-                    if len(self.unique_dependent_variable_values) == 2:
-                        row2.append(np.nan)
-
-                    row3.append("  Range")
-                    for value in self.unique_dependent_variable_values:
-                        row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
-
-                    row3.append(np.nan)
-                    if len(self.unique_dependent_variable_values) == 2:
-                        row3.append(np.nan)
-
-                    self.summary_table.append(row1)
-                    self.summary_table.append(row2)
-                    self.summary_table.append(row3)
-                    self.summary_table.append([np.nan] * len(row1))
-
-                except:
-                    self.error = True
-                    # utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
-                    # return
-                    raise
-
-            elif option == 'Categorical':
- 
-
-                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
-
-                # Independent variable is categorical
-
-                try:
-
-                    observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-
-                    # Calculate the odds ratio
-                    numerator = observed.iloc[1, 1] * observed.iloc[0, 0]
-                    denominator = (observed.iloc[1, 0] * observed.iloc[0, 1])
-
-                    if denominator == 0:
-                        odds_ratio = np.nan
-                        ci_lower = np.nan
-                        ci_upper = np.nan
-
-                    else:
-                        odds_ratio = numerator / denominator
-
-                        a = observed.iloc[0, 0]
-                        b = observed.iloc[0, 1]
-                        c = observed.iloc[1, 0]
-                        d = observed.iloc[1, 1]
-
-                        # Calculate odds ratio
-                        odds_ratio = (a * d) / (b * c)
-
-                        # Calculate standard error of log odds ratio
-                        se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
-
-                        # Calculate 95% confidence interval for log odds ratio
-                        ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
-                        ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
-
-                        # Convert confidence interval back to odds ratio scale
-                        ci_lower = np.exp(ci_lower_ln)
-                        ci_upper = np.exp(ci_upper_ln)
-
-           
-
-                except:
-
-                    odds_ratio = np.nan
-                    ci_lower = np.nan
-                    ci_upper = np.nan
-
-                _, p_value, _, _ = stats.chi2_contingency(observed)
-
-                row1 = []
-                row1.append(f"{independent_variable}")
-                row1.extend([np.nan] * len(self.unique_dependent_variable_values))
-
-                if p_value < 0.0001:
-                    p_value = '< 0.0001'
-                    row1.append(p_value)
+                        if len(comparison_groups) == 2:
+                            _, p_value = stats.ttest_ind(*comparison_groups, equal_var=False)
+                        elif len(comparison_groups) > 2:
+                            p_value = self.run_welchs_anova(*comparison_groups)
+                        else:
+                            p_value = "error"
                 else:
-                    row1.append(f"{p_value:.4f}")
-
-                if (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) == 2):
-                    row1.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
-
-                elif (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) != 2):
-                    row1.append(np.nan)
-
-                self.summary_table.append(row1)
-
-                for index, row in observed.iterrows():
-
-                    new_row = [f"  {index}"]
-                    row_sum = row.sum()
-                    column_sums = observed.sum(axis=0)
-
-                    if self.selected_percent_type == "Row":
-
-                        for value in row:
-                            new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
-
-                    if self.selected_percent_type == "Column":
-
-                        for value, column_sum in zip(row, column_sums):
-                            new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
-
-                    new_row.append(np.nan)
-
-                    if len(self.unique_dependent_variable_values) == 2:
-                        new_row.append(np.nan)
-          
-                    self.summary_table.append(new_row)
-
-                self.summary_table.append([np.nan] * len(row1))
-
-            elif option == 'Both':
-
-                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
-
-                try:
-                    self.clean_df[independent_variable] = self.clean_df[independent_variable].astype(float)
-                    self.error = False
-
-                    row1 = []
-                    row2 = []
-                    row3 = []
-
-                    row1.append(f"{independent_variable}")
-                    row1.extend([np.nan] * (len(self.unique_dependent_variable_values)))
-
-
-                    # Run Stats for Continuous Variable
-                    comparison_groups = []
-                    if len(self.unique_dependent_variable_values) > 2:
-                        # More than two unique values, perform ANOVA
-                        for value in self.unique_dependent_variable_values:
-                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            comparison_groups.append(group)
-                        _, p_value = stats.f_oneway(*comparison_groups)
-                        if p_value < 0.0001:
-                            p_value = '< 0.0001'
-                            row1.append(p_value)
-                        else:
-                            row1.append(f"{p_value:.4f}")
+                    if len(comparison_groups) == 2:
+                        _, p_value = stats.mannwhitneyu(*comparison_groups)
+                    elif len(comparison_groups) > 2:
+                        _, p_value = stats.kruskal(*comparison_groups)
                     else:
-                        for value in self.unique_dependent_variable_values:
-                            group = self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable]
-                            comparison_groups.append(group)
-                        _, p_value = stats.ttest_ind(*comparison_groups)
+                        p_value = "error"
 
-                        if p_value < 0.0001:
-                            p_value = '< 0.0001'
-                            row1.append(p_value)
-                            row1.append(np.nan)
-                        else:
-                            row1.append(f"{p_value:.4f}")
-                            row1.append(np.nan)
+            if p_value < 0.0001:
+                p_value = '< 0.0001'
+                row1.append(p_value)
+            else:
+                row1.append(f"{p_value:.4f}")
 
-                    row2.append("  Mean (SD)")
-                    for value in self.unique_dependent_variable_values:
-                        row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
-                    row2.append(np.nan)
-                    if len(self.unique_dependent_variable_values) == 2:
-                        row2.append(np.nan)
+            row2.append("  Mean (SD)")
+            for value in self.unique_dependent_variable_values:
+                row2.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].mean():.1f} ({self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].std():.1f})")
+            row2.append(np.nan)
+            if len(self.unique_dependent_variable_values) == 2:
+                row2.append(np.nan)
 
-                    row3.append("  Range")
-                    for value in self.unique_dependent_variable_values:
-                        row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
+            row3.append("  Range")
+            for value in self.unique_dependent_variable_values:
+                row3.append(f"{self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].min():.1f} - {self.clean_df.loc[self.clean_df[self.selected_dependent_variable] == value, independent_variable].max():.1f}")
 
-                    row3.append(np.nan)
-                    if len(self.unique_dependent_variable_values) == 2:
-                        row3.append(np.nan)
+            row3.append(np.nan)
+            if len(self.unique_dependent_variable_values) == 2:
+                row3.append(np.nan)
 
-                    self.summary_table.append(row1)
-                    self.summary_table.append(row2)
-                    self.summary_table.append(row3)
-                    self.summary_table.append([np.nan] * len(row1))
-
-                except:
-                    self.error = True
-                    utils.show_message("Continuous variable change error", f"Cannot convert to continuous variable for: {independent_variable}")
-                    return
-
-                self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
-
-                # Independent variable is categorical
-
-                try:
-
-                    observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-
-                    # Calculate the odds ratio
-                    odds_ratio = observed.iloc[1, 1] * observed.iloc[0, 0] / (observed.iloc[1, 0] * observed.iloc[0, 1])
-
-                    a = observed.iloc[0, 0]
-                    b = observed.iloc[0, 1]
-                    c = observed.iloc[1, 0]
-                    d = observed.iloc[1, 1]
-
-                    # Calculate odds ratio
-                    odds_ratio = (a * d) / (b * c)
-
-                    # Calculate standard error of log odds ratio
-                    se_ln_or = np.sqrt(1/a + 1/b + 1/c + 1/d)
-
-                    # Calculate 95% confidence interval for log odds ratio
-                    ci_lower_ln = np.log(odds_ratio) - 1.96 * se_ln_or
-                    ci_upper_ln = np.log(odds_ratio) + 1.96 * se_ln_or
-
-                    # Convert confidence interval back to odds ratio scale
-                    ci_lower = np.exp(ci_lower_ln)
-                    ci_upper = np.exp(ci_upper_ln)
-
-                except:
-
-                    odds_ratio = np.nan
-                    ci_lower = np.nan
-                    ci_upper = np.nan
-
-                _, p_value, _, _ = stats.chi2_contingency(observed)
-
-                row1 = []
-                row1.append(f"{independent_variable}")
-                row1.extend([np.nan] * len(self.unique_dependent_variable_values))
-
-                if p_value < 0.0001:
-                    p_value = '< 0.0001'
-                    row1.append(p_value)
-                else:
-                    row1.append(f"{p_value:.4f}")
-
-                if (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) == 2):
-                    row1.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
-
-                elif (len(self.unique_dependent_variable_values) == 2) & (len(self.clean_df[independent_variable].unique()) != 2):
-                    row1.append(np.nan)
-
-                self.summary_table.append(row1)
-
-                for index, row in observed.iterrows():
-
-                    new_row = [f"  {index}"]
-                    row_sum = row.sum()
-                    column_sums = observed.sum(axis=0)
-
-                    if self.selected_percent_type == "Row":
-
-                        for value in row:
-                            new_row.append(f"{value} ({int(round(value/row_sum*100,0))}%)")
-
-                    if self.selected_percent_type == "Column":
-
-                        for value, column_sum in zip(row, column_sums):
-                            new_row.append(f"{value} ({int(round(value / column_sum * 100, 0))}%)")
-
-                    new_row.append(np.nan)
-
-                    if len(self.unique_dependent_variable_values) == 2:
-                        new_row.append(np.nan)
-
-                    self.summary_table.append(new_row)
-
-                self.summary_table.append([np.nan] * len(row1))
-
-
-
-        columns = ['Characteristic']
-        for value in self.unique_dependent_variable_values:
-            count_of_value = len(self.table_df.loc[self.table_df[self.selected_dependent_variable] == value])
-            columns.append(f"{value} (N = {count_of_value})")
-
-        columns.append('p-value')
-        if len(self.unique_dependent_variable_values) == 2:
-            columns.append("Odds ratio")
-
-        self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
-
-
-        
-        height = int(len(self.summary_df) * 1.2)
-        if height > 20:
-            height = 20
-
-        utils.create_table(self.results_display_frame, self.summary_df, self.style, height=height)
-
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(self.summary_df), style="large_button.TButton")
-        save_summary_button.pack(side=tk.BOTTOM, pady=10)
-
-
+            self.summary_table.append(row1)
+            self.summary_table.append(row2)
+            self.summary_table.append(row3)
+            self.summary_table.append([np.nan] * len(row1))
+        except Exception as e:
+            utils.show_message("Error", f"Error with {independent_variable}: {e}")
+            raise
 
     def check_normality(self, groups):
         normal = True
-        for group in groups:
-            stat, p = stats.shapiro(group)
-            if p < 0.05:  # Not normal
-                normal = False
-                break
+        try:
+            for group in groups:
+                stat, p = stats.shapiro(group)
+                if p < 0.05:
+                    normal = False
+                    break
+        except Exception as e:
+            print(f"Error in check_normality: {e}")
         return normal
 
-    # Function to check equal variances
     def check_variances(self, groups):
-        stat, p = stats.levene(*groups)
-        return p >= 0.05  # True if variances are equal
-
-    def welch_anova(self, *groups):
-        num_groups = len(groups)
-        ni = np.array([len(group) for group in groups])
-        yi_bar = np.array([np.mean(group) for group in groups])
-        si_squared = np.array([np.var(group, ddof=1) for group in groups])
-
-        ni_si_squared = ni * si_squared
-        wi = ni / si_squared
-
-        # Welch's ANOVA test statistic
-        numerator = (wi * yi_bar).sum()**2 / (wi).sum()
-        denominator = (wi**2 * (ni - 1) / ni_si_squared).sum()
-        test_statistic = numerator / denominator
-
-        # Degrees of freedom
-        df = (wi).sum()**2 / (wi**2 * (ni - 1) / ni_si_squared).sum()
-
-        # P-value from F-distribution
-        p_value = 1 - f.cdf(test_statistic, num_groups - 1, df)
-
-        return test_statistic, df, p_value
-
+        try:
+            stat, p = stats.levene(*groups)
+            return p >= 0.05
+        except Exception as e:
+            print(f"Error in check_variances: {e}")
+            return False
 
     def run_welchs_anova(self, groups):
-        # Loop through each group and perform Welch's ANOVA
-        _, _, p_value = self.welch_anova(*groups)
-        
-        return p_value
+        try:
+            num_groups = len(groups)
+            ni = np.array([len(group) for group in groups])
+            yi_bar = np.array([np.mean(group) for group in groups])
+            si_squared = np.array([np.var(group, ddof=1) for group in groups])
+
+            ni_si_squared = ni * si_squared
+            wi = ni / si_squared
+
+            numerator = (wi * yi_bar).sum()**2 / (wi).sum()
+            denominator = (wi**2 * (ni - 1) / ni_si_squared).sum()
+            test_statistic = numerator / denominator
+
+            df = (wi).sum()**2 / (wi**2 * (ni - 1) / ni_si_squared).sum()
+
+            p_value = 1 - stats.f.cdf(test_statistic, num_groups - 1, df)
+
+            return p_value
+        except Exception as e:
+            print(f"Error in run_welchs_anova: {e}")
+            return np.nan
+
+    def create_comparison_table(self):
+        try:
+            self.run_analysis()
+
+            # Clear results display frame
+            utils.remove_frame_widgets(self.results_display_frame)
+
+            columns = ['Characteristic']
+            for value in self.unique_dependent_variable_values:
+                count_of_value = len(self.table_df.loc[self.table_df[self.selected_dependent_variable] == value])
+                columns.append(f"{value} (N = {count_of_value})")
+
+            columns.append('p-value')
+            if len(self.unique_dependent_variable_values) == 2:
+                columns.append("Odds ratio (95% CI)")
+            else:
+                columns.append(np.nan)
+
+            # Check if the number of columns matches the data
+            num_columns = len(columns)
+            for row in self.summary_table:
+                if len(row) != num_columns:
+                    row.append(np.nan)
+
+            self.summary_df = pd.DataFrame(self.summary_table, columns=columns)
+
+            if len(self.unique_dependent_variable_values) > 2:
+                # Drop last column
+                self.summary_df = self.summary_df.drop(self.summary_df.columns[-1], axis=1)
+                
+
+            height = int(len(self.summary_df) * 1.2)
+            if height > 20:
+                height = 20
+
+            table, columns = utils.create_editable_table(self.results_display_frame, self.summary_df, self.style, height=height)
+
+            save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: utils.save_editable_table(table, columns), style="large_button.TButton")
+            save_summary_button.pack(side=tk.BOTTOM, pady=10)
+        except Exception as e:
+            print(f"Error in create_comparison_table: {e}")
+            raise
+
+
+
+
 
 ################################################################################################################
 ################################################################################################################
@@ -1428,6 +1306,9 @@ class ComparisonTableClass:
         if (len(self.selected_independent_variables) < 1):
             utils.show_message("Error", "No independent variables selected")
             return
+        if self.selected_dependent_variable in self.selected_independent_variables:
+            utils.show_message("Error", "Dependent variable cannot be an independent variable")
+            return
         else:
             self.handle_variables()
             self.results_frame.pack_forget()
@@ -1441,11 +1322,11 @@ class ComparisonTableClass:
 
 
     def switch_to_results_frame(self):
-
-        self.create_comparison_table()
-        if self.error:
+        try:
+            self.create_comparison_table()
+        except:
             return
-
+            
         self.indedependent_variables_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.variable_handling_frame.pack_forget()
@@ -2465,8 +2346,6 @@ class RegressionAnalysisClass:
 
     def logistic_regression(self):
         
-
-
         model_string = f"{self.corrected_dependent_variable} ~ "
         self.clean_df[self.corrected_dependent_variable] = self.clean_df[self.corrected_dependent_variable].astype(int)
 
@@ -2511,14 +2390,12 @@ class RegressionAnalysisClass:
         coefs['CI_low'] = coefs['CI_low'].astype(str)
 
         coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
-        for i in range(len(coefs['Characteristic'])):
-            variable_string = coefs['Characteristic'].iloc[i]
 
-            if variable_string[0:1] == "C(":
-                column_string = re.search(r'C\((.*?),', variable_string).group(1)
-                reference_value = re.search(r"\[T\.(.*?)\]", variable_string).group(1)
-                new_value = column_string + f" ({reference_value})"
-                coefs.loc[i, 'Characteristic'] = new_value
+        print(coefs)
+        self.reformat_characteristics(coefs)
+        print(coefs)
+
+        for i in range(len(coefs['Characteristic'])):
             if float(coefs.loc[i, 'CI_high']) > 50000:
                 coefs.loc[i, 'CI_high'] = 'inf'
             if float(coefs.loc[i, 'CI_low']) < -50000:
@@ -2529,15 +2406,31 @@ class RegressionAnalysisClass:
         summary_text.pack(side=tk.TOP)
         summary_text.insert(tk.END, str(results.summary()))
 
-        utils.create_table(self.results_display_frame, coefs, self.style)
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="large_button.TButton")
-        save_summary_button.pack(side=tk.TOP)
+        table, columns = utils.create_editable_table(self.results_display_frame, coefs, self.style)
 
-
-
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: utils.save_editable_table(table, columns), style="large_button.TButton")
+        save_summary_button.pack(side=tk.TOP, pady=10)
 
 
+    def reformat_characteristics(self, coefs):
+        pattern = re.compile(r"C\((?P<variable>[^,]+), Treatment\('(?P<reference>[^']+)'\)\)\[T\.(?P<treatment>.+)\]")
+
+        for i, row in coefs.iterrows():
+            variable_string = row['Characteristic']
+            if variable_string[0:1] == "C":
+                match = pattern.match(variable_string)
+                if match:
+                    variable = match.group('variable')
+                    reference = match.group('reference')
+                    treatment = match.group('treatment')
+                    new_value = f"{variable}: {treatment} vs {reference}"
+                    coefs.loc[i, 'Characteristic'] = new_value
+
+        return coefs
+
+    # Example usage:
+    # coefs = reformat_characteristics(coefs)
 
 
     def linear_regression(self):
@@ -2587,10 +2480,11 @@ class RegressionAnalysisClass:
         summary_text.insert(tk.END, str(model.summary()))
 
 
-        utils.create_table(self.results_display_frame, coefs, self.style)
+        table, columns = utils.create_editable_table(self.results_display_frame, coefs, self.style)
 
 
-        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: file_handling.save_file(coefs), style="large_button.TButton")
+
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: utils.save_editable_table(table, columns), style="large_button.TButton")
         save_summary_button.pack()
 
         view_correlation_matrix_button = ttk.Button(self.results_display_frame, text="View Correlation Matrix", command=lambda: plot_correlation_matrix(), style="large_button.TButton")
@@ -2606,6 +2500,10 @@ class RegressionAnalysisClass:
             plt.title('Correlation Matrix')
             plt.tight_layout()
             plt.show()
+
+
+
+
 
 
 
@@ -2808,7 +2706,7 @@ class CreatePlotClass():
 
 
 
-        self.plot_options = ["Scatter Plot"]
+        self.plot_options = ["Scatter Plot", "Kaplan Meier Survival Curve"]
 
 
         self.create_plot_selection_frame()
@@ -2941,6 +2839,15 @@ class CreatePlotClass():
 
         self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
         self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+
+        # GROUP SELECTION
+
+        self.group_selection_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.group_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.group_selection_subframe = tk.Frame(self.group_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.group_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
 
 ################################################################################################################
@@ -3110,6 +3017,179 @@ class CreatePlotClass():
             for column in filtered_sorted_columns:
                 self.x_axis_variable_listbox.insert(tk.END, column)
 
+################################################################################################################
+
+
+    def disply_kaplan_meier_settings(self):
+
+        ############################################################################################################
+
+        self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Choose Time to Event Variable", style="sub_frame_header.TLabel")
+        self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+
+        self.time_to_event_frame = tk.Frame(self.plot_settings_subframe, bg=color_dict["sub_frame_bg"])
+        self.time_to_event_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.time_to_event_search_var = tk.StringVar()
+        self.time_to_event_search_var.trace("w", self.update_time_to_event_variable_listbox)
+        self.time_to_event_var_search_entry = tk.Entry(self.time_to_event_frame, textvariable=self.time_to_event_search_var, font=styles.listbox_font)
+        self.time_to_event_var_search_entry.pack(side=tk.TOP, pady=10)
+
+        self.time_to_event_variable_listbox = tk.Listbox(self.time_to_event_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+                     fg=color_dict["listbox_fg"],
+                     highlightbackground=color_dict["listbox_highlight_bg"],
+                     highlightcolor=color_dict["listbox_highlight_color"],
+                     selectbackground=color_dict["listbox_select_bg"],
+                     selectforeground=color_dict["listbox_select_fg"])
+        self.time_to_event_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.time_to_event_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, False))
+        self.time_to_event_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True))
+
+        for column in sorted(self.df.columns, key=str.lower):
+            self.time_to_event_variable_listbox.insert(tk.END, column)
+
+        self.time_to_event_variable_listbox.bind("<<ListboxSelect>>", self.on_time_to_event_variable_listbox_select)
+
+        self.time_to_event_variable_label = ttk.Label(self.time_to_event_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
+        self.time_to_event_variable_label.pack(side=tk.TOP, pady=10)
+
+        ############################################################################################################
+
+        self.group_selection_frame_label = ttk.Label(self.group_selection_subframe, text="Choose a Variable to Add a Group From", style="sub_frame_header.TLabel")
+        self.group_selection_frame_label.pack(side=tk.TOP)
+
+        separator = ttk.Separator(self.group_selection_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+
+        self.group_selection_frame = tk.Frame(self.group_selection_subframe, bg=color_dict["sub_frame_bg"])
+        self.group_selection_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.group_search_var = tk.StringVar()
+        self.group_search_var.trace("w", self.update_group_variable_listbox)
+        self.group_var_search_entry = tk.Entry(self.group_selection_frame, textvariable=self.group_search_var, font=styles.listbox_font)
+        self.group_var_search_entry.pack(side=tk.TOP, pady=10)
+
+        self.group_variable_listbox = tk.Listbox(self.group_selection_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+                        fg=color_dict["listbox_fg"],
+                        highlightbackground=color_dict["listbox_highlight_bg"],
+                        highlightcolor=color_dict["listbox_highlight_color"],
+                        selectbackground=color_dict["listbox_select_bg"],
+                        selectforeground=color_dict["listbox_select_fg"])
+        self.group_variable_listbox.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=100, pady=10)
+        self.group_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, False))
+        self.group_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True))
+
+        for column in sorted(self.df.columns, key=str.lower):
+            self.group_variable_listbox.insert(tk.END, column)
+
+        self.group_frames = []
+
+        self.add_remove_group_button_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.add_remove_group_button_frame.pack(side=tk.TOP, fill=tk.Y, expand=True)
+
+        self.add_group_button = ttk.Button(self.add_remove_group_button_frame, text="Add Group", command=self.add_group_variable, style='large_button.TButton')
+        self.add_group_button.pack(side=tk.LEFT, pady=10)
+
+        self.remove_group_button = ttk.Button(self.add_remove_group_button_frame, text="Remove Group", command=self.remove_group_variable, style='large_button.TButton')
+        self.remove_group_button.pack(side=tk.RIGHT, pady=10)
+
+        self.selected_groups_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.selected_groups_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
+
+
+
+
+
+
+
+    def update_time_to_event_variable_listbox(self, *args):
+        search_term = self.time_to_event_search_var.get().lower()
+        self.time_to_event_variable_listbox.delete(0, tk.END)
+
+        # Check if the search term is empty
+        if search_term == "":
+            # If search term is empty, insert all columns sorted alphabetically
+            for column in sorted(self.df.columns, key=str.lower):
+                self.time_to_event_variable_listbox.insert(tk.END, column)
+        else:
+            # If there is a search term, filter and sort the columns based on the search term
+            filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
+            # Populate the Listbox with the sorted list
+            for column in filtered_sorted_columns:
+                self.time_to_event_variable_listbox.insert(tk.END, column)
+    
+    def on_time_to_event_variable_listbox_select(self, event):
+        if self.time_to_event_variable_listbox.curselection():
+            self.selected_time_to_event_variable = self.time_to_event_variable_listbox.get(self.time_to_event_variable_listbox.curselection()[0])
+            # data_manager.set_plot_tab_time_to_event_selection(self.selected_time_to_event_variable)
+            self.time_to_event_variable_label.config(text=f"Time to Event: {self.selected_time_to_event_variable}")
+
+
+
+
+
+
+
+
+    def update_group_variable_listbox(self, *args):
+        search_term = self.group_search_var.get().lower()
+        self.group_variable_listbox.delete(0, tk.END)
+
+        # Check if the search term is empty
+        if search_term == "":
+            # If search term is empty, insert all columns sorted alphabetically
+            for column in sorted(self.df.columns, key=str.lower):
+                self.group_variable_listbox.insert(tk.END, column)
+        else:
+            # If there is a search term, filter and sort the columns based on the search term
+            filtered_sorted_columns = sorted([column for column in self.df.columns if search_term in column.lower()], key=str.lower)
+            # Populate the Listbox with the sorted list
+            for column in filtered_sorted_columns:
+                self.group_variable_listbox.insert(tk.END, column)
+
+
+    def add_group_variable(self):
+
+        # Get the selected variable from the group_variable_listbox only if a selection has been made
+        if self.group_variable_listbox.curselection():
+            selected_variable = self.group_variable_listbox.get(self.group_variable_listbox.curselection())
+        else:
+            return
+        
+        # Create a frame to display the variable name and dropdown menu
+        group_frame = tk.Frame(self.selected_groups_frame, bg=color_dict["sub_frame_bg"])
+        group_frame.pack(side=tk.TOP, pady=10)
+
+        # Add the group frame to a list for future reference
+        self.group_frames.append(group_frame)
+
+        # Create a label to display the group number
+        group_label = ttk.Label(group_frame, text=f"Group {len(self.group_frames)}: ", style="sub_frame_sub_header.TLabel")
+        group_label.pack(side=tk.LEFT)
+
+        # Create a label to display the variable name
+        variable_label = ttk.Label(group_frame, text=f"{selected_variable} =", style="sub_frame_sub_header.TLabel")
+        variable_label.pack(side=tk.LEFT)
+        
+        # Get the unique values of the selected variable
+        unique_values = self.df[selected_variable].dropna().unique()
+        unique_values = unique_values.tolist()
+
+        # Create a dropdown menu to select the group from the unique values
+        group_dropdown = ttk.Combobox(group_frame, values=unique_values, state="readonly")
+        group_dropdown.pack(side=tk.LEFT, padx=10)
+        
+    def remove_group_variable(self):
+        if self.group_frames:
+            self.group_frames[-1].destroy()
+            self.group_frames.pop()
+
+
 
 
 
@@ -3236,7 +3316,20 @@ class CreatePlotClass():
         fig_canvas_widget.pack(fill=tk.Y, expand=True)
 
 
+################################################################################################################
 
+    def create_kaplan_meier_curve(self):
+        if not self.selected_time_to_event_variable or len(self.group_frames) == 0:
+            utils.show_message("Error", "Time to Event Variable and at least 1 Group must be created")
+            raise
+
+        try:
+            self.df[self.selected_time_to_event_variable] = self.df[self.selected_time_to_event_variable].astype(float)
+        except ValueError:
+            utils.show_message("Error", f"Time to Event Variable '{self.selected_time_to_event_variable}' must be continuous")
+            raise
+        
+        
 
 
 
@@ -3301,6 +3394,8 @@ class CreatePlotClass():
 
         if self.selected_plot == "Scatter Plot":
             self.display_scatter_plot_settings()
+        if self.selected_plot == "Kaplan Meier Survival Curve":
+            self.disply_kaplan_meier_settings()
 
         self.plot_selection_frame.pack_forget()
         self.plot_display_frame.pack_forget()

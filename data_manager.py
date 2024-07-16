@@ -98,6 +98,7 @@ def get_exported_variables_list():
 comp_tab_dep_var = None
 comp_tab_ind_var_list = []
 comp_tab_variable_type_dict = {}
+comp_tab_variable_analysis_dict = {}
 comp_tab_percent_type = None
 comp_tab_data_type = None
 
@@ -127,6 +128,14 @@ def add_variable_to_comp_tab_variable_type_dict(tab_name, setting):
 
 def get_comp_tab_variable_type_dict():
     return comp_tab_variable_type_dict
+
+# COMPARISON TABLE INDEPENDENT VARIABLES DICT
+def add_variable_to_comp_tab_variable_analysis_dict(tab_name, setting):
+    global comp_tab_variable_analysis_dict
+    comp_tab_variable_analysis_dict[tab_name] = setting
+
+def get_comp_tab_variable_analysis_dict():
+    return comp_tab_variable_analysis_dict
 
 
 # COMPARISON TABLE PERCENT TYPE
