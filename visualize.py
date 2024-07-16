@@ -42,6 +42,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.utils import resample
 from sklearn.linear_model import LinearRegression
+from lifelines import KaplanMeierFitter
+from lifelines.statistics import logrank_test, multivariate_logrank_test
 
 # Local application/library specific imports
 import data_manager
@@ -2775,7 +2777,7 @@ class CreatePlotClass():
         self.plot_selection_menu_frame = tk.Frame(self.plot_selection_frame, bg=color_dict["nav_banner_bg"])
         self.plot_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.advance_to_plot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=self.switch_to_plot_settings_frame, style='nav_menu_button.TButton')
+        self.advance_to_plot_selections_button = ttk.Button(self.plot_selection_menu_frame, text="Next", command=lambda: self.switch_to_plot_settings_frame(reset=True), style='nav_menu_button.TButton')
         self.advance_to_plot_selections_button.pack(side=tk.RIGHT)
 
 
@@ -2832,26 +2834,6 @@ class CreatePlotClass():
 
 ################################################################################################################
 
-        # PLOT SELECTION
-
-        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
-        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
-
-        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
-        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
-
-
-        # GROUP SELECTION
-
-        self.group_selection_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
-        self.group_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
-
-        self.group_selection_subframe = tk.Frame(self.group_selection_subframe_border, bg=color_dict["sub_frame_bg"])
-        self.group_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
-
-
-################################################################################################################
-
         # NAVIGATION MENU
 
 
@@ -2872,6 +2854,12 @@ class CreatePlotClass():
 
     def display_scatter_plot_settings(self):
 
+        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
         self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Scatter Plot Settings", style="sub_frame_header.TLabel")
         self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
 
@@ -2884,7 +2872,7 @@ class CreatePlotClass():
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     
         ###################### X AXIS ######################
-        self.selected_x_axis_variable = data_manager.get_x_axis_selection()
+        self.selected_x_axis_variable = data_manager.get_scatter_plot_x_axis_selection()
 
         self.x_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.x_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -2928,7 +2916,7 @@ class CreatePlotClass():
 
 
         ###################### Y AXIS ######################
-        self.selected_y_axis_variable = data_manager.get_y_axis_selection()
+        self.selected_y_axis_variable = data_manager.get_scatter_plot_y_axis_selection()
 
         self.y_axis_frame = tk.Frame(self.column_choice_frame, bg=color_dict["sub_frame_bg"])
         self.y_axis_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -2973,7 +2961,7 @@ class CreatePlotClass():
     def on_y_axis_variable_listbox_select(self, event):
         if self.y_axis_variable_listbox.curselection():
             self.selected_y_axis_variable = self.y_axis_variable_listbox.get(self.y_axis_variable_listbox.curselection()[0])
-            data_manager.set_plot_tab_y_axis_selection(self.selected_y_axis_variable)
+            data_manager.set_scatter_plot_y_axis_selection(self.selected_y_axis_variable)
             self.y_axis_variable_label.config(text=f"Y-Axis: {self.selected_y_axis_variable}")
 
 
@@ -2997,7 +2985,7 @@ class CreatePlotClass():
     def on_x_axis_variable_listbox_select(self, event):
         if self.x_axis_variable_listbox.curselection():
             self.selected_x_axis_variable = self.x_axis_variable_listbox.get(self.x_axis_variable_listbox.curselection()[0])
-            data_manager.set_plot_tab_x_axis_selection(self.selected_x_axis_variable)
+            data_manager.set_scatter_plot_x_axis_selection(self.selected_x_axis_variable)
             self.x_axis_variable_label.config(text=f"X-Axis: {self.selected_x_axis_variable}")
 
 
@@ -3022,6 +3010,23 @@ class CreatePlotClass():
 
     def disply_kaplan_meier_settings(self):
 
+        # PLOT SELECTION
+
+        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+
+        # GROUP SELECTION
+
+        self.group_selection_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.group_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.group_selection_subframe = tk.Frame(self.group_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.group_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
         ############################################################################################################
 
         self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Choose Time to Event Variable", style="sub_frame_header.TLabel")
@@ -3030,7 +3035,7 @@ class CreatePlotClass():
         separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
-
+        # Get the time to event variable
         self.time_to_event_frame = tk.Frame(self.plot_settings_subframe, bg=color_dict["sub_frame_bg"])
         self.time_to_event_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
@@ -3057,9 +3062,20 @@ class CreatePlotClass():
         self.time_to_event_variable_label = ttk.Label(self.time_to_event_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
         self.time_to_event_variable_label.pack(side=tk.TOP, pady=10)
 
+        # Get the stored time to event variable
+        self.selected_time_to_event_variable = data_manager.get_kaplan_plot_time_variable()
+        if self.selected_time_to_event_variable:
+            self.time_to_event_variable_label.config(text=f"Time to Event: {self.selected_time_to_event_variable}")
+            self.time_to_event_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.time_to_event_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_time_to_event_variable)
+            self.time_to_event_variable_listbox.selection_set(index)
+            self.time_to_event_variable_listbox.yview(index)
+
+
         ############################################################################################################
 
-        self.group_selection_frame_label = ttk.Label(self.group_selection_subframe, text="Choose a Variable to Add a Group From", style="sub_frame_header.TLabel")
+        self.group_selection_frame_label = ttk.Label(self.group_selection_subframe, text="If Applicable, Choose a Variable to Add a Group From", style="sub_frame_header.TLabel")
         self.group_selection_frame_label.pack(side=tk.TOP)
 
         separator = ttk.Separator(self.group_selection_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -3087,7 +3103,7 @@ class CreatePlotClass():
         for column in sorted(self.df.columns, key=str.lower):
             self.group_variable_listbox.insert(tk.END, column)
 
-        self.group_frames = []
+        self.kaplan_group_frames = []
 
         self.add_remove_group_button_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
         self.add_remove_group_button_frame.pack(side=tk.TOP, fill=tk.Y, expand=True)
@@ -3096,14 +3112,13 @@ class CreatePlotClass():
         self.add_group_button.pack(side=tk.LEFT, pady=10)
 
         self.remove_group_button = ttk.Button(self.add_remove_group_button_frame, text="Remove Group", command=self.remove_group_variable, style='large_button.TButton')
-        self.remove_group_button.pack(side=tk.RIGHT, pady=10)
+        self.remove_group_button.pack(side=tk.LEFT, pady=10)
 
-        self.selected_groups_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
-        self.selected_groups_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
+        self.remove_all_groups_button = ttk.Button(self.add_remove_group_button_frame, text="Remove All Groups", command=self.remove_all_group_variables, style='large_button.TButton')
+        self.remove_all_groups_button.pack(side=tk.RIGHT, pady=10)
 
-
-
-
+        self.groups_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
+        self.groups_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
 
 
 
@@ -3126,11 +3141,8 @@ class CreatePlotClass():
     def on_time_to_event_variable_listbox_select(self, event):
         if self.time_to_event_variable_listbox.curselection():
             self.selected_time_to_event_variable = self.time_to_event_variable_listbox.get(self.time_to_event_variable_listbox.curselection()[0])
-            # data_manager.set_plot_tab_time_to_event_selection(self.selected_time_to_event_variable)
+            data_manager.set_kaplan_plot_time_variable(self.selected_time_to_event_variable)
             self.time_to_event_variable_label.config(text=f"Time to Event: {self.selected_time_to_event_variable}")
-
-
-
 
 
 
@@ -3154,6 +3166,10 @@ class CreatePlotClass():
 
 
     def add_group_variable(self):
+        # Max number of groups is 5
+        if len(self.kaplan_group_frames) == 4:
+            utils.show_message("Max Number of Groups Reached", "You can only add a maximum of 4 groups")
+            return
 
         # Get the selected variable from the group_variable_listbox only if a selection has been made
         if self.group_variable_listbox.curselection():
@@ -3162,19 +3178,23 @@ class CreatePlotClass():
             return
         
         # Create a frame to display the variable name and dropdown menu
-        group_frame = tk.Frame(self.selected_groups_frame, bg=color_dict["sub_frame_bg"])
+        group_frame = tk.Frame(self.groups_frame, bg=color_dict["sub_frame_bg"])
         group_frame.pack(side=tk.TOP, pady=10)
 
         # Add the group frame to a list for future reference
-        self.group_frames.append(group_frame)
+        self.kaplan_group_frames.append(group_frame)
 
         # Create a label to display the group number
-        group_label = ttk.Label(group_frame, text=f"Group {len(self.group_frames)}: ", style="sub_frame_sub_header.TLabel")
+        group_label = ttk.Label(group_frame, text=f"Group {len(self.kaplan_group_frames)}: ", style="sub_frame_sub_header.TLabel")
         group_label.pack(side=tk.LEFT)
 
         # Create a label to display the variable name
-        variable_label = ttk.Label(group_frame, text=f"{selected_variable} =", style="sub_frame_sub_header.TLabel")
+        variable_label = ttk.Label(group_frame, text=f"{selected_variable}", style="sub_frame_sub_header.TLabel")
         variable_label.pack(side=tk.LEFT)
+
+        # Create conditional menu
+        variable_condition_sign = ttk.Combobox(group_frame, values=["=", ">", "<", ">=", "<="], state="readonly")
+        variable_condition_sign.pack(side=tk.LEFT, padx=10)
         
         # Get the unique values of the selected variable
         unique_values = self.df[selected_variable].dropna().unique()
@@ -3185,9 +3205,15 @@ class CreatePlotClass():
         group_dropdown.pack(side=tk.LEFT, padx=10)
         
     def remove_group_variable(self):
-        if self.group_frames:
-            self.group_frames[-1].destroy()
-            self.group_frames.pop()
+        if self.kaplan_group_frames:
+            self.kaplan_group_frames[-1].destroy()
+            self.kaplan_group_frames.pop()
+
+    def remove_all_group_variables(self):
+        # Delete one by one in reverse order
+        for group_frame in reversed(self.kaplan_group_frames):
+            group_frame.destroy()
+            self.kaplan_group_frames.pop()
 
 
 
@@ -3263,10 +3289,6 @@ class CreatePlotClass():
 ################################################################################################################
 ################################################################################################################
 
-
-
-
-
     def create_scatter_plot(self):
         if not self.selected_x_axis_variable or not self.selected_y_axis_variable:
             utils.show_message("No Columns Selected", "Both X and Y AXIS VARIABLES must be selected")
@@ -3319,17 +3341,106 @@ class CreatePlotClass():
 ################################################################################################################
 
     def create_kaplan_meier_curve(self):
-        if not self.selected_time_to_event_variable or len(self.group_frames) == 0:
+        if not self.selected_time_to_event_variable:
             utils.show_message("Error", "Time to Event Variable and at least 1 Group must be created")
-            raise
+            raise ValueError("Time to Event Variable not selected")
+
+        if len(self.kaplan_group_frames) > 0:
+            for group_frame in self.kaplan_group_frames:
+                if not group_frame.winfo_children()[2].get():
+                    utils.show_message("Error", "All groups must have a sign selected")
+                    raise ValueError("Group sign not selected")
+                if not group_frame.winfo_children()[3].get():
+                    utils.show_message("Error", "All groups must have a value selected")
+                    raise ValueError("Group value not selected")
 
         try:
             self.df[self.selected_time_to_event_variable] = self.df[self.selected_time_to_event_variable].astype(float)
         except ValueError:
             utils.show_message("Error", f"Time to Event Variable '{self.selected_time_to_event_variable}' must be continuous")
             raise
-        
-        
+
+        clean_df = self.df.copy()
+        clean_df["event"] = clean_df[self.selected_time_to_event_variable].notnull().astype(int)
+        max_value = clean_df[self.selected_time_to_event_variable].max() + 1
+        clean_df.loc[clean_df[self.selected_time_to_event_variable].isnull(), self.selected_time_to_event_variable] = max_value
+        clean_df[self.selected_time_to_event_variable] = pd.to_numeric(clean_df[self.selected_time_to_event_variable])
+
+        fig = Figure(figsize=(8, 7))
+        ax = fig.add_subplot(111)
+
+        groups = []
+        kmf = KaplanMeierFitter()
+        line_styles = ['-', '--', ':', '-.']
+
+        for idx, group_frame in enumerate(self.kaplan_group_frames, start=0):
+            group_name = group_frame.winfo_children()[1].cget("text")
+            group_variable_sign = group_frame.winfo_children()[2].get()
+            if group_variable_sign == "=":
+                group_variable_sign = "=="
+            group_value = group_frame.winfo_children()[3].get()
+
+            if group_variable_sign == "==":
+                clean_df[group_name] = clean_df[group_name].astype(str)
+                group_value = f'"{group_value}"'
+            else:
+                try:
+                    clean_df[group_name] = clean_df[group_name].astype(float)
+                    group_value = float(group_value)
+                except ValueError:
+                    utils.show_message("Error", f"Group Variable '{group_name}' must be continuous when using {group_variable_sign} sign")
+                    raise
+
+            condition_string = f"{group_name}{group_variable_sign}{group_value}"
+            mask = clean_df.eval(condition_string)
+
+            kmf.fit(clean_df[self.selected_time_to_event_variable][mask], clean_df["event"][mask], label=condition_string)
+            kmf.plot_survival_function(ax=ax, ci_show=False, linestyle=line_styles[idx % len(line_styles)], linewidth=2, color='black')
+
+            ax.plot(kmf.confidence_interval_.index, kmf.confidence_interval_[f'{condition_string}_lower_0.95'], linestyle=line_styles[idx % len(line_styles)], color='gray', linewidth=1)
+            ax.plot(kmf.confidence_interval_.index, kmf.confidence_interval_[f'{condition_string}_upper_0.95'], linestyle=line_styles[idx % len(line_styles)], color='gray', linewidth=1)
+
+            groups.append((clean_df[self.selected_time_to_event_variable][mask], clean_df["event"][mask], condition_string))
+
+        if len(groups) > 1:
+            all_durations = []
+            all_events = []
+            all_groups = []
+
+            for durations, events, label in groups:
+                all_durations.extend(durations)
+                all_events.extend(events)
+                all_groups.extend([label] * len(durations))
+
+            all_durations = np.array(all_durations)
+            all_events = np.array(all_events)
+            all_groups = np.array(all_groups)
+
+            result = multivariate_logrank_test(all_durations, all_groups, all_events)
+            p_value = result.p_value
+            ax.text(0.05, 0.95, f"P-value: {p_value:.4f}", transform=ax.transAxes, verticalalignment='top')
+        else:
+            kmf.fit(clean_df[self.selected_time_to_event_variable], clean_df["event"])
+            kmf.plot_survival_function(ax=ax, ci_show=False, linewidth=2, color='black')
+
+            ax.plot(kmf.confidence_interval_.index, kmf.confidence_interval_['KM_estimate_lower_0.95'], color='gray', linewidth=1)
+            ax.plot(kmf.confidence_interval_.index, kmf.confidence_interval_['KM_estimate_upper_0.95'], color='gray', linewidth=1)
+            ax.legend().remove()
+
+        return fig
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3386,16 +3497,19 @@ class CreatePlotClass():
 
 
 
-    def switch_to_plot_settings_frame(self):
+    def switch_to_plot_settings_frame(self, reset=False):
         if self.selected_plot == None:
             return
 
-        utils.remove_frame_widgets(self.plot_settings_subframe)
+        
 
-        if self.selected_plot == "Scatter Plot":
-            self.display_scatter_plot_settings()
-        if self.selected_plot == "Kaplan Meier Survival Curve":
-            self.disply_kaplan_meier_settings()
+        if reset:
+            utils.remove_frame_widgets(self.plot_settings_inner_frame)
+            print("Resetting")
+            if self.selected_plot == "Scatter Plot":
+                self.display_scatter_plot_settings()
+            if self.selected_plot == "Kaplan Meier Survival Curve":
+                self.disply_kaplan_meier_settings()
 
         self.plot_selection_frame.pack_forget()
         self.plot_display_frame.pack_forget()
@@ -3411,6 +3525,9 @@ class CreatePlotClass():
             self.fig = self.create_scatter_plot()
             self.plot_display_label.config(text="Scatter Plot")
 
+        if self.selected_plot == "Kaplan Meier Survival Curve":
+            self.fig = self.create_kaplan_meier_curve()
+            self.plot_display_label.config(text="Kaplan Meier Survival Curve")
         
         self.display_graph()
 

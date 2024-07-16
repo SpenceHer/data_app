@@ -28,7 +28,8 @@ plt.figure(figsize=(10, 6))
 line_styles = {
     'Group1': '-',
     'Group2': '--',
-    'Group3': ':'
+    'Group3': ':',
+    'Group4': '-.',
 }
 
 # Fit and plot the Kaplan-Meier estimators for each group

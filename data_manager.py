@@ -236,8 +236,8 @@ def get_log_reg_ref_dict():
 ################################################################################################################
 
 plot_tab_plot_selection = None
-x_axis_selection = None
-y_axis_selection = None
+scatter_plot_x_axis_selection = None
+scatter_plot_y_axis_selection = None
 
 # PLOT SELECTION
 def set_plot_tab_plot_selection(plot):
@@ -248,21 +248,33 @@ def get_plot_tab_plot_selection():
     return plot_tab_plot_selection
 
 
-# SCATTER PLOT COLUMN SELECTION
-def set_plot_tab_x_axis_selection(column):
-    global x_axis_selection
-    x_axis_selection = column
+# SCATTER PLOT SELECTION
+def set_scatter_plot_x_axis_selection(column):
+    global scatter_plot_x_axis_selection
+    scatter_plot_x_axis_selection = column
 
-def get_x_axis_selection():
-    return x_axis_selection
+def get_scatter_plot_x_axis_selection():
+    return scatter_plot_x_axis_selection
 
 
-def set_plot_tab_y_axis_selection(column):
-    global y_axis_selection
-    y_axis_selection = column
+def set_scatter_plot_y_axis_selection(column):
+    global scatter_plot_y_axis_selection
+    scatter_plot_y_axis_selection = column
 
-def get_y_axis_selection():
-    return y_axis_selection
+def get_scatter_plot_y_axis_selection():
+    return scatter_plot_y_axis_selection
+
+# KAPLAN MEIER PLOT SELECTION
+kaplan_plot_time_variable = None
+
+
+def set_kaplan_plot_time_variable(column):
+    global kaplan_plot_time_variable
+    kaplan_plot_time_variable = column
+
+def get_kaplan_plot_time_variable():
+    return kaplan_plot_time_variable
+
 
 
 
