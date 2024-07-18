@@ -44,6 +44,7 @@ from sklearn.utils import resample
 from sklearn.linear_model import LinearRegression
 from lifelines import KaplanMeierFitter
 from lifelines.statistics import logrank_test, multivariate_logrank_test
+from lifelines import CoxPHFitter
 
 # Local application/library specific imports
 import data_manager
@@ -1427,10 +1428,12 @@ class RegressionAnalysisClass:
         self.verify_saved_columns()
 
         self.non_numeric_input_var_dict = data_manager.get_non_numeric_ind_dict()
+        self.one_hot_encoding_var_list = data_manager.get_one_hot_encoding_list()
 
         self.log_reg_target_value_var_dict = data_manager.get_reg_tab_log_reg_target_value_dict()
         self.log_reg_variable_type_dict = data_manager.get_log_reg_var_type_dict()
-        self.log_reg_reference_variable_dict = data_manager.get_log_reg_ref_dict()
+        self.reference_variable_dict = data_manager.get_ref_dict()
+
 
         utils.remove_frame_widgets(self.visualize_content_frame)
 
@@ -1727,12 +1730,17 @@ class RegressionAnalysisClass:
         self.linear_regression_button = ttk.Button(self.regression_type_selection_frame, text="Linear Regression", style="inactive_radio_button.TButton", command=lambda: self.toggle_regression_model_button_style("Linear Regression"))
         self.linear_regression_button.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
+        self.cox_regression_button = ttk.Button(self.regression_type_selection_frame, text="Cox Regression", style="inactive_radio_button.TButton", command=lambda: self.toggle_regression_model_button_style("Cox Regression"))
+        self.cox_regression_button.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+
         # Load Previously Chosen Percent Selection
         if self.selected_regression:
             if self.selected_regression == "Logistic Regression":
                 self.toggle_regression_model_button_style("Logistic Regression")
             elif self.selected_regression == "Linear Regression":
                 self.toggle_regression_model_button_style("Linear Regression")
+            elif self.selected_regression == "Cox Regression":
+                self.toggle_regression_model_button_style("Cox Regression")
         else:
             self.toggle_regression_model_button_style("Logistic Regression")
 
@@ -1861,12 +1869,20 @@ class RegressionAnalysisClass:
         if selected == "Logistic Regression":
             self.logistic_regression_button.configure(style="active_radio_button.TButton")
             self.linear_regression_button.configure(style="inactive_radio_button.TButton")
+            self.cox_regression_button.configure(style="inactive_radio_button.TButton")
             self.selected_regression = "Logistic Regression"
             data_manager.set_reg_tab_selected_regression(self.selected_regression)
         elif selected == "Linear Regression":
             self.logistic_regression_button.configure(style="inactive_radio_button.TButton")
             self.linear_regression_button.configure(style="active_radio_button.TButton")
+            self.cox_regression_button.configure(style="inactive_radio_button.TButton")
             self.selected_regression = "Linear Regression"
+            data_manager.set_reg_tab_selected_regression(self.selected_regression)
+        elif selected == "Cox Regression":
+            self.logistic_regression_button.configure(style="inactive_radio_button.TButton")
+            self.linear_regression_button.configure(style="inactive_radio_button.TButton")
+            self.cox_regression_button.configure(style="active_radio_button.TButton")
+            self.selected_regression = "Cox Regression"
             data_manager.set_reg_tab_selected_regression(self.selected_regression)
 
     def import_variable_list(self):
@@ -1951,12 +1967,13 @@ class RegressionAnalysisClass:
             proceed_to_results_label = ttk.Label(self.value_entry_frame, text="No Non-Numeric Variables. Click VIEW RESULTS", style="sub_frame_sub_header.TLabel")
             proceed_to_results_label.pack(side=tk.TOP, fill=tk.X, pady=10, padx=20)
 
-        # HANDLE NON-NUMERIC VARIABLES
-        for variable in self.non_numeric_columns:
+        self.variable_groups = []
+
+        # HANDLE VARIABLES
+        for variable in self.selected_independent_variables:
 
             options_frame = tk.Frame(self.value_entry_frame, bg=color_dict["sub_frame_bg"])
             options_frame.pack(side=tk.TOP, pady=10, padx=20)
-
 
             if len(variable) > 20:
                 variable_string = variable[0:19] + "..."
@@ -1966,56 +1983,98 @@ class RegressionAnalysisClass:
             variable_label = ttk.Label(options_frame, text=variable_string, style="sub_frame_sub_header.TLabel")
             variable_label.pack(side=tk.TOP)
 
+            one_hot_encoding_button = ttk.Button(options_frame, text="Make Values Into Binary Variables - Use Reference Value:", style="create_plot_button.TButton")
+            one_hot_encoding_button.pack(side=tk.TOP, fill=tk.X, pady=5)
 
-            non_numeric_values = []
+            one_hot_encoding_reference_dropdown = ttk.Combobox(options_frame, values=list(self.clean_df[variable].unique()), state="disabled", width=12)
+            one_hot_encoding_reference_dropdown.pack(side=tk.TOP, fill=tk.X, pady=5)
 
-            for value in self.clean_df[variable].unique():
-                if isinstance(value, str) and not value.isdigit():
-                    non_numeric_values.append(value)
+            one_hot_encoding_button.configure(command=lambda ref_drop=one_hot_encoding_reference_dropdown, button=one_hot_encoding_button, var=variable: self.on_one_hot_encoding_select(ref_drop, button, var))
+            one_hot_encoding_reference_dropdown.bind("<<ComboboxSelected>>", lambda event, combobox=one_hot_encoding_reference_dropdown, variable=variable: self.on_combobox_select(combobox, variable))
+            
+            if variable in self.reference_variable_dict:
+                one_hot_encoding_reference_dropdown.set(self.reference_variable_dict[variable])
 
-            for value in non_numeric_values:
+            if variable in self.one_hot_encoding_var_list:
+                one_hot_encoding_button.configure(style="active_radio_button.TButton")
+                one_hot_encoding_reference_dropdown.configure(state="readonly")
+            else:
+                one_hot_encoding_button.configure(style="inactive_radio_button.TButton")
+                one_hot_encoding_reference_dropdown.configure(state="disabled")
 
-                value_frame = tk.Frame(options_frame, bg=color_dict["sub_frame_bg"])
-                value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+            if variable in self.non_numeric_columns:
 
-                if variable in self.non_numeric_input_var_dict:
-                    if value in self.non_numeric_input_var_dict[variable]:
-                        input_var = self.non_numeric_input_var_dict[variable][value]
+                non_numeric_values = []
 
-                        user_input_var = tk.StringVar(value=input_var)
-                        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
+                for value in self.clean_df[variable].unique():
+                    if isinstance(value, str) and not value.isdigit():
+                        non_numeric_values.append(value)
+
+                for value in non_numeric_values:
+
+                    value_frame = tk.Frame(options_frame, bg=color_dict["sub_frame_bg"])
+                    value_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+                    if variable in self.non_numeric_input_var_dict:
+                        if value in self.non_numeric_input_var_dict[variable]:
+                            input_var = self.non_numeric_input_var_dict[variable][value]
+
+                            user_input_var = tk.StringVar(value=input_var)
+                            self.non_numeric_input_var_dict[variable][value] = input_var
+                        else:
+                            input_var = ""
+                            user_input_var = tk.StringVar(value=input_var)
+                            self.non_numeric_input_var_dict[variable][value] = input_var
                     else:
                         input_var = ""
-                        user_input_var = tk.StringVar(value=input_var)
-                        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
-                else:
-                    input_var = ""
-                    user_input_var = tk.StringVar()
-                    data_manager.add_variable_to_non_numeric_ind_dict(variable, value, input_var)
+                        user_input_var = tk.StringVar()
+                        self.non_numeric_input_var_dict[variable] = {value:input_var}
 
 
+                    input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.entrybox_large_font, width=10)
+                    input_entry.pack(side=tk.LEFT)
 
-                input_entry = tk.Entry(value_frame, textvariable=user_input_var, font=styles.entrybox_large_font, width=10)
-                input_entry.pack(side=tk.LEFT)
+                    value_label = ttk.Label(value_frame, text=value, style="sub_frame_text.TLabel")
+                    value_label.pack(side=tk.LEFT)
 
-                value_label = ttk.Label(value_frame, text=value, style="sub_frame_text.TLabel")
-                value_label.pack(side=tk.LEFT)
-
-                # Bind the entry widget to an event
-                input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
+                    # Bind the entry widget to an event
+                    input_entry.bind("<KeyRelease>", lambda event, var=variable, val=value: self.on_key_release(event, var, val))
 
             separator = ttk.Separator(self.value_entry_frame, orient="horizontal", style="Separator.TSeparator")
             separator.pack(fill=tk.X, padx=5, pady=5)
 
+            self.variable_groups.append(options_frame)
+
+    def on_one_hot_encoding_select(self, reference_dropdown_box, one_hot_encoding_button, variable):
+
+        if variable in self.one_hot_encoding_var_list:
+            self.one_hot_encoding_var_list.remove(variable)
+            one_hot_encoding_button.configure(style="inactive_radio_button.TButton")
+            reference_dropdown_box.configure(state="disabled")
+        else:
+            self.one_hot_encoding_var_list.append(variable)
+            one_hot_encoding_button.configure(style="active_radio_button.TButton")
+            reference_dropdown_box.configure(state="readonly")
+
+
 
     def on_key_release(self, event, variable, value):
-        data_manager.add_variable_to_non_numeric_ind_dict(variable, value, event.widget.get())
+        self.non_numeric_input_var_dict[variable][value] = event.widget.get()
+
 
 
     def apply_linear_regression_variable_selection(self):
-
         for variable in self.selected_independent_variables:
-            if variable in self.non_numeric_columns:
+
+            if variable in self.one_hot_encoding_var_list:
+                self.clean_df = pd.get_dummies(self.clean_df, columns=[variable], prefix_sep="*")
+
+                # Drop reference value column
+                reference_value = self.reference_variable_dict[variable]
+                self.clean_df.drop(f"{variable}*{reference_value}", axis=1, inplace=True)
+
+
+            elif variable in self.non_numeric_columns:
 
                 non_numeric_values = []
 
@@ -2029,12 +2088,19 @@ class RegressionAnalysisClass:
                     input_var = self.non_numeric_input_var_dict[variable][value]
 
                     try:
-                        self.clean_df.loc[self.clean_df[variable] == value, variable] = int(input_var)
+                        self.clean_df.loc[self.clean_df[variable] == value, variable] = float(input_var)
 
                     except:
                         raise
 
                 self.clean_df[variable] = self.clean_df[variable].astype(float)
+        
+            
+        
+        
+        
+
+
 
 
     ################################################################################################################
@@ -2155,19 +2221,6 @@ class RegressionAnalysisClass:
             categorical_variable_button.grid(row=row_count+1, column=2, padx=10, pady=5)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
             reference_value_combobox = ttk.Combobox(self.variable_type_selection_frame, state=tk.DISABLED, font=styles.large_button_font)
             values = [str(val) for val in self.clean_df[variable].unique()]
             reference_value_combobox['values'] = values
@@ -2178,17 +2231,17 @@ class RegressionAnalysisClass:
             # Bind the state of the reference_value_combobox to the selection of 'Categorical' radio button
             continuous_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state=tk.DISABLED))
 
-            if variable in self.log_reg_reference_variable_dict:
+            if variable in self.reference_variable_dict:
                 categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
-                reference_value_combobox.set(self.log_reg_reference_variable_dict[variable])
+                reference_value_combobox.set(self.reference_variable_dict[variable])
             else:
                 categorical_variable_button.bind("<Button-1>", lambda event, combobox=reference_value_combobox: combobox.configure(state="readonly"))
 
             if variable in self.log_reg_variable_type_dict:
                 if self.log_reg_variable_type_dict[variable] == "Categorical":
                     reference_value_combobox.configure(state="readonly")
-                    if variable in self.log_reg_reference_variable_dict:
-                        reference_value_combobox.set(self.log_reg_reference_variable_dict[variable])
+                    if variable in self.reference_variable_dict:
+                        reference_value_combobox.set(self.reference_variable_dict[variable])
 
 
 
@@ -2241,7 +2294,7 @@ class RegressionAnalysisClass:
 
     def on_combobox_select(self, combobox, variable):
         selected_value = combobox.get()
-        data_manager.add_variable_to_log_reg_ref_dict(variable, selected_value)
+        data_manager.add_variable_to_ref_dict(variable, selected_value)
 
 
     def apply_logistic_regression_variable_selection(self):
@@ -2265,29 +2318,32 @@ class RegressionAnalysisClass:
             variable_type = self.log_reg_variable_type_dict[variable]
 
             if variable_type == "Continuous":
-                try:
-                    self.clean_df[variable] = self.clean_df[variable].astype(float)
-                except:
-                    utils.show_message("Error", f"Cannot convert to continuous variable for: {variable}")
-                    raise
+                self.clean_df[variable] = self.clean_df[variable].astype(float)
+
             # Add the variable type to the current variable type dict
             self.selected_options[variable] = variable_type
 
             if variable_type == "Categorical":
-                try:
-                    input_value = self.log_reg_reference_variable_dict[variable]
-                except:
-                    utils.show_message("Error", f"No reference value for: {variable}")
+
+                input_value = self.reference_variable_dict[variable]
+
 
                 column_data_type = self.df[variable].dtype
                 if column_data_type == 'object':
-                    self.log_reg_reference_variable_dict[variable] = input_value  # Treat as string
+                    self.reference_variable_dict[variable] = input_value  # Treat as string
                 elif column_data_type == 'int64':
                     input_value = int(input_value)  # Convert to int
-                    self.log_reg_reference_variable_dict[variable] = input_value
+                    self.reference_variable_dict[variable] = input_value
                 elif column_data_type == 'float64':
                     input_value = float(input_value)  # Convert to float
-                    self.log_reg_reference_variable_dict[variable] = input_value
+                    self.reference_variable_dict[variable] = input_value
+
+
+
+
+
+
+
 
 
 ################################################################################################################
@@ -2345,6 +2401,9 @@ class RegressionAnalysisClass:
         elif self.selected_regression == "Linear Regression":
             self.linear_regression()
 
+        elif self.selected_regression == "Cox Regression":
+            self.cox_regression()
+
 
     def logistic_regression(self):
         
@@ -2359,7 +2418,7 @@ class RegressionAnalysisClass:
                     model_string = model_string + f"{variable} + "
                 elif data_type == 'Categorical':
                     self.clean_df[variable] = self.clean_df[variable].astype(str)
-                    model_string = model_string + f"C({variable}, Treatment('{self.log_reg_reference_variable_dict[variable]}')) + "
+                    model_string = model_string + f"C({variable}, Treatment('{self.reference_variable_dict[variable]}')) + "
 
 
         model_string = model_string.rstrip(" +")
@@ -2393,9 +2452,9 @@ class RegressionAnalysisClass:
 
         coefs = coefs.reset_index().rename(columns={'index': 'Characteristic'})
 
-        print(coefs)
+
         self.reformat_characteristics(coefs)
-        print(coefs)
+
 
         for i in range(len(coefs['Characteristic'])):
             if float(coefs.loc[i, 'CI_high']) > 50000:
@@ -2431,16 +2490,22 @@ class RegressionAnalysisClass:
 
         return coefs
 
-    # Example usage:
-    # coefs = reformat_characteristics(coefs)
 
 
     def linear_regression(self):
+        
 
-        x = self.clean_df[self.selected_independent_variables]
+        x = self.clean_df.drop(self.selected_dependent_variable, axis=1)
         y = self.clean_df[self.selected_dependent_variable]
 
+        # remove variables in the one_hot_encoding_var_list and convert all one hot encoded variable columns to 1 or 0
+        for column in x.columns:
+            if column in self.one_hot_encoding_var_list:
+                x.drop(column, axis=1, inplace=True)
+            else:
+                x[column] = x[column].astype(float)
 
+        
         x = sm.add_constant(x)
         model = sm.OLS(y, x).fit()
 
@@ -2452,9 +2517,17 @@ class RegressionAnalysisClass:
             'CI_high': model.conf_int()[1]
         }
         coefs = pd.DataFrame(results)
-        coefs = coefs.reset_index(drop=True)
+        coefs = coefs.astype("object").reset_index(drop=True)
 
-
+        # Separate variable from value for the dummie variables separating by "*" and change format to 'variable: value vs reference'
+        for i in range(len(coefs)):
+            if "*" in coefs.loc[i, 'Variable']:
+                try:
+                    variable, value = coefs.loc[i, 'Variable'].split("*")
+                    coefs.loc[i, 'Variable'] = f"{variable}: {value} vs {self.reference_variable_dict[variable]}"
+                except:
+                    utils.show_message("Error", "All binary variables must have a reference value")
+                    raise
 
         for i in range(len(coefs)):
 
@@ -2492,6 +2565,8 @@ class RegressionAnalysisClass:
         view_correlation_matrix_button = ttk.Button(self.results_display_frame, text="View Correlation Matrix", command=lambda: plot_correlation_matrix(), style="large_button.TButton")
         view_correlation_matrix_button.pack()
 
+
+
         def plot_correlation_matrix():
             # Exclude the constant column before generating the correlation matrix
             x_no_constant = x.drop('const', axis=1)  # Assuming 'const' is the name of the constant column
@@ -2503,6 +2578,68 @@ class RegressionAnalysisClass:
             plt.tight_layout()
             plt.show()
 
+
+
+    def cox_regression(self):
+
+        x = self.clean_df.drop(self.selected_dependent_variable, axis=1)
+
+        # remove variables in the one_hot_encoding_var_list and convert all one hot encoded variable columns to 1 or 0
+        for column in x.columns:
+            if column in self.one_hot_encoding_var_list:
+                x.drop(column, axis=1, inplace=True)
+            x[column] = x[column].astype(float)
+
+
+        self.clean_df['event'] = self.clean_df[self.selected_dependent_variable].notnull().astype(int)
+
+        max_duration = self.clean_df[self.selected_dependent_variable].max()
+        self.clean_df["duration"] = self.clean_df[self.selected_dependent_variable].fillna(max_duration)
+
+        fit_df = self.clean_df[list(x.columns) + ['duration', 'event']].copy()
+
+        cph = CoxPHFitter()
+        cph.fit(fit_df, duration_col='duration', event_col='event')
+        summary = cph.summary
+
+        important_values = pd.DataFrame({
+            'Covariate': summary.index,
+            'Coefficient': summary['coef'],
+            'Hazard Ratio': summary['exp(coef)'],
+            'Standard Error': summary['se(coef)'],
+            'z': summary['z'],
+            'p-value': summary['p'],
+            '95% CI Lower': summary['exp(coef) lower 95%'],
+            '95% CI Upper': summary['exp(coef) upper 95%']
+        })
+
+        important_values.reset_index(drop=True, inplace=True)
+
+        # Make all values rounded to 2 decimal places except for p value
+        for col in important_values.columns:
+            if col != 'p-value':
+                important_values[col] = important_values[col].round(2)
+            else:
+                for i in range(len(important_values)):
+                    if important_values.loc[i, 'p-value'] < 0.0001:
+                        important_values.loc[i, 'p-value'] = "< 0.0001"
+                    else:
+                        important_values.loc[i, 'p-value'] = round(important_values.loc[i, 'p-value'], 4)
+
+        # Separate variable from value for the dummie variables separating by "*" and change format to 'variable: value vs reference'
+        for i in range(len(important_values)):
+            if "*" in important_values.loc[i, 'Covariate']:
+                variable, value = important_values.loc[i, 'Covariate'].split("*")
+                important_values.loc[i, 'Covariate'] = f"{variable}: {value} vs {self.reference_variable_dict[variable]}"
+
+            
+
+
+        table, columns = utils.create_editable_table(self.results_display_frame, important_values, self.style)
+
+        save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: utils.save_editable_table(table, columns), style="large_button.TButton")
+        save_summary_button.pack(side=tk.TOP, pady=10)
+        
 
 
 
@@ -2528,7 +2665,8 @@ class RegressionAnalysisClass:
         self.visualize_content_frame.update_idletasks()
 
     def switch_to_independent_variables_frame(self):
-        if self.selected_dependent_variable == None:
+
+        if self.check_reg_dependent_variable_errors():
             return
 
         self.variable_handling_frame.pack_forget()
@@ -2551,15 +2689,8 @@ class RegressionAnalysisClass:
 
     def switch_to_variable_handling_frame(self):
 
-        if self.selected_regression not in ["Logistic Regression", "Linear Regression"]:
-            utils.show_message('Error', 'Please select either Logistic Regression or Linear Regression')
+        if self.check_reg_independent_variable_errors():
             return
-
-        if len(self.selected_independent_variables) < 1:
-            utils.show_message('Error', 'No Independent Variables Selected')
-            return
-
-
 
         if self.selected_regression == "Logistic Regression":
             # CHECK FOR BINARY OUTCOME BEFORE LOGISTIC REGRESSION
@@ -2580,6 +2711,17 @@ class RegressionAnalysisClass:
 
             self.handle_variables_linear_regression()
 
+        if self.selected_regression == "Cox Regression":
+            # CHECK FOR CONTINUOUS VARIABLE BEFORE COX REGRESSION
+            try:
+                self.df[self.selected_dependent_variable] = self.df[self.selected_dependent_variable].dropna().astype(float)
+            except:
+                utils.show_message('dependent variable error', 'Dependent Variable not numeric for cox regression')
+                return
+
+            self.handle_variables_linear_regression()
+
+
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack_forget()
@@ -2589,19 +2731,40 @@ class RegressionAnalysisClass:
         self.visualize_content_frame.update_idletasks()
 
     def switch_to_results_frame(self):
-
+        
         if self.selected_regression == "Linear Regression":
+            if self.check_lin_reg_variable_handling_errors():
+                return
             try:
                 self.apply_linear_regression_variable_selection()
                 self.results_table_label.config(text="Linear Regression Results")
             except:
                 utils.show_message("error message", f"Make sure all values are NUMERICAL")
                 raise
+            # Check for binary variables having reference values
+            try:
+                for variable in self.one_hot_encoding_var_list:
+                    if variable not in self.reference_variable_dict:
+                        utils.show_message("error message", f"Please provide reference values for all binary variables")
+                        raise
+            except:
+                raise
+
         if self.selected_regression == "Logistic Regression":
+            if self.check_log_reg_variable_handling_errors():
+                return
             try:
                 self.apply_logistic_regression_variable_selection()
                 self.results_table_label.config(text="Logistic Regression Results")
             except:
+                raise
+        
+        if self.selected_regression == "Cox Regression":
+            try:
+                self.apply_linear_regression_variable_selection()
+                self.results_table_label.config(text="Cox Regression Results")
+            except:
+                utils.show_message("error message", f"Make sure all values are NUMERICAL")
                 raise
 
         self.run_analysis()
@@ -2614,6 +2777,91 @@ class RegressionAnalysisClass:
 
         utils.bind_mousewheel_to_frame(self.results_frame, self.results_frame_canvas, True)
         self.visualize_content_frame.update_idletasks()
+
+
+
+
+
+
+
+
+
+
+
+
+    def check_reg_dependent_variable_errors(self):
+        if self.selected_dependent_variable not in self.df.columns:
+            utils.show_message("error message", "Dependent Variable not in Dataframe")
+            return True
+        
+        if self.selected_dependent_variable == None:
+            utils.show_message("error message", "Please select a dependent variable")
+            return True
+        else:
+            return False
+
+
+    def check_reg_independent_variable_errors(self):
+
+        if len(self.selected_independent_variables) < 1:
+            utils.show_message("error message", "Please select at least one independent variable")
+            return True
+        
+        if self.selected_dependent_variable in self.selected_independent_variables:
+            utils.show_message("error message", "Dependent Variable cannot be an Independent Variable")
+            return True
+
+        if not self.selected_regression:
+            utils.show_message("error message", "Please select a regression type")
+            return True
+    
+        return False
+
+
+
+
+    def check_log_reg_variable_handling_errors(self):
+
+        for variable in self.selected_independent_variables:
+            if variable not in self.log_reg_variable_type_dict:
+                utils.show_message("error message", f"Please provide variable type for: {variable}")
+                return True
+            elif self.log_reg_variable_type_dict[variable] == "Categorical":
+                if variable not in self.reference_variable_dict:
+                    utils.show_message("error message", f"Please provide reference value for: {variable}")
+                    return True
+            elif self.log_reg_variable_type_dict[variable] == "Continuous":
+                try:
+                    self.clean_df[variable] = self.clean_df[variable].astype(float)
+                except:
+                    utils.show_message("error message", f"{variable} is not a continuous variable")
+                    return True
+
+        return False
+
+
+
+
+    def check_lin_reg_variable_handling_errors(self):
+        for frame in self.variable_groups:
+            if frame.winfo_children()[1].cget("style") == "active_radio_button.TButton":
+                if frame.winfo_children()[2].get() == "":
+                    utils.show_message("error message", f"Please provide reference values for all binary variables")
+                    return True
+            
+            elif len(frame.winfo_children()) > 3:
+                for child in frame.winfo_children()[3:]:
+                    # Check entry box for empty values
+                    if child.winfo_children()[0].get() == "":
+                            utils.show_message("error message", f"Please provide values for all continuous variables")
+                            return True
+                    # Check entry box for non numerical values
+                    if not utils.is_number(child.winfo_children()[0].get()):
+                        utils.show_message("error message", f"Please provide numerical values for all continuous variables")
+                        return True
+
+
+        return False
 
 ################################################################################################################
 ################################################################################################################
@@ -3010,13 +3258,13 @@ class CreatePlotClass():
 
     def disply_kaplan_meier_settings(self):
 
-        # PLOT SELECTION
+        # VARIABLE SELECTION
 
-        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
-        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+        self.variable_selection_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.variable_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
 
-        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
-        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+        self.variable_selection_subframe = tk.Frame(self.variable_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.variable_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
 
         # GROUP SELECTION
@@ -3029,14 +3277,14 @@ class CreatePlotClass():
 
         ############################################################################################################
 
-        self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Choose Time to Event Variable", style="sub_frame_header.TLabel")
+        self.plot_settings_frame_label = ttk.Label(self.variable_selection_subframe, text="Choose Time to Event Variable", style="sub_frame_header.TLabel")
         self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
 
-        separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator = ttk.Separator(self.variable_selection_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
         # Get the time to event variable
-        self.time_to_event_frame = tk.Frame(self.plot_settings_subframe, bg=color_dict["sub_frame_bg"])
+        self.time_to_event_frame = tk.Frame(self.variable_selection_subframe, bg=color_dict["sub_frame_bg"])
         self.time_to_event_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.time_to_event_search_var = tk.StringVar()
@@ -3062,6 +3310,25 @@ class CreatePlotClass():
         self.time_to_event_variable_label = ttk.Label(self.time_to_event_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
         self.time_to_event_variable_label.pack(side=tk.TOP, pady=10)
 
+        separator = ttk.Separator(self.time_to_event_frame, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+
+
+        def on_value_change(value):
+            # This function will be called whenever the slider value changes
+            self.time_period_duration_label.config(text=f"Time Period Duration: {float(value):.2f}")
+
+        self.time_period_duration_frame = tk.Frame(self.time_to_event_frame, bg=color_dict["sub_frame_bg"])
+        self.time_period_duration_frame.pack(side=tk.TOP, fill=tk.X)
+
+        self.time_period_duration_label = ttk.Label(self.time_period_duration_frame, text="Time Period Duration:", style="sub_frame_sub_header.TLabel")
+        self.time_period_duration_label.pack(side=tk.TOP, padx=10)
+
+        self.time_period_duration_slider = ttk.Scale(self.time_period_duration_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=on_value_change)
+        self.time_period_duration_slider.pack(side=tk.TOP, fill=tk.X, expand=True, padx=10)
+
+
         # Get the stored time to event variable
         self.selected_time_to_event_variable = data_manager.get_kaplan_plot_time_variable()
         if self.selected_time_to_event_variable:
@@ -3071,6 +3338,12 @@ class CreatePlotClass():
             index = items.index(self.selected_time_to_event_variable)
             self.time_to_event_variable_listbox.selection_set(index)
             self.time_to_event_variable_listbox.yview(index)
+
+            try:
+                self.time_period_duration_slider.config(from_=min(self.df[self.selected_time_to_event_variable].dropna()), to=max(self.df[self.selected_time_to_event_variable].dropna()))
+                self.time_period_duration_slider.set(max(self.df[self.selected_time_to_event_variable].dropna()))
+            except:
+                pass
 
 
         ############################################################################################################
@@ -3505,7 +3778,6 @@ class CreatePlotClass():
 
         if reset:
             utils.remove_frame_widgets(self.plot_settings_inner_frame)
-            print("Resetting")
             if self.selected_plot == "Scatter Plot":
                 self.display_scatter_plot_settings()
             if self.selected_plot == "Kaplan Meier Survival Curve":

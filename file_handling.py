@@ -289,8 +289,8 @@ class ManageDataframesClass():
 
     def open_file(self):
         # Specify the path of the specific dataframe file you want to load
-        self.file_path = filedialog.askopenfilename()
-        # self.file_path = "/Users/spencersmith/Desktop/coding/data/OHSU_data.xlsx"
+        # self.file_path = filedialog.askopenfilename()
+        self.file_path = "/Users/spencersmith/Desktop/CODING/Projects/Data Science App/data/OHSU_data.xlsx"
 
         try:
             if self.file_path.endswith('.xlsx'):

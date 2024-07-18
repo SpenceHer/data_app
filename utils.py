@@ -25,10 +25,19 @@ def prompt_yes_no(text_prompt):
 
 
 
+def is_number(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
-
-
-
+def is_column_numeric(df, column_name):
+    try:
+        df[column_name] = pd.to_numeric(df[column_name])
+        return True
+    except (TypeError, ValueError):
+        return False
 
 
 

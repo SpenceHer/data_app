@@ -73,7 +73,6 @@ exported_variables_list = []
 
 
 # COMPARISON TABLE INDEPENDENT VARIABLES LIST
-
 def clear_exported_variables_list():
     global exported_variables_list
     exported_variables_list = []
@@ -160,8 +159,8 @@ def get_comp_tab_data_selection():
 
 # REGRESSION MODEL MANAGEMENT
 
-reg_tab_dep_var = None
-reg_tab_ind_var_list = []
+reg_tab_dep_var = "albumin"
+reg_tab_ind_var_list = ["age", "bmi_cat"]
 
 reg_tab_selected_regression = None
 
@@ -200,7 +199,7 @@ def get_reg_tab_selected_regression():
 
 reg_tab_log_reg_target_value_dict = {}
 log_reg_var_type_dict = {}
-log_reg_ref_dict = {}
+ref_dict = {}
 
 
 # LOGISTIC REGRESSION TARGET VALUE
@@ -222,12 +221,12 @@ def get_log_reg_var_type_dict():
 
 
 # LOGISTIC REGRESSION REFERENCES VARIABLES DICT
-def add_variable_to_log_reg_ref_dict(ind_var, reference_value):
-    global log_reg_ref_dict
-    log_reg_ref_dict[ind_var] = reference_value
+def add_variable_to_ref_dict(ind_var, reference_value):
+    global ref_dict
+    ref_dict[ind_var] = reference_value
 
-def get_log_reg_ref_dict():
-    return log_reg_ref_dict
+def get_ref_dict():
+    return ref_dict
 
 
 
@@ -300,6 +299,16 @@ def get_non_numeric_ind_dict():
     return non_numeric_ind_dict
 
 
+# ONE HOT ENCODING DICT
+one_hot_encoding_list = []
+
+def add_variable_to_one_hot_encoding_list(ind_var):
+    global one_hot_encoding_list
+    if ind_var not in one_hot_encoding_list:
+        one_hot_encoding_list.append(ind_var)
+
+def get_one_hot_encoding_list():
+    return one_hot_encoding_list
 
 
 ################################################################################################################

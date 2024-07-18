@@ -235,6 +235,12 @@ style.configure("Horizontal.TScrollbar", gripcount=0,
                 background=color_dict["scrollbar_bg"], darkcolor=color_dict["scrollbar_bg"], lightcolor=color_dict["scrollbar_bg"],
                 troughcolor=color_dict["scrollbar_troughcolor"], bordercolor=color_dict["scrollbar_bg"], arrowcolor=color_dict["scrollbar_arrowcolor"])
 
+################################################################################################################
+
+# SCROLLBARS
+# generate a style that matches the theme style
+
+
 
 ################################################################################################################
 ################################################################################################################
