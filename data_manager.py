@@ -265,7 +265,7 @@ def get_scatter_plot_y_axis_selection():
 
 # KAPLAN MEIER PLOT SELECTION
 kaplan_plot_time_variable = None
-
+kaplan_meier_group_variable = None
 
 def set_kaplan_plot_time_variable(column):
     global kaplan_plot_time_variable
@@ -275,6 +275,12 @@ def get_kaplan_plot_time_variable():
     return kaplan_plot_time_variable
 
 
+def set_kaplan_meier_group_variable(column):
+    global kaplan_meier_group_variable
+    kaplan_meier_group_variable = column
+
+def get_kaplan_meier_group_variable():
+    return kaplan_meier_group_variable
 
 
 

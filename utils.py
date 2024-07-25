@@ -208,7 +208,7 @@ def create_editable_table(parent, df, style, table_name="", title="", height=Non
 
     for column in columns:
         table_treeview.heading(column, text=column)
-        table_treeview.column(column, width=160, anchor="center")
+        table_treeview.column(column, anchor="center")
 
     for i, row in df.iterrows():
         values = ["" if pd.isnull(val) else val for val in row.tolist()]
@@ -255,7 +255,7 @@ def create_editable_table(parent, df, style, table_name="", title="", height=Non
 
                         for col in columns:
                             table_treeview.heading(col, text=col)
-                            table_treeview.column(col, width=160, anchor="center")
+                            table_treeview.column(col, anchor="center")
 
                         table_treeview._drag_data["x"] = x
                         table_treeview._drag_data["index"] = to_index

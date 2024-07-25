@@ -2944,6 +2944,7 @@ class CreatePlotClass():
         data_manager.add_tab_to_tab_dict("current_visualize_tab", "create_plot")
 
         self.selected_plot = data_manager.get_plot_tab_plot_selection()
+        
 
         self.visualize_content_frame = visualize_content_frame
         utils.remove_frame_widgets(self.visualize_content_frame)
@@ -3305,7 +3306,7 @@ class CreatePlotClass():
         for column in sorted(self.df.columns, key=str.lower):
             self.time_to_event_variable_listbox.insert(tk.END, column)
 
-        self.time_to_event_variable_listbox.bind("<<ListboxSelect>>", self.on_time_to_event_variable_listbox_select)
+
 
         self.time_to_event_variable_label = ttk.Label(self.time_to_event_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
         self.time_to_event_variable_label.pack(side=tk.TOP, pady=10)
@@ -3315,24 +3316,25 @@ class CreatePlotClass():
 
 
 
-        def on_value_change(value):
-            # This function will be called whenever the slider value changes
-            self.time_period_duration_label.config(text=f"Time Period Duration: {float(value):.2f}")
+
 
         self.time_period_duration_frame = tk.Frame(self.time_to_event_frame, bg=color_dict["sub_frame_bg"])
         self.time_period_duration_frame.pack(side=tk.TOP, fill=tk.X)
 
-        self.time_period_duration_label = ttk.Label(self.time_period_duration_frame, text="Time Period Duration:", style="sub_frame_sub_header.TLabel")
+        self.time_period_duration_label = ttk.Label(self.time_period_duration_frame, text="Time Period Max Duration:", style="sub_frame_sub_header.TLabel")
         self.time_period_duration_label.pack(side=tk.TOP, padx=10)
 
-        self.time_period_duration_slider = ttk.Scale(self.time_period_duration_frame, from_=0, to=100, orient=tk.HORIZONTAL, command=on_value_change)
-        self.time_period_duration_slider.pack(side=tk.TOP, fill=tk.X, expand=True, padx=10)
+        self.time_period_duration_slider = ttk.Scale(self.time_period_duration_frame, orient='horizontal', length=300, command=lambda x: self.update_scale_label(self.time_period_duration_slider.get()))
+        self.time_period_duration_slider.pack(side=tk.TOP, fill=tk.X, expand=True, padx=10, pady=10)
 
+        self.time_to_event_variable_listbox.bind('<<ListboxSelect>>', self.on_time_to_event_variable_listbox_select)
+        self.on_time_to_event_variable_listbox_select(None)
 
         # Get the stored time to event variable
         self.selected_time_to_event_variable = data_manager.get_kaplan_plot_time_variable()
+
         if self.selected_time_to_event_variable:
-            self.time_to_event_variable_label.config(text=f"Time to Event: {self.selected_time_to_event_variable}")
+            self.time_to_event_variable_label.config(text=f"Time to Event Variable: {self.selected_time_to_event_variable}")
             self.time_to_event_variable_listbox.selection_clear(0, tk.END)
             items = list(self.time_to_event_variable_listbox.get(0, tk.END))
             index = items.index(self.selected_time_to_event_variable)
@@ -3376,6 +3378,23 @@ class CreatePlotClass():
         for column in sorted(self.df.columns, key=str.lower):
             self.group_variable_listbox.insert(tk.END, column)
 
+        self.group_variable_listbox.bind("<<ListboxSelect>>", self.on_group_variable_listbox_select)
+
+        self.selected_group_variable = data_manager.get_kaplan_meier_group_variable()
+
+        self.group_variable_listbox_label = ttk.Label(self.group_selection_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
+        self.group_variable_listbox_label.pack(side=tk.TOP, pady=10)
+
+        if self.selected_group_variable:
+            self.group_variable_listbox.selection_clear(0, tk.END)
+            items = list(self.group_variable_listbox.get(0, tk.END))
+            index = items.index(self.selected_group_variable)
+            self.group_variable_listbox.selection_set(index)
+            self.group_variable_listbox.yview(index)
+            self.group_variable_listbox_label.config(text=f"Group Variable: {self.selected_group_variable}")
+
+
+        # Group Management
         self.kaplan_group_frames = []
 
         self.add_remove_group_button_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
@@ -3392,7 +3411,44 @@ class CreatePlotClass():
 
         self.groups_frame = tk.Frame(self.group_selection_frame, bg=color_dict["sub_frame_bg"])
         self.groups_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
+           
 
+
+
+    # Function to update the slider's min and max values
+    def on_time_to_event_variable_listbox_select(self, event):
+        if self.time_to_event_variable_listbox.curselection():
+
+            selected_option = self.time_to_event_variable_listbox.get(self.time_to_event_variable_listbox.curselection()[0])
+
+            try:
+                self.df[selected_option] = self.df[selected_option].astype(float)
+            except:
+                utils.show_message("error message", f"{selected_option} is not a numerical variable")
+                if self.selected_time_to_event_variable:
+                    items = list(self.time_to_event_variable_listbox.get(0, tk.END))
+                    index = items.index(self.selected_time_to_event_variable)
+                    self.time_to_event_variable_listbox.selection_clear(0, tk.END)
+                    if index:
+                        self.time_to_event_variable_listbox.selection_set(index)
+                else:
+                    self.time_to_event_variable_listbox.selection_clear(0, tk.END)
+                return
+
+            self.selected_time_to_event_variable = selected_option
+            data_manager.set_kaplan_plot_time_variable(self.selected_time_to_event_variable)
+            self.time_to_event_variable_label.config(text=f"Time to Event Variable: {self.selected_time_to_event_variable}")
+
+
+            min_val, max_val = self.df[self.selected_time_to_event_variable].dropna().min(), self.df[self.selected_time_to_event_variable].dropna().max()
+
+            self.time_period_duration_slider.config(from_=min_val, to=max_val)
+            self.time_period_duration_slider.set(max_val)
+            self.update_scale_label(max_val)
+
+    # This function will be called whenever the slider value changes
+    def update_scale_label(self, value):
+        self.time_period_duration_label.config(text=f"Time Period Max Duration: {float(value):.2f}")
 
 
     def update_time_to_event_variable_listbox(self, *args):
@@ -3411,15 +3467,6 @@ class CreatePlotClass():
             for column in filtered_sorted_columns:
                 self.time_to_event_variable_listbox.insert(tk.END, column)
     
-    def on_time_to_event_variable_listbox_select(self, event):
-        if self.time_to_event_variable_listbox.curselection():
-            self.selected_time_to_event_variable = self.time_to_event_variable_listbox.get(self.time_to_event_variable_listbox.curselection()[0])
-            data_manager.set_kaplan_plot_time_variable(self.selected_time_to_event_variable)
-            self.time_to_event_variable_label.config(text=f"Time to Event: {self.selected_time_to_event_variable}")
-
-
-
-
 
     def update_group_variable_listbox(self, *args):
         search_term = self.group_search_var.get().lower()
@@ -3437,9 +3484,14 @@ class CreatePlotClass():
             for column in filtered_sorted_columns:
                 self.group_variable_listbox.insert(tk.END, column)
 
+    def on_group_variable_listbox_select(self, event):
+        if self.group_variable_listbox.curselection():
+            self.selected_group_variable = self.group_variable_listbox.get(self.group_variable_listbox.curselection()[0])
+            data_manager.set_kaplan_meier_group_variable(self.selected_group_variable)
+            self.group_variable_listbox_label.config(text=f"Group Variable: {self.selected_group_variable}")
 
     def add_group_variable(self):
-        # Max number of groups is 5
+        # Max number of groups is 4
         if len(self.kaplan_group_frames) == 4:
             utils.show_message("Max Number of Groups Reached", "You can only add a maximum of 4 groups")
             return
@@ -3473,9 +3525,17 @@ class CreatePlotClass():
         unique_values = self.df[selected_variable].dropna().unique()
         unique_values = unique_values.tolist()
 
-        # Create a dropdown menu to select the group from the unique values
+        # Sort unique values and add "User Option" to the list and sort from smallest to largest with the user option at the top
+        unique_values = sorted(unique_values)
+        unique_values.insert(0, "User Option")
+        
+        # Create a dropdown menu to select the group from the unique values 
         group_dropdown = ttk.Combobox(group_frame, values=unique_values, state="readonly")
         group_dropdown.pack(side=tk.LEFT, padx=10)
+
+        # Add entry box for if user selected user option
+        user_option_entry = tk.Entry(group_frame, font=styles.entrybox_small_font)
+        user_option_entry.pack(side=tk.LEFT, padx=10)
         
     def remove_group_variable(self):
         if self.kaplan_group_frames:
@@ -3626,6 +3686,10 @@ class CreatePlotClass():
                 if not group_frame.winfo_children()[3].get():
                     utils.show_message("Error", "All groups must have a value selected")
                     raise ValueError("Group value not selected")
+                if group_frame.winfo_children()[2].get() == "User Option" and not group_frame.winfo_children()[4].get():
+                    utils.show_message("Error", "All groups with 'User Option' sign must have a value entered")
+                    raise ValueError("User Option not entered")
+                
 
         try:
             self.df[self.selected_time_to_event_variable] = self.df[self.selected_time_to_event_variable].astype(float)
@@ -3633,11 +3697,17 @@ class CreatePlotClass():
             utils.show_message("Error", f"Time to Event Variable '{self.selected_time_to_event_variable}' must be continuous")
             raise
 
+
         clean_df = self.df.copy()
+        slider_value = self.time_period_duration_slider.get()
+        clean_df.loc[clean_df[self.selected_time_to_event_variable] > slider_value, self.selected_time_to_event_variable] = np.nan
         clean_df["event"] = clean_df[self.selected_time_to_event_variable].notnull().astype(int)
-        max_value = clean_df[self.selected_time_to_event_variable].max() + 1
+        max_value = clean_df[self.selected_time_to_event_variable].max()
         clean_df.loc[clean_df[self.selected_time_to_event_variable].isnull(), self.selected_time_to_event_variable] = max_value
         clean_df[self.selected_time_to_event_variable] = pd.to_numeric(clean_df[self.selected_time_to_event_variable])
+
+
+
 
         fig = Figure(figsize=(8, 7))
         ax = fig.add_subplot(111)
@@ -3652,6 +3722,15 @@ class CreatePlotClass():
             if group_variable_sign == "=":
                 group_variable_sign = "=="
             group_value = group_frame.winfo_children()[3].get()
+
+            if group_value == "User Option":
+                group_value = group_frame.winfo_children()[4].get()
+                try:
+                    clean_df[group_name] = clean_df[group_name].astype(float)
+                    group_value = float(group_value)
+                except ValueError:
+                    utils.show_message("Error", f"Group Variable '{group_name}' must be continuous when using 'User Option' sign")
+                    raise
 
             if group_variable_sign == "==":
                 clean_df[group_name] = clean_df[group_name].astype(str)
@@ -3691,8 +3770,15 @@ class CreatePlotClass():
 
             result = multivariate_logrank_test(all_durations, all_groups, all_events)
             p_value = result.p_value
-            ax.text(0.05, 0.95, f"P-value: {p_value:.4f}", transform=ax.transAxes, verticalalignment='top')
-        else:
+            if p_value < 0.0001:
+                p_value = "<0.0001"
+                ax.text(0.05, 1.05, f"P-value: <0.0001", transform=ax.transAxes, verticalalignment='top')
+            else:
+                ax.text(0.05, 1.05, f"P-value: {p_value:.4f}", transform=ax.transAxes, verticalalignment='top')
+
+        elif len(groups) == 1:
+            pass
+        else:           
             kmf.fit(clean_df[self.selected_time_to_event_variable], clean_df["event"])
             kmf.plot_survival_function(ax=ax, ci_show=False, linewidth=2, color='black')
 
@@ -4738,7 +4824,7 @@ class MachineLearningClass:
 
 
         self.null_value_handling_option_label = ttk.Label(self.null_value_handling_frame, text="MISSING/NULL values", style="sub_frame_sub_header.TLabel")
-        self.null_value_handling_option_label.pack(side=tk.TOP)
+        self.null_value_handling_option_label.pack(side=tk.TOP, pady=5)
 
         separator = ttk.Separator(self.null_value_handling_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=400, pady=5)
@@ -4756,7 +4842,8 @@ class MachineLearningClass:
                 self.null_value_user_choice_entry.pack_forget()
 
         self.null_value_option_combobox = ttk.Combobox(self.null_value_combobox_selection_frame, textvariable=self.null_value_option_var, font=("Arial", 24), width=25, state='readonly')
-        self.null_value_option_combobox['values'] = ['REMOVE null values', 'REPLACE with mean', 'REPLACE with median', 'REPLACE with mode', 'REPLACE with user choice']
+        # self.null_value_option_combobox['values'] = ['REMOVE null values', 'REPLACE with mean', 'REPLACE with median', 'REPLACE with mode', 'REPLACE with user choice']
+        self.null_value_option_combobox['values'] = ['REMOVE null values']
         self.null_value_option_combobox.bind("<<ComboboxSelected>>", on_null_value_combobox_select)
         self.null_value_option_combobox.pack(side=tk.LEFT, anchor=tk.N, padx=5, pady=20)
 
