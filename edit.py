@@ -1,19 +1,21 @@
 import tkinter as tk
 from tkinter import Variable, filedialog, messagebox, simpledialog
 from tkinter import ttk
-import utils
-import file_handling
 import pandas as pd
 import numpy as np
 from scipy import stats
 import statsmodels.formula.api as smf
 import re
-import data_manager
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
+import utils
+import file_handling
 import styles
 from styles import color_dict
+import data_manager
+
 
 
 def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
