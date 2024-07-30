@@ -159,8 +159,8 @@ def get_comp_tab_data_selection():
 
 # REGRESSION MODEL MANAGEMENT
 
-reg_tab_dep_var = None
-reg_tab_ind_var_list = []
+reg_tab_dep_var = "albumin"
+reg_tab_ind_var_list = ["age", "bmi_cat"]
 
 reg_tab_selected_regression = None
 
@@ -432,6 +432,7 @@ def get_mach_learn_tab_null_value_entry_value():
 ################################################################################################################
 
 create_var_tab_var_list = []
+create_var_tab_var_type = None
 
 # REGRESSION INDEPENDENT VARIABLES LIST
 def add_variable_to_create_var_tab_var_list(variable):
@@ -441,6 +442,17 @@ def add_variable_to_create_var_tab_var_list(variable):
 
 def get_create_var_tab_var_list():
     return create_var_tab_var_list
+
+
+
+# VARIABLE TYPE
+def set_create_var_tab_var_type(variable_type):
+    global create_var_tab_var_type
+    create_var_tab_var_type = variable_type
+
+def get_create_var_tab_var_type():
+    return create_var_tab_var_type
+
 
 ################################################################################################################
 ################################################################################################################

@@ -1,21 +1,19 @@
 import tkinter as tk
 from tkinter import Variable, filedialog, messagebox, simpledialog
 from tkinter import ttk
+import utils
+import file_handling
 import pandas as pd
 import numpy as np
 from scipy import stats
 import statsmodels.formula.api as smf
 import re
+import data_manager
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-import utils
-import file_handling
 import styles
 from styles import color_dict
-import data_manager
-
 
 
 def setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame):
@@ -1181,6 +1179,8 @@ class EditDataClass():
 
         utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
         self.editing_content_frame.update_idletasks()
+        
+        self.column_var_search_entry.focus_set()
 
 
     def switch_to_variable_type_choice_frame(self):
@@ -1341,14 +1341,18 @@ class CreateNewVariableClass:
         data_manager.add_tab_to_tab_dict("current_edit_tab", "create_new_var")
 
         self.selected_variables = data_manager.get_create_var_tab_var_list()
+        self.selected_variable_type = data_manager.get_create_var_tab_var_type()
+
 
         utils.remove_frame_widgets(self.editing_content_frame)
 
         self.variable_selection_frame = tk.Frame(self.editing_content_frame, bg=color_dict["main_content_border"])
+        self.variable_type_selection_frame = tk.Frame(self.editing_content_frame, bg=color_dict["main_content_border"])
         self.conditions_frame = tk.Frame(self.editing_content_frame, bg=color_dict["main_content_border"])
         self.finalize_frame = tk.Frame(self.editing_content_frame, bg=color_dict["main_content_border"])
 
         self.create_variable_selection_frame()
+        self.create_variable_type_selection_frame()
         self.create_conditions_frame()
         self.create_finalize_frame()
 
@@ -1478,7 +1482,7 @@ class CreateNewVariableClass:
         self.variable_selection_menu_frame = tk.Frame(self.variable_selection_frame, bg=color_dict["nav_banner_bg"])
         self.variable_selection_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        self.advance_to_conditions_button = ttk.Button(self.variable_selection_menu_frame, text="Next", command=self.switch_to_conditions_frame, style='nav_menu_button.TButton')
+        self.advance_to_conditions_button = ttk.Button(self.variable_selection_menu_frame, text="Next", command=self.switch_to_variable_type_selection_frame, style='nav_menu_button.TButton')
         self.advance_to_conditions_button.pack(side=tk.RIGHT)
 
 
@@ -1576,11 +1580,104 @@ class CreateNewVariableClass:
 
 
 
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
-    ###################################################################################################################################################################################################
+    ################################################################################################################
+    ################################################################################################################
+    ################################################################################################################
 
-    # CREATE CONDITIONS SELECTION FRAME
+
+    # CREATE VARIABLE SELECTION FRAME
+
+    def create_variable_type_selection_frame(self):
+        
+
+        # MAIN CONTENT FRAME
+        self.variable_type_inner_frame, self.variable_type_canvas = utils.create_scrollable_frame(self.variable_type_selection_frame)
+
+################################################################################################################
+
+        self.variable_type_choice_subframe_border = tk.Frame(self.variable_type_inner_frame, bg=color_dict["sub_frame_border"])
+        self.variable_type_choice_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.variable_type_choice_subframe = tk.Frame(self.variable_type_choice_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.variable_type_choice_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.variable_type_choice_subframe_label = ttk.Label(self.variable_type_choice_subframe, text="Choose Variable Type", style="sub_frame_header.TLabel")
+        self.variable_type_choice_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.variable_type_choice_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+
+        self.variable_type_frame = tk.Frame(self.variable_type_choice_subframe, bg=color_dict["sub_frame_bg"])
+        self.variable_type_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
+        
+
+        self.conditional_variable_button = ttk.Button(self.variable_type_frame, text="Conditional\nVariable\nCreation", command=self.set_variable_type_conditional, style="inactive_radio_button.TButton")
+        self.conditional_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.equation_variable_button = ttk.Button(self.variable_type_frame, text="Equation-Based\nVariable\nCreation", command=self.set_variable_type_equation, style="inactive_radio_button.TButton")
+        self.equation_variable_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+
+        if self.selected_variable_type:
+            if self.selected_variable_type == "Conditional":
+                self.conditional_variable_button.configure(style="active_radio_button.TButton")
+                self.equation_variable_button.configure(style="inactive_radio_button.TButton")
+
+            elif self.selected_variable_type == "Equation":
+                self.conditional_variable_button.configure(style="inactive_radio_button.TButton")
+                self.equation_variable_button.configure(style="active_radio_button.TButton")
+
+
+
+################################################################################################################
+
+        # NAVIGATION MENU
+
+        self.variable_type_choice_menu_frame = tk.Frame(self.variable_type_selection_frame, bg=color_dict["nav_banner_bg"])
+        self.variable_type_choice_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_variable_selection_button = ttk.Button(self.variable_type_choice_menu_frame, command=self.switch_to_variable_selection_frame, text="Back", style='nav_menu_button.TButton')
+        self.return_to_variable_selection_button.pack(side=tk.LEFT)
+
+        self.advance_to_value_handling_button = ttk.Button(self.variable_type_choice_menu_frame, command=self.switch_to_conditions_frame, text="Next", style='nav_menu_button.TButton')
+        self.advance_to_value_handling_button.pack(side=tk.RIGHT)
+
+        self.variable_type_selection_frame.update_idletasks()
+
+
+
+
+
+
+
+
+    def set_variable_type_conditional(self):
+        self.selected_variable_type = "Conditional"
+        data_manager.set_create_var_tab_var_type("Conditional")
+
+        self.conditional_variable_button.configure(style="active_radio_button.TButton")
+        self.equation_variable_button.configure(style="inactive_radio_button.TButton")
+
+    def set_variable_type_equation(self):
+        self.selected_variable_type = "Equation"
+        data_manager.set_create_var_tab_var_type("Equation")
+
+        self.conditional_variable_button.configure(style="inactive_radio_button.TButton")
+        self.equation_variable_button.configure(style="active_radio_button.TButton")
+
+
+
+
+
+
+    ################################################################################################################
+    ################################################################################################################
+    ################################################################################################################
+
+
+    # CREATE CONDITIONS FRAME
 
     def create_conditions_frame(self):
 
@@ -1588,6 +1685,26 @@ class CreateNewVariableClass:
         self.conditions_inner_frame, self.conditions_canvas = utils.create_scrollable_frame(self.conditions_frame)
 
 ################################################################################################################
+
+        # NAVIGATION MENU
+
+        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg=color_dict["nav_banner_bg"])
+        self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        self.return_to_column_selection_button = ttk.Button(self.conditions_menu_frame, command=self.switch_to_variable_type_selection_frame, text="Back", style='nav_menu_button.TButton')
+        self.return_to_column_selection_button.pack(side=tk.LEFT)
+
+        self.advance_to_finalize_frame_button = ttk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", style='nav_menu_button.TButton')
+        self.advance_to_finalize_frame_button.pack(side=tk.RIGHT)
+
+        self.conditions_frame.update_idletasks()
+
+################################################################################################################
+
+
+    def create_condtional_variable_frame(self):
+        
+        utils.remove_frame_widgets(self.conditions_inner_frame)
 
         self.variable_name_frame_subframe_border = tk.Frame(self.conditions_inner_frame, bg=color_dict["sub_frame_border"])
         self.variable_name_frame_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
@@ -1647,25 +1764,6 @@ class CreateNewVariableClass:
                                      'Less Than or Equal To':'<=',
                                      'Greater Than or Equal To':'>='}
 
-
-
-
-################################################################################################################
-
-        # NAVIGATION MENU
-
-        self.conditions_menu_frame = tk.Frame(self.conditions_frame, bg=color_dict["nav_banner_bg"])
-        self.conditions_menu_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        self.return_to_column_selection_button = ttk.Button(self.conditions_menu_frame, command=self.switch_to_variable_selection_frame, text="Back", style='nav_menu_button.TButton')
-        self.return_to_column_selection_button.pack(side=tk.LEFT)
-
-        self.advance_to_finalize_frame_button = ttk.Button(self.conditions_menu_frame, command=self.switch_to_finalize_frame, text="Next", style='nav_menu_button.TButton')
-        self.advance_to_finalize_frame_button.pack(side=tk.RIGHT)
-
-        self.conditions_frame.update_idletasks()
-
-################################################################################################################
 
     def add_value_frame(self):
         condition_frames = []
@@ -1796,12 +1894,6 @@ class CreateNewVariableClass:
         add_simple_or_button = ttk.Button(condition_handling_frame, text='or', command=lambda: add_condition(label='or'), style="small_button.TButton")
         add_simple_or_button.pack(side=tk.LEFT)
 
-        # add_major_and_button = tk.Button(condition_handling_frame, text='AND', command=lambda: add_condition(label='AND'))
-        # add_major_and_button.pack(side=tk.LEFT)
-
-        # add_major_or_button = tk.Button(condition_handling_frame, text='OR', command=lambda: add_condition(label='OR'))
-        # add_major_or_button.pack(side=tk.LEFT)
-
         add_remove_button = ttk.Button(condition_handling_frame, text='Remove Condition', command=remove_condition, style="small_button.TButton")
         add_remove_button.pack(side=tk.LEFT)
 
@@ -1824,12 +1916,13 @@ class CreateNewVariableClass:
             frame.destroy()
 
 
-    def get_values_from_frames(self):
+
+    def get_conditional_values(self):
         self.new_df = self.df.copy()
 
         self.column_name = self.variable_name_entry.get()
 
-        for idx, frame in enumerate(self.value_frames, start=1):
+        for frame in self.value_frames:
 
             condition_list_total = []
             condition_strings = []
@@ -1919,6 +2012,35 @@ class CreateNewVariableClass:
 
             self.new_df.loc[self.new_df.eval(final_condition_string), self.column_name] = condition_value
 
+    def get_equation_values(self):
+        new_df = self.df.copy()
+
+        self.column_name = self.variable_name_entry.get()
+
+        equation_string = ''
+
+        for frame in self.equation_frames:
+            if frame.winfo_children()[0].winfo_class() == "TCombobox":
+                if frame.winfo_children()[0].get() == "USER CHOICE":
+                    equation_string = equation_string + frame.winfo_children()[1].get()
+                else:
+                    equation_string = equation_string + frame.winfo_children()[0].get()
+
+            elif frame.winfo_children()[0].winfo_class() != "TCombobox":
+                for button in frame.winfo_children():
+                    if button.cget("style") == "active_radio_button.TButton":
+                        equation_string = equation_string + button.cget("text")
+                        break
+
+
+        new_df[self.column_name] = new_df.eval(equation_string)
+        return new_df
+            
+                
+
+
+
+
 
     def is_valid_column_name(self, column_name):
         def fix_columns(column_name):
@@ -1940,6 +2062,151 @@ class CreateNewVariableClass:
                 return False
         else:
             return False
+
+################################################################################################################
+
+    def create_equation_variable_frame(self):
+
+        utils.remove_frame_widgets(self.conditions_inner_frame)
+
+        self.variable_name_frame_subframe_border = tk.Frame(self.conditions_inner_frame, bg=color_dict["sub_frame_border"])
+        self.variable_name_frame_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.variable_name_frame_subframe = tk.Frame(self.variable_name_frame_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.variable_name_frame_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.variable_name_frame_subframe_label = ttk.Label(self.variable_name_frame_subframe, text="Name of New Variable:", style="sub_frame_header.TLabel")
+        self.variable_name_frame_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.variable_name_frame_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+
+        self.variable_name_frame = tk.Frame(self.variable_name_frame_subframe, bg=color_dict["sub_frame_bg"])
+        self.variable_name_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, pady=10)
+
+        self.variable_name_entry = tk.Entry(self.variable_name_frame, font=styles.entrybox_large_font)
+        self.variable_name_entry.pack(side=tk.TOP, fill=tk.X, padx=10, pady=10)
+
+################################################################################################################
+
+        self.equation_subframe_border = tk.Frame(self.conditions_inner_frame, bg=color_dict["sub_frame_border"])
+        self.equation_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        self.equation_subframe = tk.Frame(self.equation_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.equation_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        self.equation_subframe_label = ttk.Label(self.equation_subframe, text="Equation for New Variable", style="sub_frame_header.TLabel")
+        self.equation_subframe_label.pack(side=tk.TOP, pady=10)
+
+        separator = ttk.Separator(self.equation_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=5)
+
+        self.add_equation_line_button = ttk.Button(self.equation_subframe, text='Add Equation Line', command=lambda: self.add_equation_line('equation symbols'), style="large_button.TButton")
+        self.add_equation_line_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.remove_equation_line_button = ttk.Button(self.equation_subframe, text='Remove Last Equation Line', command=self.remove_equation_line, style="large_button.TButton")
+        self.remove_equation_line_button.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+
+        self.equation_frame = tk.Frame(self.equation_subframe, bg=color_dict["sub_frame_bg"])
+        self.equation_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.equation_frames = []
+
+        self.add_equation_line('combobox')
+        self.add_equation_line('equation symbols')
+
+    def remove_equation_line(self):
+        if len(self.equation_frames) > 2:
+            widget = self.equation_frames.pop()
+            widget.destroy()
+
+    def add_equation_line(self, widget_type):
+        if widget_type == "combobox":
+
+            
+            if len(self.equation_frames) == 0:
+                equation_line_frame = tk.Frame(self.equation_frame, bg=color_dict["sub_frame_bg"])
+                equation_line_frame.pack(side=tk.TOP)
+                values = self.selected_variables
+                combobox = ttk.Combobox(equation_line_frame, values=values, state="readonly")
+                combobox.pack(side=tk.LEFT)
+                combobox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.conditions_inner_frame, self.conditions_canvas, False))
+                combobox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.conditions_inner_frame, self.conditions_canvas, True))
+
+                self.equation_frames.append(equation_line_frame)
+
+            else:
+                equation_line_frame = tk.Frame(self.equation_frame, bg=color_dict["sub_frame_bg"])
+                equation_line_frame.pack(side=tk.TOP)
+                values =["USER CHOICE"] + self.selected_variables
+                combobox = ttk.Combobox(equation_line_frame, values=values, state="readonly")
+                combobox.pack(side=tk.LEFT)
+                combobox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.conditions_inner_frame, self.conditions_canvas, False))
+                combobox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.conditions_inner_frame, self.conditions_canvas, True))
+                combobox.bind("<<ComboboxSelected>>", lambda event, frame=equation_line_frame: self.on_combobox_select(event, frame))
+
+                entry_box = tk.Entry(equation_line_frame, font=styles.entrybox_small_font, state=tk.DISABLED)
+                entry_box.pack(side=tk.LEFT)
+
+                self.equation_frames.append(equation_line_frame)
+
+        elif widget_type == "equation symbols":
+            if self.equation_frames[-1].winfo_children()[0].winfo_class() == 'TCombobox':
+                equation_symbols_frame = tk.Frame(self.equation_frame, bg=color_dict["sub_frame_bg"])
+                equation_symbols_frame.pack(side=tk.TOP,)
+
+                add_button = ttk.Button(equation_symbols_frame, text='+', command=lambda: self.update_equation_signs("+", equation_symbols_frame), style="inactive_radio_button.TButton")
+                add_button.pack(side=tk.LEFT)
+
+                subtract_button = ttk.Button(equation_symbols_frame, text='-', command=lambda: self.update_equation_signs("-", equation_symbols_frame), style="inactive_radio_button.TButton")
+                subtract_button.pack(side=tk.LEFT)
+
+                multiply_button = ttk.Button(equation_symbols_frame, text='*', command=lambda: self.update_equation_signs("*", equation_symbols_frame), style="inactive_radio_button.TButton")
+                multiply_button.pack(side=tk.LEFT)
+
+                divide_button = ttk.Button(equation_symbols_frame, text='/', command=lambda: self.update_equation_signs("/", equation_symbols_frame), style="inactive_radio_button.TButton")
+                divide_button.pack(side=tk.LEFT)
+
+                self.equation_frames.append(equation_symbols_frame)
+
+
+    def on_combobox_select(self, event, frame):
+        option_selected = frame.winfo_children()[0].get()
+        if option_selected == 'USER CHOICE':
+            frame.winfo_children()[1].configure(state=tk.NORMAL)
+        else:
+            frame.winfo_children()[1].configure(state=tk.DISABLED)
+
+    def update_equation_signs(self, sign, frame):
+        if sign == '+':
+            print(4)
+            frame.winfo_children()[0].configure(style="active_radio_button.TButton")
+            frame.winfo_children()[1].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[2].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[3].configure(style="inactive_radio_button.TButton")
+        elif sign == '-':
+            frame.winfo_children()[0].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[1].configure(style="active_radio_button.TButton")
+            frame.winfo_children()[2].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[3].configure(style="inactive_radio_button.TButton")
+        elif sign == '*':
+            frame.winfo_children()[0].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[1].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[2].configure(style="active_radio_button.TButton")
+            frame.winfo_children()[3].configure(style="inactive_radio_button.TButton")
+        elif sign == '/':
+            frame.winfo_children()[0].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[1].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[2].configure(style="inactive_radio_button.TButton")
+            frame.winfo_children()[3].configure(style="active_radio_button.TButton")
+
+
+
+        # If the last frame doesnt have a combobox as the first widget, add a new combobox frame
+        if self.equation_frames[-1].winfo_children()[0].winfo_class() != 'TCombobox':
+            self.add_equation_line('combobox')
+                                                 
 
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -2137,18 +2404,40 @@ class CreateNewVariableClass:
     def switch_to_variable_selection_frame(self):
         self.conditions_frame.pack_forget()
         self.finalize_frame.pack_forget()
+        self.variable_type_selection_frame.pack_forget()
         self.variable_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
         self.variable_search_entry.focus_set()
 
+    def switch_to_variable_type_selection_frame(self):
+        self.variable_selection_frame.pack_forget()
+        self.conditions_frame.pack_forget()
+        self.finalize_frame.pack_forget()
+        self.variable_type_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+        utils.bind_mousewheel_to_frame(self.variable_type_inner_frame, self.variable_type_canvas, True)
+
+        self.editing_content_frame.update_idletasks()
+
+        self.conditional_variable_button.focus_set()
 
 
     def switch_to_conditions_frame(self):
         if not self.selected_variables:
             return
+        
+        if not self.selected_variable_type:
+            utils.show_message("Error", "Please select a variable type")
+            return
+        if self.selected_variable_type == "Conditional":
+            self.create_condtional_variable_frame()
+        elif self.selected_variable_type == "Equation":
+            self.create_equation_variable_frame()
+
         self.finalize_frame.pack_forget()
         self.variable_selection_frame.pack_forget()
+        self.variable_type_selection_frame.pack_forget()
         self.conditions_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         utils.bind_mousewheel_to_frame(self.conditions_inner_frame, self.conditions_canvas, True)
@@ -2172,9 +2461,17 @@ class CreateNewVariableClass:
             utils.show_message("Error", "Invalid Column Name")
             return
         try:
-            self.get_values_from_frames()
-            self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.column_name}")
-            self.plot_new_column()
+            if self.selected_variable_type == "Conditional":
+                self.get_conditional_values()
+                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.column_name}")
+                self.plot_new_column()
+            elif self.selected_variable_type == "Equation":
+                for var in self.selected_variables:
+                    if var in self.df.columns:
+                        self.df[var] = self.df[var].astype(float)
+                self.new_df = self.get_equation_values()
+                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.column_name}")
+                self.plot_new_column()
 
         except:
             utils.show_message("value error", "Error with conditions")
@@ -2182,6 +2479,7 @@ class CreateNewVariableClass:
 
         self.conditions_frame.pack_forget()
         self.variable_selection_frame.pack_forget()
+        self.variable_type_selection_frame.pack_forget()
         self.finalize_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
 
         utils.bind_mousewheel_to_frame(self.data_display_inner_frame, self.data_display_canvas, True)

@@ -992,10 +992,19 @@ class ComparisonTableClass:
         try:
             self.clean_df = self.table_df[[independent_variable, self.selected_dependent_variable]].dropna()
             observed = pd.crosstab(self.clean_df[independent_variable], self.clean_df[self.selected_dependent_variable])
-            odds_ratio, ci_lower, ci_upper = self.calculate_odds_ratio(observed)
+
+
+
+            # Check if there are any cells with 0 values and if so, dont calculate odds ratio and make each ""
+            if 0 in observed.values:
+                odds_ratio, ci_lower, ci_upper = "", "", ""
+            elif len(observed) != 2:
+                print(len(observed))
+                odds_ratio, ci_lower, ci_upper = "", "", ""
+            else:
+                odds_ratio, ci_lower, ci_upper = self.calculate_odds_ratio(observed)
         except Exception as e:
-            print(f"Error in analyze_categorical_variable for {independent_variable}: {e}")
-            odds_ratio, ci_lower, ci_upper = np.nan, np.nan, np.nan
+            odds_ratio, ci_lower, ci_upper = "", "", ""
 
         try:
             _, p_value, _, _ = stats.chi2_contingency(observed)
@@ -1017,7 +1026,7 @@ class ComparisonTableClass:
             denominator = observed.iloc[1, 0] * observed.iloc[0, 1]
 
             if denominator == 0:
-                return np.nan, np.nan, np.nan
+                return "", "", ""
 
             odds_ratio = numerator / denominator
             a, b, c, d = observed.iloc[0, 0], observed.iloc[0, 1], observed.iloc[1, 0], observed.iloc[1, 1]
@@ -1029,19 +1038,27 @@ class ComparisonTableClass:
             return odds_ratio, ci_lower, ci_upper
         except Exception as e:
             print(f"Error in calculate_odds_ratio: {e}")
-            return np.nan, np.nan, np.nan
+            return "", "", ""
 
     def add_p_value_and_odds_ratio_to_row(self, row, p_value, odds_ratio, ci_lower, ci_upper, unique_dependent_values, clean_df, independent_variable):
         try:
             if p_value < 0.0001:
                 row.append('< 0.0001')
             else:
-                row.append(f"{p_value:.4f}")
+                p_value = round(p_value, 4)
+                row.append(f"{p_value}")
 
             if len(unique_dependent_values) == 2 and len(clean_df[independent_variable].unique()) == 2:
-                row.append(f"{odds_ratio:.2f} ({ci_lower:.2f} - {ci_upper:.2f})")
+                
+                if odds_ratio != "":
+                    odds_ratio = round(odds_ratio, 2)
+                    ci_lower = round(ci_lower, 2)
+                    ci_upper = round(ci_upper, 2)
+                    row.append(f"{odds_ratio} ({ci_lower} - {ci_upper})")
+                else:
+                    row.append("")
             elif len(unique_dependent_values) == 2:
-                row.append(np.nan)
+                row.append("")
 
             return row
         except Exception as e:
@@ -1240,7 +1257,7 @@ class ComparisonTableClass:
             save_summary_button = ttk.Button(self.results_display_frame, text="Save Table", command=lambda: utils.save_editable_table(table, columns), style="large_button.TButton")
             save_summary_button.pack(side=tk.BOTTOM, pady=10)
         except Exception as e:
-            print(f"Error in create_comparison_table: {e}")
+            utils.show_message("Error", f"Error creating comparison table: {e}")
             raise
 
 
@@ -1253,6 +1270,25 @@ class ComparisonTableClass:
 
 
     # NAVIGATION MENU HANDLING FUNCTIONS
+
+    def switch_frame(self, frame_name):
+        if frame_name == "Dependent Variable Frame":
+            self.switch_to_dependent_variable_frame()
+        elif frame_name == "Independent Variables Frame":
+            self.switch_to_independent_variables_frame()
+        elif frame_name == "Variable Handling Frame":
+            self.switch_to_variable_handling_frame()
+        elif frame_name == "Results Frame":
+            self.switch_to_results_frame()
+            
+
+
+
+
+
+
+
+
 
     def switch_to_dependent_variable_frame(self):
 
@@ -1268,17 +1304,14 @@ class ComparisonTableClass:
 
 
 
-
     def switch_to_independent_variables_frame(self):
-        if self.selected_dependent_variable == None:
+        if self.check_for_dependent_variable_errors():
             return
 
         self.variable_handling_frame.pack_forget()
         self.results_frame.pack_forget()
         self.dependent_variable_frame.pack_forget()
         self.indedependent_variables_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
-
-
 
         self.dependent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
         self.independent_frame_dependent_label.configure(text=f"Dependent Variable: {self.selected_dependent_variable}")
@@ -1292,26 +1325,13 @@ class ComparisonTableClass:
 
 
 
-
-
-
     def switch_to_variable_handling_frame(self):
 
         self.selected_independent_variables = [self.selected_independent_variable_listbox.get(index) for index in range(self.selected_independent_variable_listbox.size())]
 
+        if self.check_for_independent_variable_errors():
+            return
 
-        if (self.selected_percent_type not in ["Row", "Column"]):
-            utils.show_message("Error", "Please select either Row or Column Percentages")
-            return
-        if (self.selected_data not in ["All Data","Data Complete Only"]):
-            utils.show_message("Error", "Please select either All Data or Only Data-Complete Subjects to be used")
-            return
-        if (len(self.selected_independent_variables) < 1):
-            utils.show_message("Error", "No independent variables selected")
-            return
-        if self.selected_dependent_variable in self.selected_independent_variables:
-            utils.show_message("Error", "Dependent variable cannot be an independent variable")
-            return
         else:
             self.handle_variables()
             self.results_frame.pack_forget()
@@ -1337,6 +1357,41 @@ class ComparisonTableClass:
         self.visualize_content_frame.update_idletasks()
 
         utils.bind_mousewheel_to_frame(self.results_inner_frame, self.results_canvas, True)
+
+
+
+
+    def check_for_dependent_variable_errors(self):
+        if not self.selected_dependent_variable:
+            utils.show_message("Error", "No dependent variable selected")
+            return True
+        if self.selected_dependent_variable not in self.df.columns:
+            utils.show_message("Error", "Dependent variable not found in data")
+            return True
+        return False
+
+    def check_for_independent_variable_errors(self):
+        if len(self.selected_independent_variables) < 1:
+            utils.show_message("Error", "No independent variables selected")
+            return True
+        if self.selected_percent_type not in ["Row", "Column"]:
+            utils.show_message("Error", "Please select either Row or Column Percentages")
+            return True
+        if self.selected_data not in ["All Data", "Data Complete Only"]:
+            utils.show_message("Error", "Please select either All Data or Only Data-Complete Subjects to be used")
+            return True
+        if self.selected_dependent_variable in self.selected_independent_variables:
+            utils.show_message("Error", "Dependent variable cannot be an independent variable")
+            return True
+        # Check if selected independent variables are in the dataframe and state which ones are not
+        missing_vars = [var for var in self.selected_independent_variables if var not in self.df.columns]
+        if missing_vars:
+            missing_vars_string = "\n".join(missing_vars)
+            utils.show_message("Error", f"The following variables are not in the data:\n{missing_vars_string}")
+            return True
+        
+        return False
+
 
 
 ################################################################################################################
