@@ -1361,6 +1361,12 @@ class ComparisonTableClass:
 
 
 
+
+
+
+
+
+
     def check_for_dependent_variable_errors(self):
         if not self.selected_dependent_variable:
             utils.show_message("Error", "No dependent variable selected")
@@ -1391,6 +1397,13 @@ class ComparisonTableClass:
             return True
         
         return False
+
+    def check_for_variable_handling_errors(self):
+        for var, option in self.variable_type_dict.items():
+            if var not in self.df.columns:
+                utils.show_message("Error", f"{var} is not in the data")
+                return True
+        
 
 
 
