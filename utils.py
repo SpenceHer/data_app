@@ -1,16 +1,18 @@
-from email import message
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from tkinter import ttk
 import pandas as pd
 import numpy as np
-import data_manager
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import time
 import tkinter.font as tkfont
+
+# LOCAL FILES
 import styles
 from styles import color_dict
+import data_library
 
 def show_message(title, message):
     messagebox.showinfo(title, message)
@@ -206,9 +208,10 @@ def create_editable_table(parent, df, style, table_name="", title="", height=Non
     columns = df.columns.tolist()
     table_treeview["columns"] = columns
 
+
     for column in columns:
         table_treeview.heading(column, text=column)
-        table_treeview.column(column, anchor="center")
+        table_treeview.column(column, anchor="center", stretch=False)
 
     for i, row in df.iterrows():
         values = ["" if pd.isnull(val) else val for val in row.tolist()]
@@ -281,6 +284,11 @@ def create_editable_table(parent, df, style, table_name="", title="", height=Non
 
 
 def save_editable_table(treeview, columns):
+    if not treeview:
+        return
+    if not columns:
+        return
+
     rows = []
     for child in treeview.get_children():
         row = treeview.item(child)["values"]
@@ -309,24 +317,6 @@ def save_editable_table(treeview, columns):
         new_df.to_excel(file_path, index=False)
     else:
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -8,12 +8,14 @@ import numpy as np
 from tkinter import font
 
 # LOCAL FILES
-import file_handling
-import data_manager
-import utils
-import visualize
-import edit
+import dataframe_management
+import dataframe_viewer
+import column_editor
+import data_visualization
+
+import data_library
 import styles
+import utils
 from styles import color_dict
 
 
@@ -23,10 +25,14 @@ screen_width = main_window.winfo_screenwidth() // 3
 screen_height = main_window.winfo_screenheight()
 main_window.title("DataFrame Editor")
 
-# main_window.geometry(f"{screen_width}x{screen_height}+{screen_width}+0")
-main_window.wm_state('zoomed')
+# Make window full screen
+# main_window.wm_state('zoomed')
 
+# Make window take left third of screen
+# main_window.geometry(f"{screen_width}x{screen_height}+0+0")
 
+# Make window take the center third of screen
+main_window.geometry(f"{screen_width}x{screen_height}+{screen_width}+0")
 
 
 
@@ -49,43 +55,45 @@ sub_button_frame.pack_propagate(True)
 content_frame = tk.Frame(main_window)
 content_frame.pack(side="top", fill=tk.BOTH, expand=True)
 
-dataframe_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
-file_handling_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
-editing_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
-visualize_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+
+dataframe_management_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+dataframe_viewer_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+column_editor_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
+data_visualization_content_frame = tk.Frame(content_frame, bg=color_dict["background_frame_bg"])
 
 # Add Buttons
 
 # Banner Frame
-style.configure("file_button.TButton", background="white", borderwidth=0, padding=0, font=styles.main_tabs_font)
-file_button = ttk.Button(button_frame, text="File", style="file_button.TButton")
-file_button.pack(side="left", fill="x", expand=True)
-file_button.config(command=lambda: file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
-
-style.configure("dataframe_view_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
-dataframe_view_button = ttk.Button(button_frame, text="Dataframe View", style="dataframe_view_button.TButton")
-dataframe_view_button.pack(side="left", fill="x", expand=True)
-dataframe_view_button.config(command=lambda: file_handling.setup_dataframe_view_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame, initialize=False))
-
-style.configure("edit_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
-edit_button = ttk.Button(button_frame, text="Edit Data", style="edit_button.TButton")
-edit_button.pack(side="left", fill="x", expand=True)
-edit_button.config(command=lambda: edit.setup_edit_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
-
-style.configure("visualize_button.TButton", background="gray", borderwidth=0, padding=0, font=styles.main_tabs_font)
-visualize_button = ttk.Button(button_frame, text="Visualize Data", style="visualize_button.TButton")
-visualize_button.pack(side="left", fill="x", expand=True)
-visualize_button.config(command=lambda: visualize.setup_visualize_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame))
+style.configure("dataframe_management_button.TButton", borderwidth=0, padding=0, font=styles.main_tabs_font)
+dataframe_management_button = ttk.Button(button_frame, text="Dataframe Management", style="dataframe_management_button.TButton")
+dataframe_management_button.pack(side="left", fill="x", expand=True)
+dataframe_management_button.config(command=lambda: dataframe_management.setup_dataframe_management_tab(style, sub_button_frame, dataframe_management_content_frame, dataframe_viewer_content_frame, column_editor_content_frame, data_visualization_content_frame))
 
 
+style.configure("dataframe_viewer_button.TButton", borderwidth=0, padding=0, font=styles.main_tabs_font)
+dataframe_viewer_button = ttk.Button(button_frame, text="Dataframe Viewer", style="dataframe_viewer_button.TButton")
+dataframe_viewer_button.pack(side="left", fill="x", expand=True)
+dataframe_viewer_button.config(command=lambda: dataframe_viewer.setup_dataframe_viewer_tab(style, sub_button_frame, dataframe_management_content_frame, dataframe_viewer_content_frame, column_editor_content_frame, data_visualization_content_frame, reset_tables=False))
+
+style.configure("column_editor_button.TButton", borderwidth=0, padding=0, font=styles.main_tabs_font)
+column_editor_button = ttk.Button(button_frame, text="Column Editor", style="column_editor_button.TButton")
+column_editor_button.pack(side="left", fill="x", expand=True)
+column_editor_button.config(command=lambda: column_editor.setup_edit_tab(style, sub_button_frame, dataframe_management_content_frame, dataframe_viewer_content_frame, column_editor_content_frame, data_visualization_content_frame))
+
+style.configure("data_visualization_button.TButton", borderwidth=0, padding=0, font=styles.main_tabs_font)
+data_visualization_button = ttk.Button(button_frame, text="Data Visualization", style="data_visualization_button.TButton")
+data_visualization_button.pack(side="left", fill="x", expand=True)
+data_visualization_button.config(command=lambda: data_visualization.setup_visualize_tab(style, sub_button_frame, dataframe_management_content_frame, dataframe_viewer_content_frame, column_editor_content_frame, data_visualization_content_frame))
 
 
 
-for button in ["file_button.TButton", "dataframe_view_button.TButton", "edit_button.TButton", "visualize_button.TButton"]:
-    style.map(button, background=[("active", "#3E2723")])
 
 
-file_handling.setup_file_tab(style, sub_button_frame, dataframe_content_frame, file_handling_content_frame, editing_content_frame, visualize_content_frame)
+for button in ["dataframe_management_button.TButton", "dataframe_viewer_button.TButton", "column_editor_button.TButton", "data_visualization_button.TButton"]:
+    style.map(button, background=[("active", "yellow")])
+
+
+dataframe_management.setup_dataframe_management_tab(style, sub_button_frame, dataframe_management_content_frame, dataframe_viewer_content_frame, column_editor_content_frame, data_visualization_content_frame)
 
 
 ################################################################################################################
