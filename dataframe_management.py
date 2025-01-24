@@ -281,9 +281,9 @@ class ManageDataframesClass():
 
     def open_file(self):
         # Upload a file. Only allow .csv and any excel files
-        # self.file_path = filedialog.askopenfilename(title="Select A File", filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx")])    
+        self.file_path = filedialog.askopenfilename(title="Select A File", filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx")])    
 
-        self.file_path = "/Users/spencersmith/Desktop/CODING/Projects/Data Science App/data/master_3.14.24.xlsx"
+        # self.file_path = "/Users/spencersmith/Desktop/CODING/Projects/Data Science App/data/master_3.14.24.xlsx"
 
         if not self.file_path:
             return
@@ -466,6 +466,7 @@ class CreateDataframeClass():
 
         data_library.add_tab_to_tab_dict("current_dataframe_management_tab", "create_new_dataframe")
 
+        self.selected_dataframe_name = None
         self.selected_dataframe = None
 
         utils.remove_frame_widgets(self.dataframe_management_content_frame)
@@ -546,11 +547,13 @@ class CreateDataframeClass():
 
     def on_dataframe_listbox_select(self, event):
         if self.dataframe_listbox.curselection():
-            self.selected_dataframe = self.dataframe_listbox.get(self.dataframe_listbox.curselection()[0])
+            self.selected_dataframe_name = self.dataframe_listbox.get(self.dataframe_listbox.curselection()[0])
+            self.selected_dataframe = self.df_dict[self.selected_dataframe_name]
+ 
 
-            self.dataframe_selection_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe}")
-            self.variable_selection_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe}")
-            self.dataframe_settings_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe}")
+            self.dataframe_selection_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe_name}")
+            self.variable_selection_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe_name}")
+            self.dataframe_settings_menu_label.configure(text=f"Dependent Variable: {self.selected_dataframe_name}")
 
         else:
             return
@@ -903,7 +906,7 @@ class CreateDataframeClass():
         # COLUMN DROPDOWN FOR CONDITION
         def on_combobox_select(event):
             column_selected = column_dropdown.get()
-            temp_df = self.df.copy().dropna(subset=[column_selected])
+            temp_df = self.selected_dataframe.copy().dropna(subset=[column_selected])
             is_numeric = pd.to_numeric(temp_df[column_selected], errors='coerce').notna().all()
             if is_numeric:
 
@@ -949,17 +952,19 @@ class CreateDataframeClass():
 
 
     def submit_dataframe_settings(self):
-        self.new_df = self.df.copy()
+        self.new_df = self.selected_dataframe.copy()
+        self.dataframe_name = self.dataframe_name_entry.get()
 
-        if self.dataframe_name_entry.get() == "":
+
+        if self.dataframe_name == "":
             utils.show_message("No Dataframe Name", "Please input a DATAFRAME NAME")
             return
-        if self.dataframe_name_entry.get() in self.df_dict.keys():
-            utils.show_message("Dataframe Name Already Exists", "Please input a different DATAFRAME NAME")
+        if self.dataframe_name in self.df_dict.keys():
+            utils.show_message("Dataframe Name Already Exists", "Dataframe Name Already Exists. Please input a different DATAFRAME NAME")
             return
 
 
-        self.dataframe_name = self.dataframe_name_entry.get()
+        
         condition_list_total = []
         condition_strings = []
 
@@ -984,7 +989,7 @@ class CreateDataframeClass():
                 if condition[0] == 'AND':
                     condition_strings.append("&")
                 elif condition[0] == 'OR':
-                    condition_strings.append("&")
+                    condition_strings.append("|")
                 continue
 
             condition_string = ''
@@ -992,17 +997,31 @@ class CreateDataframeClass():
                 condition_string = "|"
             if condition[0] == 'and':
                 condition_string = "&"
+            
+            if condition[1] == "":
+                utils.show_message("No Column Selected", "Please make sure all conditions have a column selected.")
+                return
+            if condition[2] == "":
+                utils.show_message("No Condition Selected", "Please make sure all conditions have a condition selected.")
+                return
 
             condition_string = condition_string + "("
             condition_string = condition_string + condition[1]
             condition_string = condition_string + self.condition_signs_dict[condition[2]]
 
+            if condition[3] == "":
+                utils.show_message("No Value Selected", "Error with Conditions. Please make sure all conditions have a value selected.")
+                return
+
             if condition[3] == 'USER CHOICE':
+                if condition[4] == "":
+                    utils.show_message("No Value Entered", "No value entered for USER CHOICE. Please enter a value.")
+                    return
                 try:
-                    self.df[condition[1]] = self.df[condition[1]].astype(float)
+                    self.selected_dataframe[condition[1]] = self.selected_dataframe[condition[1]].astype(float)
                     condition_string = condition_string + str(float(condition[4]))
                 except:
-                    self.df[condition[1]] = self.df[condition[1]].astype(object)
+                    self.selected_dataframe[condition[1]] = self.selected_dataframe[condition[1]].astype(object)
                     condition_string = condition_string + "'" + condition[4] + "'"
 
             elif condition[3] == "[MISSING VALUE]":
@@ -1034,6 +1053,8 @@ class CreateDataframeClass():
 
 
         final_condition_string = ''.join(condition_strings)
+        
+        print(final_condition_string)
 
         self.new_df = self.new_df.loc[self.new_df.eval(final_condition_string)]
 
@@ -1057,15 +1078,19 @@ class CreateDataframeClass():
         self.dataframe_management_content_frame.update_idletasks()
 
     def switch_to_variable_selection_frame(self):
-        if not self.selected_dataframe:
-            return
-        
-        self.dataframe_selection_frame.pack_forget()
-        self.dataframe_settings_frame.pack_forget()
-        self.variable_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+        if self.selected_dataframe is not None:
 
-        utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
-        self.dataframe_management_content_frame.update_idletasks()
+            self.dataframe_selection_frame.pack_forget()
+            self.dataframe_settings_frame.pack_forget()
+            self.variable_selection_frame.pack(fill=tk.BOTH, expand=True, padx=17, pady=17)
+
+            utils.bind_mousewheel_to_frame(self.variable_selection_inner_frame, self.variable_selection_canvas, True)
+            self.dataframe_management_content_frame.update_idletasks()
+
+            self.available_var_search_entry.focus_set()
+        else:
+            utils.show_message("No Dataframe Selected", "Please select a dataframe first.")
+            return
 
     def switch_to_dataframe_settings_frame(self):
         if not self.selected_variables:
@@ -1085,3 +1110,5 @@ class CreateDataframeClass():
 
         utils.bind_mousewheel_to_frame(self.dataframe_settings_inner_frame, self.dataframe_settings_canvas, True)
         self.dataframe_management_content_frame.update_idletasks()
+
+        self.dataframe_name_entry.focus_set()

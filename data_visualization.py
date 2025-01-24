@@ -68,7 +68,7 @@ def setup_visualize_tab(style, sub_button_frame, dataframe_management_content_fr
     style.configure("dataframe_management_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
     style.configure("dataframe_viewer_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
     style.configure("column_editor_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
-    style.configure("visualize_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
+    style.configure("data_visualization_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
 
     # CHECK FOR CURRRENT TAB
     tab_dict = data_library.get_tab_dict()
@@ -2460,6 +2460,7 @@ class RegressionAnalysisClass:
         utils.remove_frame_widgets(self.results_display_frame)
 
         if self.selected_regression == "Logistic Regression":
+
             self.logistic_regression()
 
         elif self.selected_regression == "Linear Regression":
@@ -2482,15 +2483,7 @@ class RegressionAnalysisClass:
                     model_string = model_string + f"{variable} + "
                 elif data_type == 'Categorical':
                     self.clean_df[variable] = self.clean_df[variable].astype(str)
-
-                    # Check for quotation marks (" or ') in the variable name, variable column values, and reference value
-                    if "'" in variable or '"' in variable:
-                       utils.show_message("Error", f"Variable name {variable} contains quotation marks. There may be an issue with the results")
-                    if any("'" in value or '"' in value for value in self.clean_df[variable].unique()):
-                        utils.show_message("Error", f"Variable values in {variable} contain quotation marks. There may be an issue with the results")
-                    if "'" in self.reference_variable_dict[variable] or '"' in self.reference_variable_dict[variable]:
-                        utils.show_message("Error", f"Reference value for {variable} contains quotation marks. There may be an issue with the results")
-                    
+                   
                     model_string = model_string + f"C({variable}, Treatment('{self.reference_variable_dict[variable]}')) + "
 
 
@@ -2839,10 +2832,13 @@ class RegressionAnalysisClass:
             except:
                 utils.show_message("error message", f"Make sure all values are NUMERICAL")
                 raise
-        try:
-            self.run_analysis()
-        except:
-            utils.show_message("error message", "An error occured during analysis. Check your data and try again")
+
+
+        self.run_analysis()
+        # try:
+        #     self.run_analysis()
+        # except Exception as e:
+        #     utils.show_message("error message", f"An error occured during analysis: {e}")
 
 
         self.indedependent_variables_frame.pack_forget()
@@ -2890,7 +2886,17 @@ class RegressionAnalysisClass:
         if not self.selected_regression:
             utils.show_message("error message", "Please select a regression type")
             return True
-    
+
+        for variable in self.selected_independent_variables:
+            # Check for quotation marks (" or ') in the variable name, variable column values, and reference value
+            if "'" in variable or '"' in variable:
+                utils.show_message("Error", f"ERROR: Variable name {variable} contains quotation marks. Please remove them.")
+                return True
+
+            if any("'" in str(value) or '"' in str(value) for value in self.df[variable].unique()):
+                utils.show_message("Error", f"ERROR: Variable values in {variable} contain quotation marks. Please remove them.")
+                return True
+            
         return False
 
 
@@ -2912,6 +2918,17 @@ class RegressionAnalysisClass:
                 except:
                     utils.show_message("error message", f"{variable} is not a continuous variable")
                     return True
+
+            # Check for quotation marks (" or ') in the variable name, variable column values, and reference value
+            if "'" in variable or '"' in variable:
+                utils.show_message("Error", f"ERROR: Variable name {variable} contains quotation marks. Please remove them.")
+                return True
+
+            if any("'" in str(value) or '"' in str(value) for value in self.df[variable].unique()):
+                utils.show_message("Error", f"ERROR: Variable values in {variable} contain quotation marks. Please remove them.")
+                return True
+
+
 
         return False
 
@@ -2953,7 +2970,7 @@ class RegressionAnalysisClass:
 ####                                                                                                        ####
 ####                                                                                                        ####
 ########################################################################################                    ####
-########################################################################################                    ####
+########################################################################################                      ####
 ########################################################################################                    ####
 ########################################################################################                    ####
 ########################################################################################                    ####
@@ -3179,21 +3196,21 @@ class CreatePlotClass():
 
     def display_scatter_plot_settings(self):
 
-        self.plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
-        self.plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+        self.axis_selection_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        self.axis_selection_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
 
-        self.plot_settings_subframe = tk.Frame(self.plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
-        self.plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+        self.axis_selection_subframe = tk.Frame(self.axis_selection_subframe_border, bg=color_dict["sub_frame_bg"])
+        self.axis_selection_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.plot_settings_frame_label = ttk.Label(self.plot_settings_subframe, text="Scatter Plot Settings", style="sub_frame_header.TLabel")
-        self.plot_settings_frame_label.pack(side=tk.TOP, pady=10)
+        self.axis_selection_frame_label = ttk.Label(self.axis_selection_subframe, text="Choose X and Y Axis for Scatter Plot", style="sub_frame_header.TLabel")
+        self.axis_selection_frame_label.pack(side=tk.TOP, pady=10)
 
-        separator = ttk.Separator(self.plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        separator = ttk.Separator(self.axis_selection_subframe, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.TOP, fill=tk.X, padx=200)
 
         ############################################################################################################
 
-        self.column_choice_frame = tk.Frame(self.plot_settings_subframe, bg=color_dict["sub_frame_bg"])
+        self.column_choice_frame = tk.Frame(self.axis_selection_subframe, bg=color_dict["sub_frame_bg"])
         self.column_choice_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
     
         ###################### X AXIS ######################
@@ -3281,6 +3298,147 @@ class CreatePlotClass():
             self.y_axis_variable_listbox.selection_set(index)
             self.y_axis_variable_listbox.yview(index)
         ###################### Y AXIS ######################
+
+        # ############################################################################################################
+
+        # scatter_plot_settings_subframe_border = tk.Frame(self.plot_settings_inner_frame, bg=color_dict["sub_frame_border"])
+        # scatter_plot_settings_subframe_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=8, pady=8)
+
+        # scatter_plot_settings_subframe = tk.Frame(scatter_plot_settings_subframe_border, bg=color_dict["sub_frame_bg"])
+        # scatter_plot_settings_subframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+        # scatter_plot_settings_frame_label = ttk.Label(scatter_plot_settings_subframe, text="Scatter Plot Settings", style="sub_frame_header.TLabel")
+        # scatter_plot_settings_frame_label.pack(side=tk.TOP, pady=10)
+
+        # separator = ttk.Separator(scatter_plot_settings_subframe, orient="horizontal", style="Separator.TSeparator")
+        # separator.pack(side=tk.TOP, fill=tk.X, padx=200)
+
+        # self.scatter_plot_settings_frame = tk.Frame(scatter_plot_settings_subframe, bg=color_dict["sub_frame_bg"])
+        # self.scatter_plot_settings_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # ################### GROUP BY VARIABLE #######################
+        # self.group_by_variable_frame = tk.Frame(self.scatter_plot_settings_frame, bg=color_dict["sub_frame_bg"])
+        # self.group_by_variable_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # # Group by a categorical variable
+        # self.group_by_variable_label = ttk.Label(self.group_by_variable_frame, text="Group By Variable", style="sub_frame_sub_header.TLabel")
+        # self.group_by_variable_label.pack(side=tk.TOP, pady=10)
+
+        # separator = ttk.Separator(self.group_by_variable_frame, orient="horizontal", style="Separator.TSeparator")
+        # separator.pack(side=tk.TOP, fill=tk.X, padx=200, pady=10)
+
+        # self.group_by_variable_button_frame = tk.Frame(self.group_by_variable_frame, bg=color_dict["sub_frame_bg"])
+        # self.group_by_variable_button_frame.pack(side=tk.TOP)
+
+        # self.group_by_variable_yes_button = ttk.Button(self.group_by_variable_button_frame, text="Yes", style="inactive_radio_button.TButton", command=lambda: self.toggle_group_by_button_style("Yes"))
+        # self.group_by_variable_yes_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # self.group_by_variable_no_button = ttk.Button(self.group_by_variable_button_frame, text="No", style="inactive_radio_button.TButton", command=lambda: self.toggle_group_by_button_style("No"))
+        # self.group_by_variable_no_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # self.group_by_var_search_var = tk.StringVar()
+        # self.group_by_var_search_var.trace("w", self.update_group_by_variable_listbox)
+
+        # self.group_by_var_search_entry = tk.Entry(self.group_by_variable_frame, textvariable=self.group_by_var_search_var, font=styles.entrybox_small_font)
+        # self.group_by_var_search_entry.pack(side=tk.TOP, pady=10)
+
+        # self.group_by_variable_listbox = tk.Listbox(self.group_by_variable_frame, selectmode=tk.SINGLE, font=styles.listbox_font, exportselection=False, bg=color_dict["listbox_bg"],
+        #                 fg=color_dict["listbox_fg"],
+        #                 highlightbackground=color_dict["listbox_highlight_bg"],
+        #                 highlightcolor=color_dict["listbox_highlight_color"],
+        #                 selectbackground=color_dict["listbox_select_bg"],
+        #                 selectforeground=color_dict["listbox_select_fg"])
+        # self.group_by_variable_listbox.pack(side=tk.TOP, padx=100, pady=10)
+        # self.group_by_variable_listbox.bind("<Enter>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, False))
+        # self.group_by_variable_listbox.bind("<Leave>",lambda e: utils.bind_mousewheel_to_frame(self.plot_settings_inner_frame, self.plot_settings_canvas, True))
+
+        # # dynamic selected variable for group by
+        # self.selected_group_by_variable_label = ttk.Label(self.group_by_variable_frame, text="No Variable Selected", style="sub_frame_sub_header.TLabel")
+        # self.selected_group_by_variable_label.pack(side=tk.TOP, pady=10)
+
+        # self.group_by_variable_values_frame = tk.Frame(self.group_by_variable_frame, bg=color_dict["sub_frame_bg"])
+        # self.group_by_variable_values_frame.pack(side=tk.TOP)
+
+
+
+        # for column in sorted(self.df.columns, key=str.lower):
+        #     self.group_by_variable_listbox.insert(tk.END, column)
+
+        # def on_group_by_variable_listbox_select(event):
+        #     if self.group_by_variable_listbox.curselection():
+        #         selected_index = self.group_by_variable_listbox.curselection()[0]
+        #         self.selected_group_by_variable = self.group_by_variable_listbox.get(selected_index)
+        #         data_library.set_scatter_plot_group_by_variable(self.selected_group_by_variable)
+        #         self.selected_group_by_variable_label.config(text=f"Group By Variable: {self.selected_group_by_variable}")
+        #         self.add_group_by_variable_values_frames()
+        
+        # self.group_by_variable_listbox.bind("<<ListboxSelect>>", on_group_by_variable_listbox_select)
+
+        # if data_library.get_scatter_plot_group_by_variable():
+        #     self.selected_group_by_variable_label.config(text=f"Group By Variable: {data_library.get_scatter_plot_group_by_variable()}")
+        #     self.group_by_variable_listbox.selection_clear(0, tk.END)
+        #     items = list(self.group_by_variable_listbox.get(0, tk.END))
+        #     index = items.index(data_library.get_scatter_plot_group_by_variable())
+        #     self.group_by_variable_listbox.selection_set(index)
+        #     self.group_by_variable_listbox.yview(index)
+
+
+        # if data_library.get_scatter_plot_group_by_selection() == "Yes":
+        #     self.toggle_group_by_button_style("Yes")
+        # else:
+        #     self.toggle_group_by_button_style("No")
+
+
+        ################### GROUP BY VARIABLE #######################
+
+
+    # def add_group_by_variable_values_frames(self):
+    #     utils.remove_frame_widgets(self.group_by_variable_values_frame)
+
+    #     # Get unique values and change nan to "Missing Value"
+    #     unique_values = self.df[self.selected_group_by_variable].unique()
+    #     unique_values = ["Missing Value" if pd.isnull(value) else value for value in unique_values]
+
+    #     checkbox_value_list = data_library.get_scatter_plot_group_by_variable_values()
+
+
+    #     for value in unique_values:
+    #         value_frame = tk.Frame(self.group_by_variable_values_frame, bg=color_dict["sub_frame_bg"])
+    #         value_frame.pack(side=tk.TOP)
+
+    #         # Make each value in the selected variables column a check box so the user can choose which values to plot
+    #         value_checkbox = ttk.Checkbutton(value_frame, text=value, style="sub_frame_sub_header.TCheckbutton")
+    #         value_checkbox.pack(side=tk.LEFT, padx=10, pady=10)
+
+
+
+
+    # def update_group_by_variable_listbox(self, *args):
+    #     search_term = self.group_by_var_search_var.get().lower()
+    #     self.group_by_variable_listbox.delete(0, tk.END)
+    #     for column in sorted(self.df.columns, key=str.lower):
+    #         if search_term in column.lower():
+    #             self.group_by_variable_listbox.insert(tk.END, column)
+
+    # def toggle_group_by_button_style(self, selected):
+    #     if selected == "Yes":
+    #         self.group_by_variable_button_selection = "Yes"
+    #         data_library.set_scatter_plot_group_by_selection("Yes")
+    #         self.group_by_variable_yes_button.configure(style="active_radio_button.TButton")
+    #         self.group_by_variable_no_button.configure(style="inactive_radio_button.TButton")
+    #         self.group_by_var_search_entry.configure(state="normal")
+    #         self.group_by_variable_listbox.configure(state="normal")
+    #         self.group_by_selection = "Yes"
+    #         self.group_by_var_search_entry.focus_set()
+
+    #     elif selected == "No":
+    #         self.group_by_variable_button_selection = "No"
+    #         data_library.set_scatter_plot_group_by_selection("No")
+    #         self.group_by_variable_yes_button.configure(style="inactive_radio_button.TButton")
+    #         self.group_by_variable_no_button.configure(style="active_radio_button.TButton")
+    #         self.group_by_var_search_entry.configure(state="disabled")
+    #         self.group_by_variable_listbox.configure(state="disabled")
+    #         self.group_by_selection = "No"
 
 
     def on_y_axis_variable_listbox_select(self, event):
@@ -3717,7 +3875,7 @@ class CreatePlotClass():
         fig = Figure(figsize=(8, 7))
         ax = fig.add_subplot(111)  # Add subplot to the figure
 
-        sns.scatterplot(data=clean_df, x=self.selected_x_axis_variable, y=self.selected_y_axis_variable, ax=ax)
+        sns.scatterplot(data=clean_df, x=self.selected_x_axis_variable, y=self.selected_y_axis_variable, ax=ax, color='black')
 
         # Calculate regression line parameters
         slope, intercept, r_value, p_value, _ = stats.linregress(clean_df[self.selected_x_axis_variable], clean_df[self.selected_y_axis_variable])
@@ -3725,7 +3883,7 @@ class CreatePlotClass():
         line = slope * clean_df[self.selected_x_axis_variable] + intercept
 
         # Add regression line to the plot
-        sns.lineplot(x=clean_df[self.selected_x_axis_variable], y=line, color='r', ax=ax)
+        sns.lineplot(x=clean_df[self.selected_x_axis_variable], y=line, color='gray', ax=ax)
 
         # Add R-squared and p-value to the plot
         ax.text(0.05, 0.95, f"R-squared: {r_value**2:.4f}\nP-value: {p_value:.4f}", transform=ax.transAxes)
@@ -3956,6 +4114,20 @@ class CreatePlotClass():
     def switch_to_plot_display_frame(self):
 
         if self.selected_plot == "Scatter Plot":
+            if self.selected_x_axis_variable == self.selected_y_axis_variable:
+                utils.show_message("Error", "X and Y AXIS VARIABLES must be different")
+                return
+            
+            # if self.group_by_variable_button_selection == "Yes":
+            #     if not self.selected_group_by_variable:
+            #         utils.show_message("Error", "GROUP BY VARIABLE must be selected when choosing 'Yes'")
+            #         return
+            #     # make sure at least one value is selected
+            #     if not self.selected_group_by_values:
+            #         utils.show_message("Error", "At least one value must be selected for the GROUP BY VARIABLE")
+            #         return
+            
+
             self.fig = self.create_scatter_plot()
             self.plot_display_label.config(text="Scatter Plot")
 

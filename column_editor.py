@@ -30,7 +30,7 @@ def setup_edit_tab(style, sub_button_frame, dataframe_management_content_frame, 
     style.configure("dataframe_management_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
     style.configure("dataframe_viewer_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
     style.configure("column_editor_button.TButton", background=color_dict["active_main_tab_bg"], foreground=color_dict["active_main_tab_txt"])
-    style.configure("visualize_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
+    style.configure("data_visualization_button.TButton", background=color_dict["inactive_main_tab_bg"], foreground=color_dict["inactive_main_tab_txt"])
 
     # CHECK FOR CURRRENT TAB
     tab_dict = data_library.get_tab_dict()
@@ -1687,7 +1687,7 @@ class CreateNewVariableClass:
         self.add_new_value_button = ttk.Button(self.condition_buttons_frame, text='Add New Value', command=self.add_value_frame, style="large_button.TButton")
         self.add_new_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        self.remove_value_button = ttk.Button(self.condition_buttons_frame, text='Remove Value', command=self.remove_value_frame, style="large_button.TButton")
+        self.remove_value_button = ttk.Button(self.condition_buttons_frame, text='Remove Newest Value', command=self.remove_value_frame, style="large_button.TButton")
         self.remove_value_button.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         separator = ttk.Separator(self.conditions_subframe, orient="horizontal", style="Separator.TSeparator")
@@ -1696,7 +1696,6 @@ class CreateNewVariableClass:
 
         # CONDITIONS OPTIONS FRAME
         self.value_frames = []
-        self.condition_frames = []
         self.condition_signs = ['Equals', 'Does Not Equal', 'Less Than', 'Greater Than', 'Less Than or Equal To', 'Greater Than or Equal To']
         self.condition_signs_dict = {'Equals':'==',
                                      'Does Not Equal':'!=',
@@ -1808,11 +1807,11 @@ class CreateNewVariableClass:
 
 
 
-
-
         # NEW VALUE FRAME
         new_value_frame = tk.Frame(self.conditions_subframe, bg=color_dict["sub_frame_bg"])
         new_value_frame.pack(pady=10, side=tk.TOP)
+
+        new_value_frame_number = len(self.value_frames)
 
         # FRAME WHERE USER INPUTS WHAT THE VALUE WILL BE BASED ON THE CONDITIONS BELOW
         value_entry_frame = tk.Frame(new_value_frame, bg=color_dict["sub_frame_bg"])
@@ -1824,6 +1823,17 @@ class CreateNewVariableClass:
         value_entry = tk.Entry(value_entry_frame, font=styles.entrybox_large_font)
         value_entry.pack(side=tk.LEFT)
         value_entry.focus_set()
+
+
+        def remove_value_frame(new_value_frame_number):
+            if self.value_frames:
+                frame = self.value_frames.pop(new_value_frame_number)
+                frame.destroy()
+
+
+        delete_value_button = ttk.Button(value_entry_frame, text='Delete Value', command=lambda: remove_value_frame(new_value_frame_number), style="large_button.TButton")
+        delete_value_button.pack(side=tk.LEFT, padx=10, pady=10)
+
 
         # FRAME WHERE THE USER CAN ADD OR REMOVE MORE CONDITIONS
         condition_handling_frame = tk.Frame(new_value_frame, bg=color_dict["sub_frame_bg"])
@@ -1844,6 +1854,10 @@ class CreateNewVariableClass:
         separator = ttk.Separator(new_value_frame, orient="horizontal", style="Separator.TSeparator")
         separator.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=10)
 
+
+
+
+
         self.value_frames.append(new_value_frame)
 
 
@@ -1861,16 +1875,7 @@ class CreateNewVariableClass:
     def get_conditional_values(self):
         self.new_df = self.df.copy()
 
-        self.column_name = self.variable_name_entry.get()
-
-        # Replace > and < with text that can be used in the column name
-        self.column_name = re.sub(r'>', 'greater_than', self.column_name)
-        self.column_name = re.sub(r'<', 'less_than', self.column_name)
-        self.column_name = re.sub(r'\W+', '_', self.column_name.replace(' ', '_')).strip('_')
-        # make all multiple underscores into single underscores
-        self.column_name = re.sub(r'_+', '_', self.column_name)
-        # make name not have leading or ending underscores
-        self.column_name = self.column_name.strip('_')
+        self.new_column_name = self.variable_name_entry.get()
 
 
         for frame in self.value_frames:
@@ -1880,6 +1885,7 @@ class CreateNewVariableClass:
 
 
             for subframe_number, subframe in enumerate(frame.winfo_children(), start=1):
+
 
                 condition_list = []
 
@@ -1902,12 +1908,13 @@ class CreateNewVariableClass:
 
                 condition_list_total.append(condition_list)
 
+
             for condition in condition_list_total:
                 if len(condition) == 1:
                     if condition[0] == 'AND':
                         condition_strings.append("&")
                     elif condition[0] == 'OR':
-                        condition_strings.append("&")
+                        condition_strings.append("|")
                     continue
 
                 condition_string = ''
@@ -1915,6 +1922,7 @@ class CreateNewVariableClass:
                     condition_string = "|"
                 if condition[0] == 'and':
                     condition_string = "&"
+
 
                 condition_string = condition_string + "("
                 condition_string = condition_string + condition[1]
@@ -1961,26 +1969,14 @@ class CreateNewVariableClass:
 
             final_condition_string = ''.join(condition_strings)
 
-            print(f"\n\n\n\nCONDITION STRING: {final_condition_string}\n\n\n\n")
+            self.new_df.loc[self.new_df.eval(final_condition_string), self.new_column_name] = condition_value
 
-            self.new_df.loc[self.new_df.eval(final_condition_string), self.column_name] = condition_value
 
     def get_equation_values(self):
         new_df = self.df.copy()
 
-        self.column_name = self.variable_name_entry.get()
+        self.new_column_name = self.variable_name_entry.get()
 
-        # Replace > and < with text that can be used in the column name
-        self.column_name = re.sub(r'>', 'greater_than', self.column_name)
-        self.column_name = re.sub(r'<', 'less_than', self.column_name)
-        self.column_name = re.sub(r'\W+', '_', self.column_name.replace(' ', '_')).strip('_')
-        # make all multiple underscores into single underscores
-        self.column_name = re.sub(r'_+', '_', self.column_name)
-        # make name not have leading or ending underscores
-        self.column_name = self.column_name.strip('_')
-
-
-        # remove all 
 
         equation_string = ''
 
@@ -1998,28 +1994,10 @@ class CreateNewVariableClass:
                         break
 
         print(f"\n\n\n\nEQUATION STRING: {equation_string}\n\n\n\n")
-        new_df[self.column_name] = new_df.eval(equation_string)
+        new_df[self.new_column_name] = new_df.eval(equation_string)
         return new_df
             
                 
-
-
-
-
-
-    def is_valid_column_name(self, column_name):
-
-        # Define a regular expression pattern for a valid column name
-        pattern = r'^[a-zA-Z0-9_\-]+$'
-
-        if re.match(pattern, column_name):
-            try:
-                df = pd.DataFrame(columns=[column_name])
-                return True
-            except ValueError:
-                return False
-        else:
-            return False
 
 ################################################################################################################
 
@@ -2224,22 +2202,42 @@ class CreateNewVariableClass:
         for widget in self.results_display_frame.winfo_children():
             widget.destroy()
 
-        self.new_df.loc[(self.new_df[self.column_name]=='n') | (self.new_df[self.column_name]=='nan'), self.column_name] = np.nan
-        category_counts = self.new_df[self.column_name].value_counts()
-        fig, ax = plt.subplots(figsize=(8, 6))
-        category_counts.plot(kind='bar', color='skyblue', ax=ax)
+        self.new_df.loc[(self.new_df[self.new_column_name]=='n') | (self.new_df[self.new_column_name]=='nan'), self.new_column_name] = np.nan
 
-        ax.set_xlabel('Value')
-        ax.set_ylabel('Frequency')
+        if self.selected_variable_type == "Conditional":
+            category_counts = self.new_df[self.new_column_name].value_counts()
+            fig, ax = plt.subplots(figsize=(8, 6))
+            category_counts.plot(kind='bar', color='skyblue', ax=ax)
 
-        
+            ax.set_xlabel('Value')
+            ax.set_ylabel('Frequency')
 
-        plt.xticks(rotation=90)
-        plt.tight_layout()
+            plt.xticks(rotation=90)
+            plt.tight_layout()
 
-        canvas = FigureCanvasTkAgg(fig, master=self.results_display_frame)
-        canvas_widget = canvas.get_tk_widget()
-        canvas_widget.pack(fill=tk.X)
+            canvas = FigureCanvasTkAgg(fig, master=self.results_display_frame)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill=tk.X)
+
+        elif self.selected_variable_type == "Equation":
+            # Plot histogram with 10 bins
+            fig, ax = plt.subplots(figsize=(8, 6))
+            self.new_df[self.new_column_name].hist(bins=10, ax=ax, color='skyblue', edgecolor='black')
+
+            # remove grid lines
+            ax.grid(False)
+
+            #show lines between bins
+            ax.grid(True, axis='y', linestyle='--', alpha=0.5)
+
+            ax.set_xlabel('Value')
+            ax.set_ylabel('Frequency')
+
+            plt.tight_layout()
+
+            canvas = FigureCanvasTkAgg(fig, master=self.results_display_frame)
+            canvas_widget = canvas.get_tk_widget()
+            canvas_widget.pack(fill=tk.X)
 
 
     def update_dataframe(self):
@@ -2264,8 +2262,6 @@ class CreateNewVariableClass:
         utils.show_message("Dataframe Update Status", "Database Has Been Updated")
 
 
-
-
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
     ###################################################################################################################################################################################################
@@ -2282,6 +2278,13 @@ class CreateNewVariableClass:
         self.variable_search_entry.focus_set()
 
     def switch_to_variable_type_selection_frame(self):
+
+        # Check if any variables have been selected
+        if len(self.selected_variables) == 0:
+            utils.show_message("Error", "Please select at least one variable")
+            return
+
+        # Pack the variable type selection frame and bind mouse wheel scrolling
         self.variable_selection_frame.pack_forget()
         self.conditions_frame.pack_forget()
         self.finalize_frame.pack_forget()
@@ -2339,31 +2342,42 @@ class CreateNewVariableClass:
 
     def switch_to_finalize_frame(self):
 
-        if not self.variable_name_entry.get():
-            utils.show_message("Error", "Invalid Variable Name")
+        if self.variable_name_check() == False:
+            utils.show_message("Error", f"{self.error_message}")
             return
-        if self.variable_name_entry.get().lower() in self.df.columns:
-            same_column_name = utils.prompt_yes_no(f"CAUTION: The column, '{self.variable_name_entry.get().lower()}' is already in the dataframe. Do you want to replace the old column?")
-            if same_column_name:
-                self.df = self.df.drop(self.variable_name_entry.get(), axis=1)
-            else:
-                return
-        if not self.is_valid_column_name(self.variable_name_entry.get()):
-            utils.show_message("Error", "Column name has been changed remove special characters and spaces")
 
-            
+
         try:
             if self.selected_variable_type == "Conditional":
-                self.get_conditional_values()
-                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.column_name}")
-                self.plot_new_column()
-            elif self.selected_variable_type == "Equation":
-                for var in self.selected_variables:
-                    if var in self.df.columns:
-                        self.df[var] = self.df[var].astype(float)
 
+                if len(self.value_frames) == 0:
+                    utils.show_message("Error", "Please add at least one new value")
+                    return
+
+                if self.conditions_check() == False:
+                    utils.show_message("Error", f"{self.error_message}")
+                    return
+
+                self.get_conditional_values()
+
+                # Check if the new column is empty with the conditions                
+                if len(self.new_df[self.new_column_name].unique()) == 1 and np.isnan(self.new_df[self.new_column_name].unique()[0]):
+                    utils.show_message("Error", "New Column is empty with these conditions. Please adjust conditions.")
+                    return
+
+                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.new_column_name}")
+
+
+                self.plot_new_column()
+
+
+            elif self.selected_variable_type == "Equation":
+                if self.equation_check() == False:
+                    utils.show_message("Error", f"{self.error_message}")
+                    return
+                
                 self.new_df = self.get_equation_values()
-                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.column_name}")
+                self.finalize_display_label.configure(text=f"Frequency Bar Chart of {self.new_column_name}")
                 self.plot_new_column()
 
         except:
@@ -2378,3 +2392,100 @@ class CreateNewVariableClass:
         utils.bind_mousewheel_to_frame(self.data_display_inner_frame, self.data_display_canvas, True)
 
         self.column_editor_content_frame.update_idletasks()
+
+
+
+
+
+
+
+
+
+    def equation_check(self):
+        for frame in self.equation_frames:
+            if frame.winfo_children()[0].winfo_class() == "TCombobox":
+                # Make sure that all comboboxes have a selection
+                if not frame.winfo_children()[0].get():
+                    self.error_message = "At least one box is missing a selection."
+                    return False
+                if frame.winfo_children()[0].get() == "USER CHOICE" and not frame.winfo_children()[1].get():
+                    self.error_message = "USER CHOICE selection is missing a value."
+                    return False
+            if frame.winfo_children()[0].winfo_class() == "TButton":
+                # Check if one of the symbols has been selected
+                for button in frame.winfo_children():
+                    if button.cget("style") == "active_radio_button.TButton":
+                        break
+                else:
+                    self.error_message = "At least one equation symbol is missing a selection."
+                    return False
+
+            
+
+
+
+
+
+    def conditions_check(self):
+        for value_frame in self.value_frames:
+            for subframe_number, subframe in enumerate(value_frame.winfo_children(), start=1):
+                if subframe_number == 1:
+                    condition_value = subframe.winfo_children()[1].get()
+                    if not condition_value:
+                        self.error_message = "New value cannot be empty."
+                        return False
+                    # cant have quotations in the new value
+                    if "'" in condition_value or '"' in condition_value:
+                        self.error_message = "New value cannot contain quotes."
+                        return False
+                    continue
+                
+
+                if subframe_number == 3:
+                    if not subframe.winfo_children()[1].get():
+                        self.error_message = "Missing a variable selection in the condtions."
+                        return False
+                    if not subframe.winfo_children()[2].get():
+                        self.error_message = "Missing a condition sign in the condtions."
+                        return False
+                    if not subframe.winfo_children()[3].get():
+                        self.error_message = "Missing a value selection in the condtions."
+                        return False
+                    if subframe.winfo_children()[3].get() == "USER CHOICE" and not subframe.winfo_children()[4].get():
+                        self.error_message = "Missing a user value in a conditino with USER CHOICE selected."
+                        return False
+                    if subframe.winfo_children()[3].get() == "[MISSING VALUE]" and subframe.winfo_children()[2].get() not in {"Equals", "Does Not Equal"}:
+                        self.error_message = "Missing value condition can only be used with 'Equals' or 'Does Not Equal'."
+                        return False
+                        
+        return True
+                
+
+
+
+    def variable_name_check(self):
+        variable_name = self.variable_name_entry.get()
+        # Check if the variable name is empty
+        if not variable_name:
+            self.error_message = "Variable name cannot be empty."
+            return False
+        
+        # Check if variable name is already in the dataframe
+        elif variable_name in self.df.columns:
+            self.error_message = f"Variable name '{variable_name}' already exists in the dataframe."
+            return False
+
+        # Check if variable name has any spaces in it
+        elif " " in variable_name:
+            self.error_message = "Variable name cannot contain spaces."
+            return False
+
+        # Check if the variable name has special characters other than letters and numbers and underscores
+        elif not re.match(r'^\w+$', variable_name):
+            self.error_message = "Variable name can only contain letters, numbers, and underscores."
+            return False
+        
+        else:
+            return True
+
+        
